@@ -1,0 +1,6 @@
+{
+  "name": "HeatShield AI",
+  "description": "SIH26083 Tactical Heatwave Early Warning, Bio-Telemetry, Triage & Municipal Cooling Operations Platform",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
