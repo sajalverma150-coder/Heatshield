@@ -19,7 +19,9 @@ import {
   Layers,
   Sparkles,
   TrendingUp,
-  Navigation
+  Navigation,
+  RefreshCw,
+  Radio
 } from 'lucide-react';
 import { WeatherTelemetry, UserHealthProfile, CoolingFacility } from '../../types';
 import { ASSET_IMAGES } from '../../data/mockData';
@@ -40,6 +42,10 @@ interface LiveTelemetryViewProps {
   onSimulateInactivity?: () => void;
   onOpenHealthReport?: () => void;
   onOpenPushSettings?: () => void;
+  isLiveApiLoading?: boolean;
+  dataSourceMode?: 'live_api' | 'imd_heatwave';
+  onToggleDataSourceMode?: (mode: 'live_api' | 'imd_heatwave') => void;
+  onRefreshTelemetry?: () => void;
 }
 
 export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
@@ -56,6 +62,10 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
   onSimulateInactivity,
   onOpenHealthReport,
   onOpenPushSettings,
+  isLiveApiLoading = false,
+  dataSourceMode = 'live_api',
+  onToggleDataSourceMode,
+  onRefreshTelemetry,
 }) => {
   const [selectedPointIndex, setSelectedPointIndex] = useState<number>(3); // 14:00 peak
   const [countdownText, setCountdownText] = useState<string>('02h 45m 12s');
@@ -101,25 +111,69 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
       
       {/* City & Live GPS Telemetry Status Strip */}
       {selectedCity && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 px-4 py-2.5 rounded-xl bg-[#0b1326] border border-[#2d3449] text-xs">
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#0b1326] border border-[#2d3449] text-xs shadow-lg">
+          <div className="flex flex-wrap items-center gap-2 text-slate-300">
+            <span className={`w-2.5 h-2.5 rounded-full ${isLiveApiLoading ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 animate-pulse'}`} />
             <span className="font-mono text-slate-400">Monitoring Station:</span>
-            <strong className="text-white font-semibold">{selectedCity.name}, {selectedCity.state}</strong>
+            <strong className="text-white font-semibold text-sm">{selectedCity.name}, {selectedCity.state}</strong>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#171f33] text-orange-400 border border-orange-500/30">
               {selectedCity.climateZone}
             </span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+              <Radio className="w-2.5 h-2.5 text-emerald-400" />
+              <span>{weather.lastUpdated}</span>
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[11px] font-mono text-slate-400 hidden md:inline">
-              Lat: {selectedCity.lat.toFixed(2)}°N, Lon: {selectedCity.lng.toFixed(2)}°E
-            </span>
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {/* Live Data Source Toggle */}
+            {onToggleDataSourceMode && (
+              <div className="flex items-center bg-[#060e20] p-0.5 rounded-lg border border-[#2d3449]">
+                <button
+                  onClick={() => onToggleDataSourceMode('live_api')}
+                  className={`px-2 py-1 rounded text-[10px] font-mono font-semibold transition-all ${
+                    dataSourceMode === 'live_api'
+                      ? 'bg-emerald-500 text-black shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Stream real-time observed meteorological data via Open-Meteo Satellite API"
+                >
+                  Live API
+                </button>
+                <button
+                  onClick={() => onToggleDataSourceMode('imd_heatwave')}
+                  className={`px-2 py-1 rounded text-[10px] font-mono font-semibold transition-all ${
+                    dataSourceMode === 'imd_heatwave'
+                      ? 'bg-orange-500 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Calibrated IMD Severe Heatwave Scenario (47-50°C stress testing & GRAP protocols)"
+                >
+                  IMD Heatwave
+                </button>
+              </div>
+            )}
+
+            {/* Refresh / Live Sync Button */}
+            {onRefreshTelemetry && (
+              <button
+                id="telemetry-refresh-btn"
+                onClick={onRefreshTelemetry}
+                disabled={isLiveApiLoading}
+                className="px-2.5 py-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-emerald-500/40 text-emerald-300 text-xs font-mono flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                title="Fetch real-time live sensor data for this location"
+              >
+                <RefreshCw className={`w-3 h-3 text-emerald-400 ${isLiveApiLoading ? 'animate-spin' : ''}`} />
+                <span>{isLiveApiLoading ? 'Syncing...' : 'Live Sync'}</span>
+              </button>
+            )}
+
+            {/* Change City / GPS Button */}
             {onOpenCitySelector && (
               <button
                 id="telemetry-switch-city-btn"
                 onClick={onOpenCitySelector}
-                className="px-2.5 py-1 rounded bg-[#171f33] hover:bg-[#222a3d] border border-orange-500/40 text-orange-300 text-xs font-mono flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-orange-500/40 text-orange-300 text-xs font-mono flex items-center gap-1.5 transition-colors"
               >
                 <Navigation className="w-3 h-3 text-orange-400" />
                 <span>Change City / GPS</span>

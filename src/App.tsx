@@ -35,6 +35,7 @@ import {
   CityData, 
   findNearestIndianCity 
 } from './data/indiaCities';
+import { fetchLiveWeatherFromApi } from './services/weatherApiService';
 
 export function App() {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
@@ -50,7 +51,9 @@ export function App() {
   // App telemetry & facilities state
   const [weather, setWeather] = useState<WeatherTelemetry>(INDIAN_CITIES[0].weather);
   const [facilities, setFacilities] = useState<CoolingFacility[]>(INDIAN_CITIES[0].coolingFacilities);
-  
+  const [dataSourceMode, setDataSourceMode] = useState<'live_api' | 'imd_heatwave'>('live_api');
+  const [isLiveApiLoading, setIsLiveApiLoading] = useState<boolean>(false);
+
   // User profile
   const [userProfile, setUserProfile] = useState<UserHealthProfile>(() => {
     try {
@@ -68,6 +71,29 @@ export function App() {
   const [isHealthReportOpen, setIsHealthReportOpen] = useState<boolean>(false);
   const [isPushSettingsOpen, setIsPushSettingsOpen] = useState<boolean>(false);
 
+  // Function to load weather telemetry for any selected city
+  const loadWeatherForCity = async (city: CityData, mode: 'live_api' | 'imd_heatwave' = dataSourceMode) => {
+    if (mode === 'live_api') {
+      setIsLiveApiLoading(true);
+      try {
+        const liveWeather = await fetchLiveWeatherFromApi(city.lat, city.lng, city.weather);
+        setWeather(liveWeather);
+      } catch (err) {
+        console.warn('Failed to fetch live API weather, falling back to calibrated IMD station model:', err);
+        setWeather(city.weather);
+      } finally {
+        setIsLiveApiLoading(false);
+      }
+    } else {
+      setWeather(city.weather);
+    }
+  };
+
+  // Initial load of live weather on startup
+  useEffect(() => {
+    loadWeatherForCity(INDIAN_CITIES[0], 'live_api');
+  }, []);
+
   // Automatic GPS Geolocation Detection on Mount
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -78,9 +104,9 @@ export function App() {
           
           if (city) {
             setSelectedCity(city);
-            setWeather(city.weather);
             setFacilities(city.coolingFacilities);
             setGpsStatusText(`GPS Locked: Nearest Station ${city.name} (${distanceKm} km away)`);
+            loadWeatherForCity(city, dataSourceMode);
           }
         },
         (error) => {
@@ -90,7 +116,7 @@ export function App() {
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
       );
     }
-  }, []);
+  }, [dataSourceMode]);
 
   // Sync profile changes to local storage
   const handleUpdateProfile = (updated: UserHealthProfile) => {
@@ -106,9 +132,14 @@ export function App() {
 
   const handleSelectCity = (city: CityData) => {
     setSelectedCity(city);
-    setWeather(city.weather);
     setFacilities(city.coolingFacilities);
     setActiveNavFacility(null);
+    loadWeatherForCity(city, dataSourceMode);
+  };
+
+  const handleToggleDataSourceMode = (newMode: 'live_api' | 'imd_heatwave') => {
+    setDataSourceMode(newMode);
+    loadWeatherForCity(selectedCity, newMode);
   };
 
   const handleLogWater = (amountMl: number) => {
@@ -134,16 +165,8 @@ export function App() {
     handleUpdateProfile(updated);
   };
 
-  const handleRefreshTelemetry = () => {
-    // Minor realistic variation simulating IMD sensor update
-    const randomTempOffset = (Math.random() * 0.4 - 0.2);
-    setWeather(prev => ({
-      ...prev,
-      dryBulbTemp: Number((prev.dryBulbTemp + randomTempOffset).toFixed(1)),
-      wbgt: Number((prev.wbgt + randomTempOffset * 0.6).toFixed(1)),
-      heatIndex: Number((prev.heatIndex + randomTempOffset * 0.8).toFixed(1)),
-      lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST (Live Sync)',
-    }));
+  const handleRefreshTelemetry = async () => {
+    await loadWeatherForCity(selectedCity, dataSourceMode);
   };
 
   const handleNavigateToFacility = (facility: CoolingFacility) => {
@@ -170,6 +193,10 @@ export function App() {
             onSimulateInactivity={handleSimulateHydrationDelay}
             onOpenHealthReport={() => setIsHealthReportOpen(true)}
             onOpenPushSettings={() => setIsPushSettingsOpen(true)}
+            isLiveApiLoading={isLiveApiLoading}
+            dataSourceMode={dataSourceMode}
+            onToggleDataSourceMode={handleToggleDataSourceMode}
+            onRefreshTelemetry={handleRefreshTelemetry}
           />
         );
       case 'cooling-finder':
