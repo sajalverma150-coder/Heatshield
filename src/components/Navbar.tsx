@@ -193,11 +193,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="navbar-health-report-btn"
               onClick={onOpenHealthReport}
-              className="hidden md:flex items-center gap-1.5 bg-[#171f33] hover:bg-[#202b44] border border-purple-500/40 text-purple-300 hover:text-white px-2.5 py-1 rounded-lg text-xs font-mono transition-all"
+              className="flex items-center gap-1.5 bg-[#171f33] hover:bg-[#202b44] border border-purple-500/40 text-purple-300 hover:text-white px-2 sm:px-2.5 py-1 rounded-lg text-xs font-mono transition-all"
               title="View Clinical Heat Health Dossier"
             >
               <FileText className="w-3.5 h-3.5 text-purple-400" />
-              <span>Health Report</span>
+              <span className="hidden sm:inline">Health Report</span>
             </button>
           )}
 

@@ -49,7 +49,7 @@ export const HealthReportModal: React.FC<HealthReportModalProps> = ({
                 Personalized Heat Health & Clinical Risk Dossier
               </h2>
               <span className="text-[11px] font-mono text-slate-400">
-                Patient: {userProfile.name} | City: {selectedCity.name}
+                Patient: {userProfile?.name || 'Citizen (Primary User)'} | City: {selectedCity?.name || weather?.stationName || 'India'}
               </span>
             </div>
           </div>

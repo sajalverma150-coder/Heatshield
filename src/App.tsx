@@ -249,7 +249,11 @@ export function App() {
           <HealthReportView
             weather={weather}
             userProfile={userProfile}
+            selectedCity={selectedCity}
+            coolingFacilities={facilities}
             onLogWater={handleLogWater}
+            onOpenTriage={() => setIsTriageOpen(true)}
+            onTriggerSOS={() => setIsSOSOpen(true)}
           />
         );
       default:
@@ -394,7 +398,17 @@ export function App() {
         onClose={() => setIsHealthReportOpen(false)}
         weather={weather}
         userProfile={userProfile}
+        selectedCity={selectedCity}
+        coolingFacilities={facilities}
         onLogWater={handleLogWater}
+        onOpenTriage={() => {
+          setIsHealthReportOpen(false);
+          setIsTriageOpen(true);
+        }}
+        onTriggerSOS={() => {
+          setIsHealthReportOpen(false);
+          setIsSOSOpen(true);
+        }}
       />
 
       {/* Push Notification Controls & Test Station Modal */}

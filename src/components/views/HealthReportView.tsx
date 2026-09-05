@@ -27,9 +27,9 @@ import { CityData } from '../../data/indiaCities';
 
 interface HealthReportViewProps {
   weather: WeatherTelemetry;
-  userProfile: UserHealthProfile;
-  selectedCity: CityData;
-  coolingFacilities: CoolingFacility[];
+  userProfile?: UserHealthProfile;
+  selectedCity?: CityData;
+  coolingFacilities?: CoolingFacility[];
   onOpenTriage?: () => void;
   onTriggerSOS?: () => void;
   onLogWater?: (amountMl: number) => void;
@@ -45,23 +45,53 @@ export const HealthReportView: React.FC<HealthReportViewProps> = ({
   onLogWater,
 }) => {
   const [copyToast, setCopyToast] = useState<boolean>(false);
+  const [downloadToast, setDownloadToast] = useState<boolean>(false);
+
+  // Safe user profile with default fallback to avoid any undefined access
+  const safeProfile: UserHealthProfile = useMemo(() => {
+    return {
+      name: userProfile?.name || 'Citizen (Primary User)',
+      age: userProfile?.age || 48,
+      phone: userProfile?.phone || '+91 98201 45129',
+      occupation: userProfile?.occupation || 'Outdoor / Construction Field Labor',
+      ward: userProfile?.ward || 'Central Municipal Ward',
+      sunExposureHours: userProfile?.sunExposureHours || 6.5,
+      conditions: userProfile?.conditions || {
+        hypertension: false,
+        cardiovascular: false,
+        diabetes: false,
+        chronicKidney: false,
+        asthma: false,
+      },
+      medications: userProfile?.medications || [],
+      iceContact: userProfile?.iceContact || {
+        name: 'Emergency Next-of-Kin (ICE)',
+        relation: 'Family',
+        phone: '108 / 112',
+        preferredLanguage: 'Hindi / English',
+      },
+      hydrationTodayMl: userProfile?.hydrationTodayMl || 1500,
+      targetHydrationMl: userProfile?.targetHydrationMl || 3500,
+      lastWaterLogTime: userProfile?.lastWaterLogTime || '12:00 IST',
+    };
+  }, [userProfile]);
 
   const assessment = useMemo(() => {
-    return calculateDehydrationRisk(weather, userProfile);
-  }, [weather, userProfile]);
+    return calculateDehydrationRisk(weather, safeProfile);
+  }, [weather, safeProfile]);
 
   // Calculate Physiological Heat Strain Index (PHSI) score (0-100)
   const phsiScore = useMemo(() => {
     let score = 45;
-    if (userProfile.age >= 50) score += 12;
-    if (userProfile.conditions.hypertension) score += 8;
-    if (userProfile.conditions.diabetes) score += 7;
-    score += (userProfile.medications.length * 5);
+    if (safeProfile.age >= 50) score += 12;
+    if (safeProfile.conditions.hypertension) score += 8;
+    if (safeProfile.conditions.diabetes) score += 7;
+    score += (safeProfile.medications.length * 5);
     if (assessment.heatIndex >= 44) score += 16;
     else if (assessment.heatIndex >= 40) score += 10;
     if (assessment.netFluidDeficitMl > 600) score += 14;
     return Math.min(98, Math.max(25, score));
-  }, [userProfile, assessment]);
+  }, [safeProfile, assessment]);
 
   // Estimated Armstrong Urine Hydration Level (1-8)
   const urineLevel = useMemo(() => {
@@ -72,7 +102,33 @@ export const HealthReportView: React.FC<HealthReportViewProps> = ({
     return 7;
   }, [assessment.netFluidDeficitMl]);
 
-  const nearestHospital = coolingFacilities.find(f => f.isHospital) || coolingFacilities[0];
+  const safeFacilities = useMemo(() => {
+    return coolingFacilities && coolingFacilities.length > 0 ? coolingFacilities : [];
+  }, [coolingFacilities]);
+
+  const nearestHospital = useMemo(() => {
+    return (
+      safeFacilities.find((f) => f.isHospital) ||
+      safeFacilities[0] || {
+        id: 'default-hosp',
+        name: 'District Civil Hospital & Hyperthermia Emergency Ward',
+        category: 'triage_hospital' as const,
+        address: 'Central Emergency Trauma Complex, Civil Lines',
+        distanceKm: 0.8,
+        walkTimeMins: 9,
+        totalCapacity: 150,
+        currentOccupancy: 82,
+        indoorTemp: 23.0,
+        amenities: ['Chilled Saline Infusion', 'Ice Immersion Tubs', '24/7 Heat Trauma Team'],
+        contactPhone: '108 / 102',
+        status: 'OPEN' as const,
+        coordinates: [20.0, 78.0] as [number, number],
+      }
+    );
+  }, [safeFacilities]);
+
+  const cityName = selectedCity?.name || weather?.stationName || 'Current Station';
+  const cityState = selectedCity?.state || 'India';
 
   const handlePrint = () => {
     window.print();
@@ -80,21 +136,71 @@ export const HealthReportView: React.FC<HealthReportViewProps> = ({
 
   const handleCopySummary = () => {
     const summary = `HEATSHIELD AI - CLINICAL HEAT STRESS DOSSIER
-Patient: ${userProfile.name} (${userProfile.age}M)
-Location: ${selectedCity.name} (${selectedCity.state})
+Patient: ${safeProfile.name} (${safeProfile.age} Yrs)
+Location: ${cityName} (${cityState})
 Date: ${new Date().toLocaleDateString('en-IN')} ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} IST
 Ambient Heat Index: ${assessment.heatIndex.toFixed(1)}°C | WBGT: ${weather.wbgt.toFixed(1)}°C
-Physiological Strain Index (PHSI): ${phsiScore}/100 (CRITICAL EXPOSURE)
-Fluid Deficit: -${assessment.netFluidDeficitMl} ml | Dehydration Risk: ${assessment.riskTier}
-Meds: ${userProfile.medications.map(m => m.name).join(', ')}
-Nearest Facility: ${nearestHospital?.name} (${nearestHospital?.contactPhone})
-Emergency 108 Contact: ${userProfile.iceContact.name} (${userProfile.iceContact.phone})`;
+Physiological Strain Index (PHSI): ${phsiScore}/100 (HIGH STRAIN ZONE)
+Fluid Deficit: -${assessment.netFluidDeficitMl} ml | Risk Category: ${assessment.riskTier}
+Medications: ${safeProfile.medications.length > 0 ? safeProfile.medications.map((m) => m.name).join(', ') : 'None Reported'}
+Nearest Acute Resuscitation Center: ${nearestHospital.name} (${nearestHospital.contactPhone})
+Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.phone})`;
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(summary);
       setCopyToast(true);
       setTimeout(() => setCopyToast(false), 3000);
     }
+  };
+
+  const handleDownloadDossier = () => {
+    const dossierData = {
+      title: 'HeatShield AI Clinical Heat Stress Dossier',
+      generatedAt: new Date().toISOString(),
+      patient: {
+        name: safeProfile.name,
+        age: safeProfile.age,
+        occupation: safeProfile.occupation,
+        ward: safeProfile.ward,
+        conditions: safeProfile.conditions,
+        medications: safeProfile.medications,
+        emergencyContact: safeProfile.iceContact,
+      },
+      environmentalLoad: {
+        city: cityName,
+        state: cityState,
+        station: weather.stationName,
+        dryBulbTempC: weather.dryBulbTemp,
+        humidityPercent: weather.humidity,
+        heatIndexC: assessment.heatIndex,
+        wbgtC: weather.wbgt,
+        grapStage: weather.grapStage,
+        riskLevel: weather.riskLevel,
+      },
+      clinicalIndices: {
+        phsiScore,
+        urineHydrationLevel: urineLevel,
+        netFluidDeficitMl: assessment.netFluidDeficitMl,
+        sweatLossRateMlH: assessment.sweatLossPerHourMl,
+        dehydrationRiskTier: assessment.riskTier,
+      },
+      nearestFacility: {
+        name: nearestHospital.name,
+        address: nearestHospital.address,
+        distanceKm: nearestHospital.distanceKm,
+        phone: nearestHospital.contactPhone,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(dossierData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Clinical_Heat_Dossier_${cityName.replace(/\s+/g, '_')}_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setDownloadToast(true);
+    setTimeout(() => setDownloadToast(false), 3000);
   };
 
   return (
@@ -123,6 +229,15 @@ Emergency 108 Contact: ${userProfile.iceContact.name} (${userProfile.iceContact.
           </button>
 
           <button
+            id="download-health-report-btn"
+            onClick={handleDownloadDossier}
+            className="px-3 py-1.5 rounded-xl bg-[#171f33] hover:bg-[#202b44] text-slate-200 border border-[#2d3449] flex items-center gap-1.5 transition-colors"
+          >
+            {downloadToast ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Download className="w-4 h-4 text-cyan-400" />}
+            <span>{downloadToast ? 'Downloaded!' : 'Export JSON'}</span>
+          </button>
+
+          <button
             id="copy-health-report-btn"
             onClick={handleCopySummary}
             className="px-3 py-1.5 rounded-xl bg-[#171f33] hover:bg-[#202b44] text-slate-200 border border-[#2d3449] flex items-center gap-1.5 transition-colors"
@@ -130,6 +245,46 @@ Emergency 108 Contact: ${userProfile.iceContact.name} (${userProfile.iceContact.
             {copyToast ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
             <span>{copyToast ? 'Copied!' : 'Copy Summary'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* Interactive Clinical Interventions Strip */}
+      <div className="p-3.5 rounded-2xl bg-[#0b1326] border border-orange-500/30 flex flex-wrap items-center justify-between gap-3 text-xs font-mono print:hidden">
+        <div className="flex items-center gap-2">
+          <Zap className="w-4 h-4 text-orange-400" />
+          <span className="text-white font-bold">Recommended Immediate Clinical Actions:</span>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {onLogWater && (
+            <button
+              id="report-log-water-btn"
+              onClick={() => onLogWater(250)}
+              className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              <Droplet className="w-3.5 h-3.5" />
+              <span>Log +250ml WHO-ORS</span>
+            </button>
+          )}
+          {onOpenTriage && (
+            <button
+              id="report-open-triage-btn"
+              onClick={onOpenTriage}
+              className="px-3 py-1.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-orange-500/40 text-orange-300 font-bold flex items-center gap-1.5 transition-all"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Launch First-Aid Triage</span>
+            </button>
+          )}
+          {onTriggerSOS && (
+            <button
+              id="report-trigger-sos-btn"
+              onClick={onTriggerSOS}
+              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              <PhoneCall className="w-3.5 h-3.5" />
+              <span>Emergency 108</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -175,19 +330,19 @@ Emergency 108 Contact: ${userProfile.iceContact.name} (${userProfile.iceContact.
             </h4>
             <div className="flex justify-between border-b border-white/5 pb-1">
               <span className="text-slate-400">Full Name:</span>
-              <strong className="text-white print:text-black">{userProfile.name} ({userProfile.age} Yrs, Male)</strong>
+              <strong className="text-white print:text-black">{safeProfile.name} ({safeProfile.age} Yrs)</strong>
             </div>
             <div className="flex justify-between border-b border-white/5 pb-1">
               <span className="text-slate-400">Occupation / Exposure:</span>
-              <span className="text-slate-200 print:text-black">{userProfile.occupation} ({userProfile.sunExposureHours} hrs)</span>
+              <span className="text-slate-200 print:text-black">{safeProfile.occupation} ({safeProfile.sunExposureHours} hrs)</span>
             </div>
             <div className="flex justify-between border-b border-white/5 pb-1">
               <span className="text-slate-400">Ward / Location:</span>
-              <span className="text-slate-200 print:text-black">{userProfile.ward}, {selectedCity.name}</span>
+              <span className="text-slate-200 print:text-black">{safeProfile.ward}, {cityName}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-400">Emergency Contact (ICE):</span>
-              <span className="text-emerald-400 print:text-black font-bold">{userProfile.iceContact.name} ({userProfile.iceContact.phone})</span>
+              <span className="text-emerald-400 print:text-black font-bold">{safeProfile.iceContact.name} ({safeProfile.iceContact.phone})</span>
             </div>
           </div>
 
@@ -195,7 +350,7 @@ Emergency 108 Contact: ${userProfile.iceContact.name} (${userProfile.iceContact.
           <div className="p-4 rounded-xl bg-[#060e20] border border-[#2d3449] print:bg-gray-50 print:border-gray-300 space-y-2">
             <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
               <Flame className="w-4 h-4" />
-              Ambient Thermal Telemetry ({selectedCity.name})
+              Ambient Thermal Telemetry ({cityName})
             </h4>
             <div className="flex justify-between border-b border-white/5 pb-1">
               <span className="text-slate-400">NOAA Heat Index:</span>
@@ -349,22 +504,28 @@ Emergency 108 Contact: ${userProfile.iceContact.name} (${userProfile.iceContact.
           </h4>
 
           <div className="space-y-2 text-xs font-mono">
-            {userProfile.medications.map((med, idx) => (
-              <div key={idx} className="p-3 rounded-lg bg-[#0b1326] border border-[#2d3449] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <strong className="text-white print:text-black">{med.name}</strong>
-                    <span className="text-[10px] text-cyan-300 px-1.5 py-0.2 bg-cyan-950/40 rounded border border-cyan-800">
-                      {med.dosage}
-                    </span>
-                    <span className="text-[10px] text-slate-400">{med.type}</span>
+            {safeProfile.medications.length > 0 ? (
+              safeProfile.medications.map((med, idx) => (
+                <div key={idx} className="p-3 rounded-lg bg-[#0b1326] border border-[#2d3449] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <strong className="text-white print:text-black">{med.name}</strong>
+                      <span className="text-[10px] text-cyan-300 px-1.5 py-0.2 bg-cyan-950/40 rounded border border-cyan-800">
+                        {med.dosage}
+                      </span>
+                      <span className="text-[10px] text-slate-400">{med.type}</span>
+                    </div>
+                    <p className="text-[11px] text-red-300/90 mt-1">
+                      ⚠️ {med.riskImpact}
+                    </p>
                   </div>
-                  <p className="text-[11px] text-red-300/90 mt-1">
-                    ⚠️ {med.riskImpact}
-                  </p>
                 </div>
+              ))
+            ) : (
+              <div className="p-3 rounded-lg bg-[#0b1326] border border-[#2d3449] text-slate-400">
+                ✓ No high-risk thermal anticholinergic, diuretic, or beta-blocker medications active.
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -388,7 +549,7 @@ Emergency 108 Contact: ${userProfile.iceContact.name} (${userProfile.iceContact.
               <span className="text-red-400 font-bold block mb-1">Peak Curfew (Mandatory)</span>
               <div className="text-slate-300">12:30 – 16:30 IST</div>
               <p className="text-[11px] text-slate-300 mt-1.5">
-                Halt all outdoor physical labor. Move to <strong>{coolingFacilities[0]?.name}</strong>. Drink 250ml water or WHO-ORS every 30 minutes.
+                Halt all outdoor physical labor. Move to <strong>{nearestHospital.name}</strong>. Drink 250ml water or WHO-ORS every 30 minutes.
               </p>
             </div>
 
