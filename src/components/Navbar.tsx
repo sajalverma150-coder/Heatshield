@@ -16,7 +16,8 @@ import {
   Compass,
   Bell,
   BellRing,
-  FileText
+  FileText,
+  Menu
 } from 'lucide-react';
 import { NavigationTab, UserRole, LanguageCode, WeatherTelemetry } from '../types';
 import { TRANSLATIONS } from '../data/mockData';
@@ -39,6 +40,7 @@ interface NavbarProps {
   onOpenTriage: () => void;
   onOpenPushSettings?: () => void;
   onOpenHealthReport?: () => void;
+  onOpenMobileMenu?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -58,6 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenTriage,
   onOpenPushSettings,
   onOpenHealthReport,
+  onOpenMobileMenu,
 }) => {
   const [timeStr, setTimeStr] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -231,14 +234,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             </select>
           </div>
 
-          {/* AI Triage button */}
+          {/* AI Triage button - accessible on both mobile and desktop */}
           <button
             id="navbar-triage-button"
             onClick={onOpenTriage}
-            className="hidden sm:flex items-center gap-1.5 bg-[#171f33] hover:bg-[#222a3d] border border-orange-500/40 text-orange-300 px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-all"
+            className="flex items-center gap-1 sm:gap-1.5 bg-[#171f33] hover:bg-[#222a3d] border border-orange-500/40 text-orange-300 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all shrink-0"
+            title="AI Heat Triage & Hyperthermia Diagnostic Tree"
           >
             <Brain className="w-3.5 h-3.5 text-orange-400" />
-            <span>AI Triage</span>
+            <span className="hidden sm:inline">AI Triage</span>
           </button>
 
           {/* High Visibility Emergency SOS Button */}
@@ -250,6 +254,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             <PhoneCall className="w-3.5 h-3.5 animate-bounce" />
             <span>SOS 108</span>
           </button>
+
+          {/* Mobile All-Tools & Views Menu Button */}
+          {onOpenMobileMenu && (
+            <button
+              id="navbar-mobile-menu-btn"
+              onClick={onOpenMobileMenu}
+              className="lg:hidden p-1.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-orange-500/40 text-orange-400 hover:text-white transition-all flex items-center justify-center shrink-0"
+              title="Open Navigation Drawer & Emergency Actions"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+          )}
 
         </div>
 

@@ -70,6 +70,7 @@ export function App() {
   const [isTriageOpen, setIsTriageOpen] = useState<boolean>(false);
   const [isHealthReportOpen, setIsHealthReportOpen] = useState<boolean>(false);
   const [isPushSettingsOpen, setIsPushSettingsOpen] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   // Function to load weather telemetry for any selected city
   const loadWeatherForCity = async (city: CityData, mode: 'live_api' | 'imd_heatwave' = dataSourceMode) => {
@@ -282,6 +283,7 @@ export function App() {
         onOpenTriage={() => setIsTriageOpen(true)}
         onOpenPushSettings={() => setIsPushSettingsOpen(true)}
         onOpenHealthReport={() => setIsHealthReportOpen(true)}
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
       />
 
       {/* Permanent Rolling Headlines Ticker for Critical Cities in India */}
@@ -342,6 +344,20 @@ export function App() {
                   onSelectTab={setCurrentTab}
                   language={language}
                   isEmbedded={true}
+                  isOpen={isMobileMenuOpen}
+                  onToggleOpen={setIsMobileMenuOpen}
+                  onOpenTriage={() => setIsTriageOpen(true)}
+                  onTriggerSOS={() => setIsSOSOpen(true)}
+                  onOpenPushSettings={() => setIsPushSettingsOpen(true)}
+                  onOpenCitySelector={() => setIsCitySelectorOpen(true)}
+                  onOpenHealthReport={() => setCurrentTab('health-report')}
+                  unreadAlertCount={1}
+                  selectedCity={selectedCity}
+                  onLogWater={handleLogWater}
+                  dataSourceMode={dataSourceMode}
+                  onToggleDataSourceMode={handleToggleDataSourceMode}
+                  onChangeLanguage={setLanguage}
+                  onRefreshTelemetry={handleRefreshTelemetry}
                 />
               </div>
             </div>
@@ -360,6 +376,20 @@ export function App() {
           currentTab={currentTab}
           onSelectTab={setCurrentTab}
           language={language}
+          isOpen={isMobileMenuOpen}
+          onToggleOpen={setIsMobileMenuOpen}
+          onOpenTriage={() => setIsTriageOpen(true)}
+          onTriggerSOS={() => setIsSOSOpen(true)}
+          onOpenPushSettings={() => setIsPushSettingsOpen(true)}
+          onOpenCitySelector={() => setIsCitySelectorOpen(true)}
+          onOpenHealthReport={() => setCurrentTab('health-report')}
+          unreadAlertCount={1}
+          selectedCity={selectedCity}
+          onLogWater={handleLogWater}
+          dataSourceMode={dataSourceMode}
+          onToggleDataSourceMode={handleToggleDataSourceMode}
+          onChangeLanguage={setLanguage}
+          onRefreshTelemetry={handleRefreshTelemetry}
         />
       )}
 

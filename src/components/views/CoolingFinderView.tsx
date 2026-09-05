@@ -72,6 +72,9 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
   // User GPS coordinates
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
 
+  // Mobile View Mode Switcher ('map' | 'list') for small screens
+  const [mobileViewMode, setMobileViewMode] = useState<'map' | 'list'>('map');
+
   // Sync when initialActiveNav prop changes from App.tsx (e.g. from Overview screen)
   useEffect(() => {
     if (initialActiveNav) {
@@ -135,6 +138,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
     setSelectedFacility(facility);
     setNavTargetFacility(facility);
     setIsNavModalOpen(true);
+    setMobileViewMode('map');
     onNavigateToFacility(facility);
   };
 
@@ -285,11 +289,39 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
         </div>
       )}
 
+      {/* Mobile Map / List View Segmented Switcher */}
+      <div className="lg:hidden flex rounded-xl bg-[#0b1326] p-1 border border-[#2d3449] shadow-sm">
+        <button
+          id="mobile-cooling-toggle-map-btn"
+          onClick={() => setMobileViewMode('map')}
+          className={`flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+            mobileViewMode === 'map'
+              ? 'bg-orange-600 text-white shadow-md'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Compass className="w-4 h-4" />
+          <span>Interactive GIS Map</span>
+        </button>
+        <button
+          id="mobile-cooling-toggle-list-btn"
+          onClick={() => setMobileViewMode('list')}
+          className={`flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+            mobileViewMode === 'list'
+              ? 'bg-orange-600 text-white shadow-md'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span>Facility Cards ({filteredFacilities.length})</span>
+        </button>
+      </div>
+
       {/* Main Layout: List on Left (5 Cols) + Interactive GIS Leaflet Map on Right (7 Cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         
         {/* Left Column (5 Cols): Facility Search and Proximity Cards */}
-        <div className="lg:col-span-5 space-y-3">
+        <div className={`lg:col-span-5 space-y-3 ${mobileViewMode === 'list' ? 'block' : 'hidden lg:block'}`}>
           
           {/* Search & Landmark Autocomplete */}
           <div className="space-y-2">
@@ -482,7 +514,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
         </div>
 
         {/* Right Column (7 Cols): Interactive GIS Leaflet Map & Facility Inspector */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className={`lg:col-span-7 space-y-4 ${mobileViewMode === 'map' ? 'block' : 'hidden lg:block'}`}>
           
           <div className="bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5 shadow-lg">
             
