@@ -5,15 +5,10 @@ import {
   MapPin, 
   Clock, 
   PhoneCall, 
-  ShieldAlert, 
-  Compass, 
   Sun, 
   Wind, 
   Flame, 
-  Activity, 
   HeartPulse, 
-  CheckCircle2, 
-  ExternalLink,
   ChevronRight,
   Info,
   Layers,
@@ -21,12 +16,13 @@ import {
   TrendingUp,
   Navigation,
   RefreshCw,
-  Radio
+  Radio,
+  FileText,
+  Compass,
+  CheckCircle2
 } from 'lucide-react';
 import { WeatherTelemetry, UserHealthProfile, CoolingFacility } from '../../types';
-import { ASSET_IMAGES } from '../../data/mockData';
 import { CityData } from '../../data/indiaCities';
-import { HydrationTracker } from '../HydrationTracker';
 
 interface LiveTelemetryViewProps {
   weather: WeatherTelemetry;
@@ -59,361 +55,361 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
   onOpenTriage,
   onTriggerSOS,
   onSwitchTab,
-  onSimulateInactivity,
   onOpenHealthReport,
-  onOpenPushSettings,
   isLiveApiLoading = false,
   dataSourceMode = 'live_api',
   onToggleDataSourceMode,
   onRefreshTelemetry,
 }) => {
-  const [selectedPointIndex, setSelectedPointIndex] = useState<number>(3); // 14:00 peak
-  const [countdownText, setCountdownText] = useState<string>('02h 45m 12s');
+  const [selectedHourIndex, setSelectedHourIndex] = useState<number>(3); // 14:00 peak
   const [showOrderModal, setShowOrderModal] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Hourly curve points
   const hourlyData = [
-    { time: '08:00', temp: 31.0, wbgt: 26.5, stress: 'Safe Work Limit' },
-    { time: '10:00', temp: 35.5, wbgt: 29.8, stress: 'Moderate Stress' },
-    { time: '12:00', temp: 39.8, wbgt: 32.5, stress: 'High Stress (Rest 30m/h)' },
-    { time: '14:00', temp: 41.8, wbgt: 34.2, stress: 'CRITICAL CURFEW (Work Halt)' },
-    { time: '16:00', temp: 40.2, wbgt: 33.1, stress: 'Severe Heat Load' },
-    { time: '18:00', temp: 36.4, wbgt: 30.2, stress: 'Gradual Relief' },
-    { time: '20:00', temp: 33.2, wbgt: 28.4, stress: 'Nocturnal UHI Trap' },
+    { time: '08:00', temp: 31.0, wbgt: 26.5, stress: 'Safe Work Limit', sweat: '300 ml/h' },
+    { time: '10:00', temp: 35.5, wbgt: 29.8, stress: 'Moderate Stress', sweat: '500 ml/h' },
+    { time: '12:00', temp: 39.8, wbgt: 32.5, stress: 'High Stress', sweat: '700 ml/h' },
+    { time: '14:00', temp: 42.5, wbgt: 34.2, stress: 'Mandatory Curfew', sweat: '900 ml/h' },
+    { time: '16:00', temp: 40.2, wbgt: 33.1, stress: 'Severe Heat Load', sweat: '800 ml/h' },
+    { time: '18:00', temp: 36.4, wbgt: 30.2, stress: 'Gradual Cooling', sweat: '550 ml/h' },
+    { time: '20:00', temp: 33.2, wbgt: 28.4, stress: 'Urban Heat Island', sweat: '400 ml/h' },
   ];
 
-  // Dynamic countdown timer calculation
-  useEffect(() => {
-    const updateCountdown = () => {
-      const now = new Date();
-      const end = new Date();
-      end.setHours(16, 30, 0, 0); // Curfew ends 16:30 IST
+  const handleQuickWaterLog = (amount: number) => {
+    onLogWater(amount);
+    setToastMessage(`+${amount}ml logged`);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
 
-      const diff = end.getTime() - now.getTime();
-      if (diff <= 0) {
-        setCountdownText('Peak Curfew Window Concluded');
-      } else {
-        const hrs = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const mins = Math.floor((diff / (1000 * 60)) % 60);
-        const secs = Math.floor((diff / 1000) % 60);
-        setCountdownText(`${String(hrs).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s remaining`);
-      }
-    };
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const nearestShelter = facilities[0] || {
+    name: 'District Community Hall & Cooling Shelter',
+    distanceKm: 0.35,
+    walkTimeMins: 4,
+    indoorTemp: 24.5,
+    capacity: 120,
+    currentOccupancy: 45,
+    hasOxygen: true,
+  };
 
-  const nearestShelter = facilities[0];
+  const selectedHour = hourlyData[selectedHourIndex];
 
   return (
-    <div id="live-telemetry-screen" className="space-y-4 sm:space-y-6 pb-12">
+    <div id="live-telemetry-screen" className="space-y-5 pb-8">
       
-      {/* City & Live GPS Telemetry Status Strip */}
-      {selectedCity && (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#0b1326] border border-[#2d3449] text-xs shadow-lg">
-          <div className="flex flex-wrap items-center gap-2 text-slate-300">
-            <span className={`w-2.5 h-2.5 rounded-full ${isLiveApiLoading ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 animate-pulse'}`} />
-            <span className="font-mono text-slate-400">Monitoring Station:</span>
-            <strong className="text-white font-semibold text-sm">{selectedCity.name}, {selectedCity.state}</strong>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#171f33] text-orange-400 border border-orange-500/30">
-              {selectedCity.climateZone}
+      {/* 1. Header Location & Telemetry Source Strip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-sm">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-white text-sm truncate">
+                {selectedCity ? `${selectedCity.name}, ${selectedCity.state}` : 'New Delhi, NCR'}
+              </span>
+              <span className="text-[11px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md hidden md:inline">
+                {weather.stationName}
+              </span>
+            </div>
+            <span className="text-xs text-slate-400 block font-mono mt-0.5">
+              Updated {weather.lastUpdated}
             </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-              <Radio className="w-2.5 h-2.5 text-emerald-400" />
-              <span>{weather.lastUpdated}</span>
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            {/* Live Data Source Toggle */}
-            {onToggleDataSourceMode && (
-              <div className="flex items-center bg-[#060e20] p-0.5 rounded-lg border border-[#2d3449]">
-                <button
-                  onClick={() => onToggleDataSourceMode('live_api')}
-                  className={`px-2 py-1 rounded text-[10px] font-mono font-semibold transition-all ${
-                    dataSourceMode === 'live_api'
-                      ? 'bg-emerald-500 text-black shadow-sm'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                  title="Stream real-time observed meteorological data via Open-Meteo Satellite API"
-                >
-                  Live API
-                </button>
-                <button
-                  onClick={() => onToggleDataSourceMode('imd_heatwave')}
-                  className={`px-2 py-1 rounded text-[10px] font-mono font-semibold transition-all ${
-                    dataSourceMode === 'imd_heatwave'
-                      ? 'bg-orange-500 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                  title="Calibrated IMD Severe Heatwave Scenario (47-50°C stress testing & GRAP protocols)"
-                >
-                  IMD Heatwave
-                </button>
-              </div>
-            )}
-
-            {/* Refresh / Live Sync Button */}
-            {onRefreshTelemetry && (
-              <button
-                id="telemetry-refresh-btn"
-                onClick={onRefreshTelemetry}
-                disabled={isLiveApiLoading}
-                className="px-2.5 py-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-emerald-500/40 text-emerald-300 text-xs font-mono flex items-center gap-1.5 transition-colors disabled:opacity-50"
-                title="Fetch real-time live sensor data for this location"
-              >
-                <RefreshCw className={`w-3 h-3 text-emerald-400 ${isLiveApiLoading ? 'animate-spin' : ''}`} />
-                <span>{isLiveApiLoading ? 'Syncing...' : 'Live Sync'}</span>
-              </button>
-            )}
-
-            {/* Change City / GPS Button */}
-            {onOpenCitySelector && (
-              <button
-                id="telemetry-switch-city-btn"
-                onClick={onOpenCitySelector}
-                className="px-2.5 py-1 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-orange-500/40 text-orange-300 text-xs font-mono flex items-center gap-1.5 transition-colors"
-              >
-                <Navigation className="w-3 h-3 text-orange-400" />
-                <span>Change City / GPS</span>
-              </button>
-            )}
           </div>
         </div>
-      )}
 
-      {/* 1. Peak Heat Window Countdown Banner */}
-      <section id="heat-window-countdown-banner" className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-950/80 via-[#171f33] to-orange-950/80 border border-red-500/40 p-3.5 sm:p-5 shadow-xl shadow-red-950/20">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center shrink-0">
-              <Flame className="w-6 h-6 text-red-400 animate-pulse" />
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+          {/* Data Source Switcher */}
+          {onToggleDataSourceMode && (
+            <div className="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-xs">
+              <button
+                onClick={() => onToggleDataSourceMode('live_api')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+                  dataSourceMode === 'live_api'
+                    ? 'bg-slate-800 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Real-time live observed data"
+              >
+                Live Satellite API
+              </button>
+              <button
+                onClick={() => onToggleDataSourceMode('imd_heatwave')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+                  dataSourceMode === 'imd_heatwave'
+                    ? 'bg-orange-500/20 text-orange-300 font-semibold border border-orange-500/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Simulated IMD Severe Heatwave (47°C+)"
+              >
+                IMD Heatwave Test
+              </button>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] sm:text-xs font-mono font-black bg-red-500 text-white tracking-wide">
-                  GRAP STAGE IV
-                </span>
-                <span className="text-xs font-mono text-red-300 font-semibold uppercase">
-                  Mandatory Heat Curfew Active
-                </span>
+          )}
+
+          {/* Sync Button */}
+          {onRefreshTelemetry && (
+            <button
+              onClick={onRefreshTelemetry}
+              disabled={isLiveApiLoading}
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700"
+              title="Refresh telemetry data"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLiveApiLoading ? 'animate-spin text-orange-400' : ''}`} />
+            </button>
+          )}
+
+          {/* Change City Button */}
+          {onOpenCitySelector && (
+            <button
+              onClick={onOpenCitySelector}
+              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors border border-slate-700 flex items-center gap-1.5"
+            >
+              <MapPin className="w-3 h-3 text-orange-400" />
+              <span>Change</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 2. Hero Weather & Curfew Anchor Card */}
+      <section 
+        id="hero-heat-overview-card"
+        className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 relative overflow-hidden shadow-lg"
+      >
+        {/* Subtle warm ambient glow in background */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+          
+          {/* Main Temperature & Threat Summary */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5 text-red-400" />
+                <span>Stage IV Severe Heat Curfew</span>
+              </span>
+              <span className="text-xs font-mono text-slate-400">
+                12:30 – 16:30 IST
+              </span>
+            </div>
+
+            <div className="flex items-baseline gap-3">
+              <span className="text-4xl sm:text-6xl font-headline font-bold text-white tracking-tight">
+                {weather.dryBulbTemp}°C
+              </span>
+              <div className="text-slate-400 text-sm font-sans">
+                Feels like <strong className="text-orange-400 font-semibold">{weather.heatIndex}°C</strong> in sun
               </div>
-              <h2 className="text-lg sm:text-2xl font-headline font-bold text-white mt-0.5">
-                Peak Heat Window: <span className="text-orange-400 font-mono">{countdownText}</span>
-              </h2>
-              <p className="text-xs text-slate-300">
-                12:30 – 16:30 IST • All unshaded physical labor suspended under DDMA Order #419-B
-              </p>
             </div>
+
+            <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+              Extreme thermal hazard active. Outdoor physical labor is prohibited under municipal NDMA order. Stay in air-cooled or shaded areas.
+            </p>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Primary Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Find Shelter */}
             <button
-              id="view-official-order-btn"
-              onClick={() => setShowOrderModal(true)}
-              className="px-3 py-1.5 rounded-lg bg-[#060e20] hover:bg-[#131b2e] text-xs font-mono text-slate-300 border border-[#2d3449] hover:border-slate-400 transition-colors flex items-center gap-1.5"
-            >
-              <Info className="w-3.5 h-3.5 text-orange-400" />
-              <span>Official Order</span>
-            </button>
-            <button
-              id="find-shelter-quick-btn"
+              id="hero-find-shelter-btn"
               onClick={() => onSwitchTab('cooling-finder')}
-              className="px-3.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-md shadow-orange-900/30 transition-all flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-md shadow-orange-950/40 transition-all flex items-center gap-2 active:scale-95"
             >
-              <MapPin className="w-3.5 h-3.5" />
-              <span>Nearest Shelter (350m)</span>
+              <Compass className="w-4 h-4" />
+              <span>Nearest Shelter ({nearestShelter.walkTimeMins}m walk)</span>
+            </button>
+
+            {/* AI Triage */}
+            <button
+              id="hero-ai-triage-btn"
+              onClick={onOpenTriage}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 hover:border-orange-500/50 transition-all flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-orange-400" />
+              <span>Symptom Triage</span>
+            </button>
+
+            {/* Quick Water Log */}
+            <button
+              id="hero-quick-water-btn"
+              onClick={() => handleQuickWaterLog(250)}
+              className="px-3.5 py-2.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 text-xs font-medium border border-cyan-700/50 transition-all flex items-center gap-1.5"
+              title="Log +250ml water intake immediately"
+            >
+              <Droplet className="w-4 h-4 text-cyan-400" />
+              <span>+250ml Water</span>
             </button>
           </div>
+
         </div>
+
+        {/* Toast confirmation message */}
+        {toastMessage && (
+          <div className="mt-3 px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-medium flex items-center gap-1.5 animate-in fade-in duration-200">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
       </section>
 
-      {/* 2. Primary Biometeorology Telemetry Matrix */}
-      <section id="biometeorology-matrix-grid" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
+      {/* 3. Essential Vitals Grid (4 Clean Bento Cards) */}
+      <section id="biometeorology-vitals-grid" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
-        {/* WBGT (Wet Bulb Globe Temp) */}
-        <div className="p-3.5 rounded-xl bg-[#0b1326] border-2 border-red-500/50 shadow-md">
-          <div className="flex items-center justify-between text-[#a78b7d] text-xs mb-1">
-            <span className="font-mono uppercase font-bold text-red-400">WBGT Index</span>
+        {/* WBGT Card */}
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span className="font-medium">WBGT Heat Stress</span>
             <AlertTriangle className="w-4 h-4 text-red-400" />
           </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-headline font-black text-red-400">{weather.wbgt}</span>
-            <span className="text-sm font-mono text-red-300">°C</span>
+          <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
+            {weather.wbgt} <span className="text-sm font-sans font-normal text-slate-400">°C</span>
           </div>
-          <div className="text-[10px] font-mono text-red-300 mt-1 font-semibold">
-            EXTREME DANGER (&gt;32°C)
+          <div className="text-xs text-red-400 font-medium mt-1">
+            Critical Threshold (&gt;32°C)
           </div>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Outdoor work halt limit
+          </p>
         </div>
 
-        {/* NOAA Heat Index */}
-        <div className="p-3.5 rounded-xl bg-[#0b1326] border border-orange-500/40">
-          <div className="flex items-center justify-between text-[#a78b7d] text-xs mb-1">
-            <span className="font-mono uppercase">Heat Index</span>
+        {/* Heat Index & Humidity */}
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span className="font-medium">Heat Index / RH</span>
             <Sun className="w-4 h-4 text-orange-400" />
           </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-headline font-black text-orange-400">{weather.heatIndex}</span>
-            <span className="text-sm font-mono text-orange-300">°C</span>
+          <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
+            {weather.heatIndex} <span className="text-sm font-sans font-normal text-slate-400">°C</span>
           </div>
-          <div className="text-[10px] font-mono text-orange-300 mt-1">
-            Feels like 51°C in sun
+          <div className="text-xs text-orange-400 font-medium mt-1">
+            {weather.humidity}% Relative Humidity
           </div>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Suppresses sweat evaporation
+          </p>
         </div>
 
-        {/* UTCI Thermal Stress */}
-        <div className="p-3.5 rounded-xl bg-[#0b1326] border border-[#2d3449]">
-          <div className="flex items-center justify-between text-[#a78b7d] text-xs mb-1">
-            <span className="font-mono uppercase">UTCI Stress</span>
-            <Activity className="w-4 h-4 text-purple-400" />
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-headline font-bold text-purple-300">{weather.utci}</span>
-            <span className="text-sm font-mono text-purple-400">°C</span>
-          </div>
-          <div className="text-[10px] font-mono text-purple-300/80 mt-1">
-            Very Strong Stress
-          </div>
-        </div>
-
-        {/* Dry Bulb Temp & Humidity */}
-        <div className="p-3.5 rounded-xl bg-[#0b1326] border border-[#2d3449]">
-          <div className="flex items-center justify-between text-[#a78b7d] text-xs mb-1">
-            <span className="font-mono uppercase">Air Temp / RH</span>
-            <Droplet className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-headline font-bold text-white">{weather.dryBulbTemp}</span>
-            <span className="text-sm font-mono text-slate-400">°C</span>
-          </div>
-          <div className="text-[10px] font-mono text-cyan-400 mt-1">
-            {weather.humidity}% Rel. Humidity
-          </div>
-        </div>
-
-        {/* Solar Radiation */}
-        <div className="p-3.5 rounded-xl bg-[#0b1326] border border-[#2d3449]">
-          <div className="flex items-center justify-between text-[#a78b7d] text-xs mb-1">
-            <span className="font-mono uppercase">Solar Radiance</span>
+        {/* Solar Radiation & UV */}
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span className="font-medium">Solar & UV Load</span>
             <Sun className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-headline font-bold text-amber-300">{weather.solarRadiation}</span>
-            <span className="text-xs font-mono text-slate-400">W/m²</span>
+          <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
+            {weather.solarRadiation} <span className="text-xs font-sans font-normal text-slate-400">W/m²</span>
           </div>
-          <div className="text-[10px] font-mono text-amber-400/80 mt-1">
+          <div className="text-xs text-amber-400 font-medium mt-1">
             UV Index 11+ (Extreme)
           </div>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Sunburn risk within 10 mins
+          </p>
         </div>
 
-        {/* Wind Speed & Boundary Layer */}
-        <div className="p-3.5 rounded-xl bg-[#0b1326] border border-[#2d3449]">
-          <div className="flex items-center justify-between text-[#a78b7d] text-xs mb-1">
-            <span className="font-mono uppercase">Wind Velocity</span>
+        {/* Wind Speed & Loo Winds */}
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span className="font-medium">Wind & Loo Gusts</span>
             <Wind className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl sm:text-3xl font-headline font-bold text-white">{weather.windSpeed}</span>
-            <span className="text-xs font-mono text-slate-400">km/h</span>
+          <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
+            {weather.windSpeed} <span className="text-xs font-sans font-normal text-slate-400">km/h</span>
           </div>
-          <div className="text-[10px] font-mono text-slate-400 mt-1">
-            Stagnant Microclimate
+          <div className="text-xs text-emerald-400 font-medium mt-1">
+            Dry Desiccating Winds
           </div>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Accelerates fluid loss
+          </p>
         </div>
 
       </section>
 
-      {/* 3. Mid Grid: Personalized Health Advisory & Interactive Physiological Stress Curve */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+      {/* 4. Two Balanced Columns: Heat Trajectory Curve & Personal Health */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
-        {/* Left (7 Cols): Interactive Physiological Heat Stress Curve */}
-        <div className="lg:col-span-7 bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5 flex flex-col justify-between">
+        {/* Left (7 cols): Diurnal Heat & Curfew Curve */}
+        <div className="lg:col-span-7 p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center justify-between mb-2">
               <div>
-                <h3 className="text-base sm:text-lg font-headline font-bold text-white flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-orange-400" />
-                  Hourly Physiological Heat Stress Curve
+                <h3 className="text-base font-headline font-bold text-white flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-orange-400" />
+                  <span>Today's Temperature & Curfew Timeline</span>
                 </h3>
-                <p className="text-xs text-[#e0c0b1]/70">
-                  {weather.stationName} Diurnal Cycle • Red zone indicates fatal heat stroke threshold
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Hourly trajectory • Red band denotes mandatory outdoor curfew
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-mono">
-                <span className="flex items-center gap-1 text-slate-400">
-                  <span className="w-2.5 h-0.5 bg-slate-400" /> Safe Limit (28°C)
+              <div className="text-xs font-mono text-slate-400 hidden sm:flex items-center gap-2">
+                <span className="flex items-center gap-1">
+                  <span className="w-2.5 h-1 bg-orange-400 rounded-full" /> Temp
                 </span>
-                <span className="flex items-center gap-1 text-red-400 font-semibold">
-                  <span className="w-2.5 h-0.5 bg-red-500" /> Curfew (33°C)
+                <span className="flex items-center gap-1">
+                  <span className="w-2.5 h-1 bg-red-400 rounded-full" /> WBGT
                 </span>
               </div>
             </div>
 
-            {/* SVG Diurnal Curve Chart */}
-            <div className="relative w-full h-52 sm:h-60 mt-4 bg-[#060e20] rounded-xl border border-[#2d3449]/60 p-2 sm:p-4">
-              <svg viewBox="0 0 600 220" className="w-full h-full overflow-visible">
-                {/* Horizontal reference grid lines */}
-                <line x1="40" y1="180" x2="580" y2="180" stroke="#171f33" strokeWidth="1" />
-                <line x1="40" y1="130" x2="580" y2="130" stroke="#171f33" strokeWidth="1" />
-                <line x1="40" y1="80" x2="580" y2="80" stroke="#171f33" strokeWidth="1" />
-                
-                {/* Safe limit line (28°C) */}
-                <line x1="40" y1="140" x2="580" y2="140" stroke="#38bdf8" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.6" />
-                <text x="45" y="136" fill="#38bdf8" fontSize="10" fontFamily="JetBrains Mono">Safe Limit 28°C</text>
+            {/* Clean SVG Temperature Graph */}
+            <div className="w-full h-48 mt-4 bg-slate-950/60 rounded-xl border border-slate-800/80 p-3 relative">
+              <svg viewBox="0 0 600 200" className="w-full h-full overflow-visible">
+                {/* Reference Grid lines */}
+                <line x1="40" y1="160" x2="560" y2="160" stroke="#1e293b" strokeWidth="1" />
+                <line x1="40" y1="110" x2="560" y2="110" stroke="#1e293b" strokeWidth="1" />
+                <line x1="40" y1="60" x2="560" y2="60" stroke="#1e293b" strokeWidth="1" />
 
-                {/* Critical Curfew line (33°C) */}
-                <line x1="40" y1="65" x2="580" y2="65" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4 4" />
-                <text x="45" y="60" fill="#ef4444" fontSize="10" fontFamily="JetBrains Mono" fontWeight="bold">CRITICAL WORK CURFEW 33°C WBGT</text>
+                {/* Safe limit reference */}
+                <line x1="40" y1="125" x2="560" y2="125" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
+                <text x="45" y="120" fill="#38bdf8" fontSize="10" fontFamily="sans-serif">Safe Limit (28°C)</text>
 
-                {/* Danger zone shading */}
-                <rect x="40" y="20" width="540" height="45" fill="#ef4444" fillOpacity="0.08" />
+                {/* Curfew window highlight rectangle */}
+                <rect x="230" y="20" width="180" height="150" fill="#ef4444" fillOpacity="0.08" rx="8" />
+                <text x="320" y="36" fill="#ef4444" fontSize="10" textAnchor="middle" fontWeight="bold">
+                  CURFEW ZONE (12:30 - 16:30)
+                </text>
 
-                {/* Ambient Dry Bulb temp path */}
+                {/* Ambient Dry Bulb Line */}
                 <path
-                  d="M 50 170 Q 130 130 220 70 T 320 30 T 420 45 T 510 110 T 570 150"
-                  fill="none"
-                  stroke="#ea580c"
-                  strokeWidth="3"
-                />
-
-                {/* WBGT Curve path */}
-                <path
-                  d="M 50 185 Q 130 150 220 100 T 320 52 T 420 75 T 510 135 T 570 170"
+                  d="M 50 150 Q 130 115 210 65 T 310 30 T 400 45 T 480 95 T 550 135"
                   fill="none"
                   stroke="#f97316"
-                  strokeWidth="3.5"
-                  strokeDasharray="1 0"
+                  strokeWidth="2.5"
+                />
+
+                {/* WBGT Line */}
+                <path
+                  d="M 50 165 Q 130 135 210 95 T 310 50 T 400 70 T 480 120 T 550 150"
+                  fill="none"
+                  stroke="#ef4444"
+                  strokeWidth="2.5"
+                  strokeDasharray="2 0"
                 />
 
                 {/* Interactive Points */}
                 {hourlyData.map((pt, idx) => {
-                  const cx = 50 + idx * 86.6;
-                  // Map WBGT to Y coord (26°C -> 185, 34.2°C -> 52)
-                  const cy = 185 - ((pt.wbgt - 26) / 8.5) * 133;
-                  const isSelected = selectedPointIndex === idx;
+                  const cx = 50 + idx * 83.3;
+                  const cy = 165 - ((pt.wbgt - 26) / 8.5) * 115;
+                  const isSelected = selectedHourIndex === idx;
 
                   return (
-                    <g key={pt.time} className="cursor-pointer" onClick={() => setSelectedPointIndex(idx)}>
+                    <g key={pt.time} className="cursor-pointer" onClick={() => setSelectedHourIndex(idx)}>
                       {isSelected && (
-                        <circle cx={cx} cy={cy} r="14" fill="#f97316" fillOpacity="0.2" className="animate-ping" />
+                        <circle cx={cx} cy={cy} r="10" fill="#f97316" fillOpacity="0.2" />
                       )}
                       <circle
                         cx={cx}
                         cy={cy}
-                        r={isSelected ? 6 : 4.5}
+                        r={isSelected ? 5.5 : 4}
                         fill={isSelected ? '#ffffff' : (pt.wbgt >= 33 ? '#ef4444' : '#f97316')}
-                        stroke="#060e20"
+                        stroke="#090e17"
                         strokeWidth="2"
                       />
-                      {/* X-axis labels */}
                       <text
                         x={cx}
-                        y="208"
+                        y="185"
                         textAnchor="middle"
-                        fill={isSelected ? '#ffb690' : '#94a3b8'}
+                        fill={isSelected ? '#ffffff' : '#64748b'}
                         fontSize="10"
-                        fontFamily="JetBrains Mono"
                         fontWeight={isSelected ? 'bold' : 'normal'}
                       >
                         {pt.time}
@@ -425,110 +421,119 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             </div>
           </div>
 
-          {/* Point Inspector Bar */}
-          <div className="mt-3 p-3 rounded-xl bg-[#060e20] border border-[#2d3449] flex items-center justify-between text-xs">
+          {/* Selected Hour Details Bar */}
+          <div className="mt-3 p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-orange-400 font-bold px-2 py-1 bg-orange-500/10 rounded border border-orange-500/30">
-                {hourlyData[selectedPointIndex].time} IST
+              <span className="font-semibold text-orange-400 bg-orange-500/10 px-2.5 py-1 rounded-md border border-orange-500/20 font-mono">
+                {selectedHour.time} IST
               </span>
               <div>
-                <span className="text-white font-semibold">
-                  Air {hourlyData[selectedPointIndex].temp}°C • WBGT {hourlyData[selectedPointIndex].wbgt}°C
+                <span className="text-white font-medium">
+                  Air {selectedHour.temp}°C • WBGT {selectedHour.wbgt}°C
                 </span>
-                <span className="text-slate-400 text-[11px] block">
-                  Status: <span className="text-orange-300 font-medium">{hourlyData[selectedPointIndex].stress}</span>
+                <span className="text-slate-400 block text-[11px]">
+                  {selectedHour.stress}
                 </span>
               </div>
             </div>
-            <div className="text-right hidden sm:block">
-              <span className="text-[11px] font-mono text-slate-400">Sweat Rate</span>
-              <div className="font-mono text-orange-400 font-bold">
-                {selectedPointIndex === 3 ? '850 ml/hr' : '450-700 ml/hr'}
-              </div>
+            <div className="text-right">
+              <span className="text-[11px] text-slate-400">Sweat Rate:</span>
+              <div className="font-mono text-orange-400 font-bold">{selectedHour.sweat}</div>
             </div>
           </div>
         </div>
 
-        {/* Right (5 Cols): Personalized Health Memory & Bio-Advisory Engine */}
-        <div className="lg:col-span-5 bg-[#0b1326] rounded-2xl border border-orange-500/30 p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden">
-          
-          {/* Subtle glow background */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
-
+        {/* Right (5 cols): Personal Health & Hydration Engine */}
+        <div className="lg:col-span-5 p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/40 flex items-center justify-center">
-                  <HeartPulse className="w-4 h-4 text-orange-400" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                  <HeartPulse className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-headline font-bold text-white">
-                    Personalized Bio-Advisory Engine
+                  <h3 className="text-base font-headline font-bold text-white">
+                    Personal Health & Hydration
                   </h3>
-                  <p className="text-[11px] font-mono text-[#a78b7d]">
-                    Memory ID: Rajesh Kumar (Age 52)
+                  <p className="text-xs text-slate-400">
+                    {userProfile.fullName} ({userProfile.age} yrs)
                   </p>
                 </div>
               </div>
               <button
-                id="edit-profile-shortcut-btn"
                 onClick={() => onSwitchTab('profile')}
-                className="text-[11px] font-mono text-orange-400 hover:text-orange-300 underline"
+                className="text-xs text-orange-400 hover:text-orange-300 font-medium"
               >
-                Edit Profile
+                Edit
               </button>
             </div>
 
-            {/* Metabolic Strain Dial & Risk Box */}
-            <div className="p-3 rounded-xl bg-[#060e20] border border-red-500/30 mb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[10px] font-mono text-red-400 font-bold uppercase tracking-wider">
-                    Cumulative Thermal Strain
-                  </div>
-                  <div className="text-xl sm:text-2xl font-headline font-black text-white">
-                    94 <span className="text-xs text-red-400 font-mono">/ 100 EXTREME</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] font-mono text-slate-400 block">Personal Threshold</span>
-                  <span className="text-xs font-mono font-bold text-amber-300">28.5°C WBGT</span>
-                </div>
+            {/* Hydration Progress */}
+            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 mb-3.5 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-400">Daily Water Intake</span>
+                <span className="font-mono text-cyan-400 font-bold">
+                  {userProfile.hydrationTodayMl} / {userProfile.targetWaterMl} ml
+                </span>
               </div>
 
               {/* Progress bar */}
-              <div className="w-full bg-[#171f33] h-2 rounded-full overflow-hidden mt-2">
-                <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 h-full rounded-full w-[94%]" />
+              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div 
+                  className="h-full bg-cyan-400 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.min(100, Math.round((userProfile.hydrationTodayMl / userProfile.targetWaterMl) * 100))}%` }}
+                />
               </div>
 
-              <div className="mt-2 text-[11px] text-red-300/90 leading-tight">
-                ⚠️ <strong>Clinical Warning:</strong> Calcium channel blocker (Amlodipine) + Thiazide diuretic accelerates peripheral dehydration and suppresses internal heat dissipation.
+              {/* Quick Log Buttons */}
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => handleQuickWaterLog(250)}
+                  className="flex-1 py-1.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-medium border border-cyan-800/40 transition-colors flex items-center justify-center gap-1"
+                >
+                  <Droplet className="w-3.5 h-3.5" />
+                  <span>+250ml ORS</span>
+                </button>
+                <button
+                  onClick={() => handleQuickWaterLog(500)}
+                  className="flex-1 py-1.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-medium border border-cyan-800/40 transition-colors flex items-center justify-center gap-1"
+                >
+                  <Droplet className="w-3.5 h-3.5" />
+                  <span>+500ml Water</span>
+                </button>
               </div>
             </div>
 
-            {/* Dynamic Hydration Tracker with Real-Time Dehydration Hazard Engine */}
-            <HydrationTracker
-              weather={weather}
-              userProfile={userProfile}
-              onLogWater={onLogWater}
-              onOpenTriage={onOpenTriage}
-              onSimulateInactivity={onSimulateInactivity}
-              onOpenHealthReport={onOpenHealthReport}
-              onOpenPushSettings={onOpenPushSettings}
-              className="mb-3"
-            />
+            {/* Thermal Strain & Medication Vulnerability */}
+            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 mb-3">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-slate-400">Cumulative Thermal Strain</span>
+                <span className="text-red-400 font-mono font-bold">94 / 100 (Extreme)</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                ⚠️ <strong>Clinical Note:</strong> Amlodipine diuretic medication accelerates hydration loss. Rest in cooling shelters every 45 minutes.
+              </p>
+            </div>
           </div>
 
-          {/* Action Trigger in Profile Card */}
-          <div className="pt-2 border-t border-[#2d3449] flex items-center justify-between">
-            <span className="text-xs text-slate-300">Feeling dizzy or muscle cramps?</span>
+          {/* Clinical Dossier Shortcut */}
+          <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+            {onOpenHealthReport ? (
+              <button
+                onClick={onOpenHealthReport}
+                className="text-xs text-slate-300 hover:text-white flex items-center gap-1.5 font-medium"
+              >
+                <FileText className="w-3.5 h-3.5 text-orange-400" />
+                <span>View Clinical Health Dossier</span>
+              </button>
+            ) : <span />}
+
             <button
-              id="triage-diagnostic-shortcut-btn"
               onClick={onOpenTriage}
-              className="text-xs font-mono font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1"
+              className="text-xs text-orange-400 hover:text-orange-300 font-medium flex items-center gap-1"
             >
-              <span>Run AI Triage Tree</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <span>AI Triage</span>
+              <ChevronRight className="w-3 h-3" />
             </button>
           </div>
 
@@ -536,176 +541,85 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
 
       </div>
 
-      {/* 4. Lower Row: Microclimate Heat Island Satellite & Municipal Directives */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6">
+      {/* 5. Support Row: Designated Cooling Shelter & Curfew Protocol Order */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         
-        {/* Left (5 Cols): Microclimate Satellite Imagery & Thermal Plume */}
-        <div className="lg:col-span-5 bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5 flex flex-col justify-between">
+        {/* Designated Shelter Card */}
+        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm sm:text-base font-headline font-bold text-white flex items-center gap-2">
-                <Layers className="w-4 h-4 text-orange-400" />
-                Landsat-9 / INSAT-3DR Thermal Plume
-              </h3>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                LST +3.4°C UHI
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <h3 className="font-headline font-bold text-white text-sm">
+                  Nearest Designated Cooling Shelter
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                {nearestShelter.walkTimeMins} min walk
               </span>
             </div>
 
-            {/* Satellite Map Frame */}
-            <div className="relative rounded-xl overflow-hidden border border-[#2d3449] aspect-video bg-[#060e20] group">
-              <img
-                src={ASSET_IMAGES.satelliteDharavi}
-                alt="Dharavi Urban Heat Island Satellite Map"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#060e20] via-transparent to-transparent" />
-              
-              {/* Overlay Radar Pulse on Dharavi Hotspot */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-full bg-red-600/30 animate-radar" />
-                <div className="w-6 h-6 rounded-full bg-red-600/60 flex items-center justify-center text-white text-[10px] font-mono font-bold shadow-lg border border-white">
-                  AWS
-                </div>
+            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1">
+              <div className="font-semibold text-white text-sm">
+                {nearestShelter.name}
               </div>
-
-              {/* Legend overlay */}
-              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] font-mono bg-[#0b1326]/90 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-[#2d3449]">
-                <span className="text-slate-300">Surface Temp Anomaly:</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-cyan-400">32°C (Coast)</span>
-                  <span className="text-slate-500">→</span>
-                  <span className="text-red-400 font-bold">46.8°C (Tin Roofs)</span>
-                </div>
-              </div>
+              <p className="text-xs text-slate-400">
+                Chilled indoor temperature: <strong className="text-emerald-400">{nearestShelter.indoorTemp}°C</strong> • Misting fans, cold WHO-ORS & hydration beds available
+              </p>
             </div>
           </div>
 
-          <div className="mt-3 text-xs text-slate-300 space-y-1 font-mono">
-            <div className="flex justify-between">
-              <span className="text-slate-400">Solar Radiative Load:</span>
-              <span className="text-white font-bold">{weather.solarRadiativeLoad} kW</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-400">Estimated Sweat Evaporation Loss:</span>
-              <span className="text-orange-400 font-bold">{weather.sweatLossRate} ml/hr</span>
-            </div>
+          <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-800">
+            <span className="text-xs text-slate-400">
+              {nearestShelter.capacity - nearestShelter.currentOccupancy} beds currently open
+            </span>
+            <button
+              onClick={() => onNavigateToFacility(nearestShelter as CoolingFacility)}
+              className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>Get Directions</span>
+            </button>
           </div>
         </div>
 
-        {/* Right (7 Cols): Municipal EOC Emergency Directives & Nearest Shelter Card */}
-        <div className="lg:col-span-7 bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5 flex flex-col justify-between">
+        {/* Official Statutory Curfew Directives */}
+        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm sm:text-base font-headline font-bold text-white flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-red-400" />
-                Municipal EOC Directives • Ward G/North
-              </h3>
-              <span className="text-[10px] font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
-                ACTIVE ORDERS
+              <div className="flex items-center gap-2 text-red-400">
+                <AlertTriangle className="w-4 h-4" />
+                <h3 className="font-headline font-bold text-white text-sm">
+                  NDMA Heatwave Directives
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                Order #419-B
               </span>
             </div>
 
-            <div className="space-y-2.5">
-              <div className="p-3 rounded-xl bg-[#060e20] border border-red-500/20 flex items-start gap-2.5">
-                <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-                <div className="text-xs text-slate-300 leading-relaxed">
-                  <span className="text-white font-semibold block">Mandatory Informal Labor Suspension</span>
-                  Section 51 NDMA order enforces stoppage of masonry, road works, and open headload carriage between 11:30 and 16:30. Contractors non-compliant face immediate license revocation.
-                </div>
+            <div className="space-y-2 text-xs text-slate-300">
+              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 shrink-0" />
+                <span><strong>No Outdoor Labor:</strong> Physical and construction work strictly suspended between 12:30 and 16:30.</span>
               </div>
-
-              <div className="p-3 rounded-xl bg-[#060e20] border border-cyan-500/20 flex items-start gap-2.5">
-                <Droplet className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                <div className="text-xs text-slate-300 leading-relaxed">
-                  <span className="text-white font-semibold block">Free Drinking Water Bowsers Stationed</span>
-                  24 BMC water bowsers deployed with chilled electrolyte solution along 90ft Road, Matunga Labour Camp, and Sion Circle.
-                </div>
+              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0" />
+                <span><strong>Hydration Stations:</strong> Free chilled ORS is available at transit hubs, metro concourses, and bus stops.</span>
               </div>
-            </div>
-
-            {/* Nearest Designated Shelter Highlight */}
-            <div className="mt-3 p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/40 to-[#171f33] border border-emerald-500/30 flex items-center justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase bg-emerald-500/20 px-1.5 py-0.5 rounded">
-                    Nearest Cooling Sanctuary
-                  </span>
-                  <span className="text-xs font-mono text-slate-400">
-                    {nearestShelter.walkTimeMins} mins walk ({nearestShelter.distanceKm} km)
-                  </span>
-                </div>
-                <h4 className="text-sm font-semibold text-white mt-1 truncate">
-                  {nearestShelter.name}
-                </h4>
-                <p className="text-[11px] text-slate-300">
-                  Indoor Temp: <strong className="text-emerald-400">{nearestShelter.indoorTemp}°C</strong> • Chilled ORS & Misting Fans
-                </p>
-              </div>
-
-              <button
-                id="navigate-nearest-shelter-btn"
-                onClick={() => onNavigateToFacility(nearestShelter)}
-                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shrink-0 shadow-md shadow-emerald-950/40 flex items-center gap-1.5 transition-all"
-              >
-                <Compass className="w-3.5 h-3.5" />
-                <span>Directions</span>
-              </button>
             </div>
           </div>
 
-          {/* Quick Action Grid at bottom */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 pt-3 border-t border-[#2d3449]">
+          <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-800">
+            <span className="text-xs text-slate-400">Section 51 DMA 2005</span>
             <button
-              id="action-cooling-btn"
-              onClick={() => onSwitchTab('cooling-finder')}
-              className="p-2 rounded-lg bg-[#060e20] hover:bg-[#171f33] border border-[#2d3449] hover:border-orange-500/50 text-left transition-all"
+              onClick={() => setShowOrderModal(true)}
+              className="text-xs text-orange-400 hover:text-orange-300 font-medium flex items-center gap-1"
             >
-              <div className="text-[10px] font-mono text-slate-400">FIND SHELTER</div>
-              <div className="text-xs font-semibold text-orange-300 flex items-center justify-between">
-                <span>Cooling Pods</span>
-                <ChevronRight className="w-3 h-3 text-slate-500" />
-              </div>
-            </button>
-
-            <button
-              id="action-protocols-btn"
-              onClick={() => onSwitchTab('protocols')}
-              className="p-2 rounded-lg bg-[#060e20] hover:bg-[#171f33] border border-[#2d3449] hover:border-orange-500/50 text-left transition-all"
-            >
-              <div className="text-[10px] font-mono text-slate-400">FIRST AID</div>
-              <div className="text-xs font-semibold text-orange-300 flex items-center justify-between">
-                <span>Triage Matrix</span>
-                <ChevronRight className="w-3 h-3 text-slate-500" />
-              </div>
-            </button>
-
-            <button
-              id="action-forecast-btn"
-              onClick={() => onSwitchTab('forecast')}
-              className="p-2 rounded-lg bg-[#060e20] hover:bg-[#171f33] border border-[#2d3449] hover:border-orange-500/50 text-left transition-all"
-            >
-              <div className="text-[10px] font-mono text-slate-400">5-DAY ML</div>
-              <div className="text-xs font-semibold text-orange-300 flex items-center justify-between">
-                <span>Surge Horizon</span>
-                <ChevronRight className="w-3 h-3 text-slate-500" />
-              </div>
-            </button>
-
-            <button
-              id="action-emergency-sos-quick-btn"
-              onClick={onTriggerSOS}
-              className="p-2 rounded-lg bg-red-950/40 hover:bg-red-900/50 border border-red-500/40 text-left transition-all"
-            >
-              <div className="text-[10px] font-mono text-red-400 font-bold">EMERGENCY</div>
-              <div className="text-xs font-bold text-white flex items-center justify-between">
-                <span>Call 108</span>
-                <PhoneCall className="w-3 h-3 text-red-400" />
-              </div>
+              <Info className="w-3.5 h-3.5" />
+              <span>Read Full Executive Order</span>
             </button>
           </div>
-
         </div>
 
       </div>
@@ -713,15 +627,15 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
       {/* Official Order Modal */}
       {showOrderModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0b1326] border border-red-500/50 rounded-2xl max-w-lg w-full p-5 shadow-2xl relative">
-            <div className="flex items-center justify-between border-b border-[#2d3449] pb-3 mb-3">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
               <div className="flex items-center gap-2 text-red-400 font-headline font-bold text-base">
-                <ShieldAlert className="w-5 h-5" />
-                <span>BMC DDMA Executive Order #419-B</span>
+                <AlertTriangle className="w-5 h-5" />
+                <span>National Disaster Management Act Order #419-B</span>
               </div>
               <button
                 onClick={() => setShowOrderModal(false)}
-                className="text-slate-400 hover:text-white text-lg font-mono"
+                className="text-slate-400 hover:text-white text-lg"
               >
                 ✕
               </button>
@@ -732,22 +646,22 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                 ISSUED UNDER SECTION 30(2)(v) & 51 OF DISASTER MANAGEMENT ACT, 2005
               </p>
               <p>
-                In view of IMD Heatwave Warning and AWS-4019 WBGT recording exceeding 34.2°C, the following statutory directives are in immediate force across Wards G/North, L, M/East, and F/North:
+                In view of IMD Severe Heatwave Warning and AWS WBGT recordings exceeding 34.2°C, the following statutory directives are in immediate force across all wards:
               </p>
               <ol className="list-decimal list-inside space-y-2 text-slate-200">
-                <li><strong>Curfew on Outdoor Unshaded Labor:</strong> Complete halt from 11:30 to 16:30 IST.</li>
+                <li><strong>Curfew on Outdoor Unshaded Labor:</strong> Complete halt from 12:30 to 16:30 IST.</li>
                 <li><strong>Free ORS & Water Stations:</strong> Obligatory for all commercial employers and builders.</li>
-                <li><strong>Designated Cooling Refuges:</strong> 18 municipal schools, community halls, and transit hubs open with 24/7 air-cooling.</li>
-                <li><strong>Hospital Heat Wings:</strong> Lokmanya Tilak Sion Hospital and KEM Hospital activated under Code Red mass casualty surge protocols.</li>
+                <li><strong>Designated Cooling Refuges:</strong> Municipal community halls and transit hubs open with 24/7 air-cooling.</li>
+                <li><strong>Hospital Heat Wings:</strong> Mass casualty emergency departments activated under Code Orange heat protocols.</li>
               </ol>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-[#2d3449] flex justify-end">
+            <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
               <button
                 onClick={() => setShowOrderModal(false)}
-                className="px-4 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold rounded-lg"
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-lg"
               >
-                Acknowledged
+                Understood
               </button>
             </div>
           </div>

@@ -263,9 +263,9 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060e20] text-[#dae2fd] flex flex-col selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-[#090e17] text-[#e2e8f0] flex flex-col selection:bg-orange-500 selection:text-white">
       
-      {/* Top Tactical Command Header */}
+      {/* Top Header */}
       <Navbar
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
@@ -311,7 +311,7 @@ export function App() {
         )}
 
         {/* Dynamic Content Area with padding to prevent mobile bottom-bar overlap */}
-        <main className="flex-1 overflow-y-auto bg-[#060e20] p-3 sm:p-5 lg:p-6 pb-24 lg:pb-6">
+        <main className="flex-1 overflow-y-auto bg-[#090e17] p-3 sm:p-5 lg:p-6 pb-24 lg:pb-6">
           
           {/* If Mobile Frame Mode is enabled, render in a phone frame */}
           {isMobileFrame ? (

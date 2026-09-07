@@ -181,8 +181,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   ];
 
   const containerClass = isEmbedded
-    ? "w-full bg-[#0b1326] border-t border-[#2d3449] px-2 py-1.5 flex items-center justify-around select-none z-30"
-    : "lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b1326]/95 backdrop-blur-xl border-t border-[#2d3449] px-2 py-1.5 flex items-center justify-around select-none shadow-2xl";
+    ? "w-full bg-[#0b1326] border-t border-slate-800/80 px-2 py-1.5 flex items-center justify-around select-none z-30"
+    : "lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b1326]/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 flex items-center justify-around select-none shadow-2xl";
 
   return (
     <>
@@ -216,7 +216,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   {item.icon}
                 </div>
                 {item.badge && (
-                  <span className="absolute -top-1.5 -right-2 px-1 py-0.2 text-[8px] font-mono font-bold rounded-full bg-red-600 text-white animate-pulse">
+                  <span className="absolute -top-1.5 -right-2 px-1 py-0.2 text-[8px] font-mono font-bold rounded-full bg-red-600 text-white">
                     {item.badge}
                   </span>
                 )}
@@ -233,12 +233,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       {isDrawerOpen && (
         <div 
           id="mobile-action-drawer-overlay"
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col justify-end lg:hidden animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col justify-end lg:hidden"
           onClick={() => setDrawerOpen(false)}
         >
           <div 
             id="mobile-action-drawer-sheet"
-            className="bg-[#0b1326] border-t border-[#2d3449] rounded-t-3xl max-h-[85vh] overflow-y-auto p-4 sm:p-5 pb-8 space-y-4 shadow-2xl text-left"
+            className="bg-[#0b1326] border-t border-slate-700 rounded-t-3xl max-h-[85vh] overflow-y-auto p-4 sm:p-5 pb-8 space-y-4 shadow-2xl text-left"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sheet Handle and Header */}
