@@ -97,19 +97,18 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     { id: 'forecast', label: 'Forecast', icon: <TrendingUp className="w-5 h-5" /> },
     { 
       id: 'health-report', 
-      label: 'Report', 
+      label: 'Dossier', 
       icon: <FileText className="w-5 h-5" />,
-      badge: 'PHSI'
     },
     { 
       id: 'more', 
-      label: isSecondaryActive ? secondaryLabel : 'More', 
+      label: isSecondaryActive ? secondaryLabel : 'Menu', 
       icon: isSecondaryActive ? (
         currentTab === 'alerts' ? <BellRing className="w-5 h-5 text-red-400" /> :
         currentTab === 'protocols' ? <ShieldCheck className="w-5 h-5 text-emerald-400" /> :
         <UserCheck className="w-5 h-5 text-orange-400" />
       ) : <Menu className="w-5 h-5" />,
-      badge: unreadAlertCount > 0 ? 'ALERT' : undefined,
+      badge: unreadAlertCount > 0 ? '!' : undefined,
     },
   ];
 
@@ -181,8 +180,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   ];
 
   const containerClass = isEmbedded
-    ? "w-full bg-[#0b1326] border-t border-slate-800/80 px-2 py-1.5 flex items-center justify-around select-none z-30"
-    : "lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b1326]/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 flex items-center justify-around select-none shadow-2xl";
+    ? "w-full bg-[#0b1326] border-t border-slate-800/80 px-2 py-2 flex items-center justify-around select-none z-30"
+    : "lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b1326]/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-2 pb-5 flex items-center justify-around select-none shadow-2xl";
 
   return (
     <>
@@ -205,7 +204,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   onSelectTab(item.id as NavigationTab);
                 }
               }}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all relative ${
+              className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
                 isSelected
                   ? 'text-orange-400 font-bold bg-orange-500/10'
                   : 'text-slate-400 hover:text-slate-200'
@@ -216,12 +215,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   {item.icon}
                 </div>
                 {item.badge && (
-                  <span className="absolute -top-1.5 -right-2 px-1 py-0.2 text-[8px] font-mono font-bold rounded-full bg-red-600 text-white">
+                  <span className="absolute -top-1 -right-2 px-1 py-0.2 text-[8px] font-mono font-bold rounded-full bg-red-600 text-white min-w-[14px] text-center">
                     {item.badge}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-sans tracking-tight mt-0.5 truncate max-w-[62px]">
+              <span className="text-[10px] font-sans tracking-tight mt-0.5 whitespace-nowrap text-center">
                 {item.label}
               </span>
             </button>

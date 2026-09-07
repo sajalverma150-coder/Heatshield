@@ -194,13 +194,15 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
         {/* Center: Current Headline (Clickable) */}
         <div 
           onClick={handleCityClick}
-          className="flex-1 min-w-0 flex items-center gap-2 cursor-pointer group justify-center text-center sm:text-left"
+          className="flex-1 min-w-0 flex items-center gap-1.5 sm:gap-2 cursor-pointer group justify-start text-left overflow-hidden"
           title={`Click to view data for ${currentItem.cityName}`}
         >
-          <strong className="text-white font-semibold text-xs group-hover:text-orange-400 transition-colors shrink-0">
-            {currentItem.cityName} ({currentItem.temp}°C):
+          <strong className="text-white font-semibold text-[11px] sm:text-xs group-hover:text-orange-400 transition-colors shrink-0">
+            <span className="sm:hidden">{currentItem.cityName.split(' ')[0]}</span>
+            <span className="hidden sm:inline">{currentItem.cityName}</span>
+            <span className="ml-1 text-orange-400 font-mono">({currentItem.temp}°C)</span>:
           </strong>
-          <span className="text-slate-300 text-xs truncate max-w-xl group-hover:text-slate-100 transition-colors">
+          <span className="text-slate-300 text-[11px] sm:text-xs truncate max-w-xl group-hover:text-slate-100 transition-colors">
             {currentItem.headline}
           </span>
           <span className="hidden lg:inline text-[10px] font-mono text-orange-400/80 group-hover:underline shrink-0">

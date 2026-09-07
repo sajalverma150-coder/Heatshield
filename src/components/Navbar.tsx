@@ -100,54 +100,54 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Center: Clean Clickable Location & Weather Pill */}
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center min-w-0">
           <button
             id="navbar-city-selector-btn"
             onClick={onOpenCitySelector}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 text-white text-xs transition-all shadow-sm group"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 text-white text-xs transition-all shadow-sm group min-w-0"
             title="Search Indian cities or use GPS"
           >
             <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-            <span className="font-semibold text-slate-200 group-hover:text-white">
+            <span className="font-semibold text-slate-200 group-hover:text-white truncate max-w-[90px] sm:max-w-none">
               {selectedCity.name}
             </span>
-            <span className="text-orange-400 font-mono font-bold text-xs bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">
+            <span className="text-orange-400 font-mono font-bold text-xs bg-orange-500/10 px-1.5 sm:px-2 py-0.5 rounded-full border border-orange-500/20 shrink-0">
               {weather.dryBulbTemp}°C
             </span>
             <span className="hidden md:inline-flex text-[11px] text-slate-400 font-mono">
               WBGT {weather.wbgt}°C
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" />
+            <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-white transition-colors shrink-0" />
           </button>
         </div>
 
-        {/* Right: Actions (AI Triage, SOS 108, Settings, Mobile Menu) */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Right: Actions (SOS 108 is priority, Triage & Settings on desktop, Hamburger on mobile) */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           
-          {/* AI Triage Button */}
+          {/* AI Triage Button (desktop only, available via drawer & hero on mobile) */}
           <button
             id="navbar-triage-button"
             onClick={onOpenTriage}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-orange-500/50 text-slate-200 hover:text-white text-xs font-medium transition-all shadow-sm"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-orange-500/50 text-slate-200 hover:text-white text-xs font-medium transition-all shadow-sm"
             title="AI Heat Triage & Symptom Assessment"
           >
             <Brain className="w-3.5 h-3.5 text-orange-400" />
-            <span className="hidden sm:inline">AI Triage</span>
+            <span>AI Triage</span>
           </button>
 
           {/* Emergency 108 Button */}
           <button
             id="navbar-sos-button"
             onClick={onTriggerSOS}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-950/40 transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-950/40 transition-all active:scale-95 shrink-0"
             title="Emergency Medical Hotline (Dial 108)"
           >
             <PhoneCall className="w-3.5 h-3.5" />
-            <span>SOS 108</span>
+            <span className="font-headline tracking-wide">108</span>
           </button>
 
-          {/* Settings & Tools Popover Button */}
-          <div className="relative" ref={settingsRef}>
+          {/* Settings & Tools Popover Button (Desktop only) */}
+          <div className="relative hidden md:block" ref={settingsRef}>
             <button
               id="navbar-settings-dropdown-btn"
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
