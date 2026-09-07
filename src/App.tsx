@@ -23,7 +23,8 @@ import {
   LanguageCode, 
   WeatherTelemetry, 
   UserHealthProfile, 
-  CoolingFacility 
+  CoolingFacility,
+  ForecastDay 
 } from './types';
 import { 
   INITIAL_WEATHER_TELEMETRY, 
@@ -35,7 +36,13 @@ import {
   CityData, 
   findNearestIndianCity 
 } from './data/indiaCities';
-import { fetchLiveWeatherFromApi } from './services/weatherApiService';
+import { 
+  fetchLiveWeatherFromApi, 
+  fetchLiveForecastFromApi, 
+  fetchLiveBatchCitiesWeather,
+  generateCalibratedCityForecast,
+  CityLiveSummary 
+} from './services/weatherApiService';
 
 export function App() {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
@@ -50,6 +57,10 @@ export function App() {
 
   // App telemetry & facilities state
   const [weather, setWeather] = useState<WeatherTelemetry>(INDIAN_CITIES[0].weather);
+  const [forecastDays, setForecastDays] = useState<ForecastDay[]>(() => 
+    (INDIAN_CITIES[0] as any).forecast || generateCalibratedCityForecast(INDIAN_CITIES[0], 7)
+  );
+  const [batchCitiesWeather, setBatchCitiesWeather] = useState<Record<string, CityLiveSummary>>({});
   const [facilities, setFacilities] = useState<CoolingFacility[]>(INDIAN_CITIES[0].coolingFacilities);
   const [dataSourceMode, setDataSourceMode] = useState<'live_api' | 'imd_heatwave'>('live_api');
   const [isLiveApiLoading, setIsLiveApiLoading] = useState<boolean>(false);
@@ -77,31 +88,57 @@ export function App() {
     if (mode === 'live_api') {
       setIsLiveApiLoading(true);
       try {
-        const liveWeather = await fetchLiveWeatherFromApi(city.lat, city.lng, city.weather);
+        const [liveWeather, liveForecast] = await Promise.all([
+          fetchLiveWeatherFromApi(city.lat, city.lng, city.weather),
+          fetchLiveForecastFromApi(city.lat, city.lng, city.name, city.climateZone),
+        ]);
         setWeather(liveWeather);
+        setForecastDays(liveForecast);
         setSelectedCity((prev) => ({
           ...prev,
           weather: liveWeather,
+          forecast: liveForecast,
         }));
       } catch (err) {
         console.warn('Failed to fetch live API weather, falling back to calibrated IMD station model:', err);
         setWeather(city.weather);
+        const calibrated = generateCalibratedCityForecast(city, 7);
+        setForecastDays(calibrated);
       } finally {
         setIsLiveApiLoading(false);
       }
     } else {
       setWeather(city.weather);
+      const drillForecast = generateCalibratedCityForecast(city, 7);
+      setForecastDays(drillForecast);
       setSelectedCity((prev) => ({
         ...prev,
         weather: city.weather,
+        forecast: drillForecast,
       }));
     }
   };
 
-  // Initial load of live weather on startup
+  // Initial load of live weather and batch cities on startup
   useEffect(() => {
     loadWeatherForCity(INDIAN_CITIES[0], 'live_api');
+    fetchLiveBatchCitiesWeather(INDIAN_CITIES).then((batch) => {
+      if (Object.keys(batch).length > 0) {
+        setBatchCitiesWeather(batch);
+      }
+    });
   }, []);
+
+  // Sync batch updates when user toggles to live mode
+  useEffect(() => {
+    if (dataSourceMode === 'live_api') {
+      fetchLiveBatchCitiesWeather(INDIAN_CITIES).then((batch) => {
+        if (Object.keys(batch).length > 0) {
+          setBatchCitiesWeather(batch);
+        }
+      });
+    }
+  }, [dataSourceMode]);
 
   // Automatic GPS Geolocation Detection on Mount
   useEffect(() => {
@@ -231,8 +268,10 @@ export function App() {
       case 'forecast':
         return (
           <PredictiveForecastView
-            forecastDays={(selectedCity as any).forecast || (selectedCity as any).forecastDays || []}
+            forecastDays={forecastDays && forecastDays.length > 0 ? forecastDays : (selectedCity as any).forecast || (selectedCity as any).forecastDays || []}
             selectedCity={selectedCity}
+            weather={weather}
+            dataSourceMode={dataSourceMode}
             onOpenCitySelector={() => setIsCitySelectorOpen(true)}
           />
         );
@@ -301,6 +340,9 @@ export function App() {
         onSelectCity={handleSelectCity}
         onOpenHealthReport={() => setIsHealthReportOpen(true)}
         onOpenPushSettings={() => setIsPushSettingsOpen(true)}
+        weather={weather}
+        dataSourceMode={dataSourceMode}
+        citiesLiveWeather={batchCitiesWeather}
       />
 
       {/* Main Container Layout */}
@@ -407,6 +449,9 @@ export function App() {
         onClose={() => setIsCitySelectorOpen(false)}
         selectedCity={selectedCity}
         onSelectCity={handleSelectCity}
+        dataSourceMode={dataSourceMode}
+        citiesLiveWeather={batchCitiesWeather}
+        activeWeather={weather}
       />
 
       {/* AI Triage Diagnostic Tree Modal */}

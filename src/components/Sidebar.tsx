@@ -55,7 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'forecast',
-      label: t.forecast || '5-Day ML Forecast',
+      label: t.forecast || '7-Day ML Forecast',
       icon: <TrendingUp className="w-4 h-4" />,
       badge: `${selectedCity.weather.dryBulbTemp}°C`,
       badgeVariant: 'orange',

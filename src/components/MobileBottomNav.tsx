@@ -139,7 +139,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     },
     {
       id: 'forecast',
-      title: '5-Day Heatwave Horizon',
+      title: '7-Day Heatwave Horizon',
       description: 'XGBoost ML neural forecast, diurnal WBGT curves & SHAP',
       icon: <TrendingUp className="w-5 h-5 text-cyan-400" />,
       badge: 'ML v2.4',

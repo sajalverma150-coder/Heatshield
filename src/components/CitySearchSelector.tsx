@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { INDIAN_CITIES, CityData, findNearestIndianCity, generateDynamicCityData, calculateDistanceKm } from '../data/indiaCities';
 import { searchGlobalLocations, LocationSearchResult } from '../services/locationSearch';
+import { CityLiveSummary } from '../services/weatherApiService';
+import { WeatherTelemetry } from '../types';
 
 interface CitySearchSelectorProps {
   selectedCity: CityData;
@@ -26,6 +28,9 @@ interface CitySearchSelectorProps {
   isOpen: boolean;
   onClose: () => void;
   onGpsDetected?: (coords: { lat: number; lng: number; accuracy: number }) => void;
+  dataSourceMode?: 'live_api' | 'imd_heatwave';
+  citiesLiveWeather?: Record<string, CityLiveSummary>;
+  activeWeather?: WeatherTelemetry;
 }
 
 export const CitySearchSelector: React.FC<CitySearchSelectorProps> = ({
@@ -34,6 +39,9 @@ export const CitySearchSelector: React.FC<CitySearchSelectorProps> = ({
   isOpen,
   onClose,
   onGpsDetected,
+  dataSourceMode = 'live_api',
+  citiesLiveWeather,
+  activeWeather,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isDetectingGps, setIsDetectingGps] = useState<boolean>(false);
@@ -41,6 +49,29 @@ export const CitySearchSelector: React.FC<CitySearchSelectorProps> = ({
   const [gpsSuccessMsg, setGpsSuccessMsg] = useState<string | null>(null);
   const [liveResults, setLiveResults] = useState<LocationSearchResult[]>([]);
   const [isLoadingLive, setIsLoadingLive] = useState<boolean>(false);
+
+  const getCityTelemetry = (cityItem: CityData) => {
+    if (selectedCity?.id === cityItem.id && activeWeather) {
+      return {
+        temp: activeWeather.dryBulbTemp,
+        wbgt: activeWeather.wbgt,
+        risk: activeWeather.riskLevel,
+      };
+    }
+    if (dataSourceMode === 'live_api' && citiesLiveWeather && citiesLiveWeather[cityItem.id]) {
+      const live = citiesLiveWeather[cityItem.id];
+      return {
+        temp: live.dryBulbTemp,
+        wbgt: live.wbgt,
+        risk: live.riskLevel,
+      };
+    }
+    return {
+      temp: cityItem.weather.dryBulbTemp,
+      wbgt: cityItem.weather.wbgt,
+      risk: cityItem.weather.riskLevel,
+    };
+  };
 
   // Real-time suggestions on keystroke
   useEffect(() => {
@@ -370,12 +401,22 @@ export const CitySearchSelector: React.FC<CitySearchSelectorProps> = ({
 
           {/* Quick Major Cities Bar */}
           <div>
-            <span className="text-[11px] font-mono text-[#a78b7d] uppercase tracking-wider block mb-2">
-              Popular Indian Metros & Heatwave Epicenters
-            </span>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-mono text-[#a78b7d] uppercase tracking-wider">
+                Popular Indian Metros & Telemetry
+              </span>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+                dataSourceMode === 'live_api'
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-semibold'
+                  : 'bg-orange-500/20 text-orange-300 border-orange-500/30'
+              }`}>
+                {dataSourceMode === 'live_api' ? '● Real-Time Satellite Telemetry' : 'IMD Heatwave Drill Mode'}
+              </span>
+            </div>
             <div className="flex flex-wrap gap-2">
               {INDIAN_CITIES.map((c) => {
                 const isSelected = selectedCity?.id === c.id;
+                const telemetry = getCityTelemetry(c);
                 return (
                   <button
                     key={c.id}
@@ -388,10 +429,16 @@ export const CitySearchSelector: React.FC<CitySearchSelectorProps> = ({
                     }`}
                   >
                     <span>{c.name}</span>
-                    <span className={`text-[10px] font-mono px-1 rounded ${
-                      isSelected ? 'bg-black/30 text-white' : 'bg-red-500/20 text-red-400'
+                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                      isSelected 
+                        ? 'bg-black/30 text-white font-bold' 
+                        : telemetry.temp >= 40 
+                          ? 'bg-red-500/20 text-red-400' 
+                          : telemetry.temp >= 32 
+                            ? 'bg-orange-500/20 text-orange-300' 
+                            : 'bg-emerald-500/20 text-emerald-300'
                     }`}>
-                      {c.weather.dryBulbTemp}°C
+                      {telemetry.temp}°C
                     </span>
                   </button>
                 );
@@ -409,6 +456,7 @@ export const CitySearchSelector: React.FC<CitySearchSelectorProps> = ({
             <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
               {filteredCities.map((city) => {
                 const isSelected = selectedCity?.id === city.id;
+                const telemetry = getCityTelemetry(city);
                 return (
                   <button
                     key={city.id}
@@ -444,19 +492,29 @@ export const CitySearchSelector: React.FC<CitySearchSelectorProps> = ({
 
                     <div className="text-right shrink-0">
                       <div className="flex items-center justify-end gap-1.5">
-                        <span className="text-sm font-bold text-red-400 font-mono">
-                          {city.weather.dryBulbTemp}°C
+                        <span className={`text-sm font-bold font-mono ${
+                          telemetry.temp >= 40 
+                            ? 'text-red-400' 
+                            : telemetry.temp >= 32 
+                              ? 'text-orange-400' 
+                              : 'text-emerald-400'
+                        }`}>
+                          {telemetry.temp}°C
                         </span>
-                        <span className="text-xs font-mono text-orange-400">
-                          (WBGT {city.weather.wbgt}°)
+                        <span className="text-xs font-mono text-slate-400">
+                          (WBGT {telemetry.wbgt}°)
                         </span>
                       </div>
                       <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border inline-block mt-0.5 ${
-                        city.weather.riskLevel === 'EXTREME'
+                        telemetry.risk === 'EXTREME'
                           ? 'bg-red-500/20 text-red-400 border-red-500/30'
-                          : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                          : telemetry.risk === 'VERY_HIGH'
+                            ? 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                            : telemetry.risk === 'HIGH'
+                              ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                              : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                       }`}>
-                        {city.weather.riskLevel}
+                        {telemetry.risk}
                       </span>
                     </div>
                   </button>

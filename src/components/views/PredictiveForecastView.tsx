@@ -15,19 +15,24 @@ import {
   ArrowUpRight,
   ShieldAlert
 } from 'lucide-react';
-import { ForecastDay } from '../../types';
-import { FORECAST_DAYS, ASSET_IMAGES } from '../../data/mockData';
-import { CityData } from '../../data/indiaCities';
+import { ForecastDay, WeatherTelemetry } from '../../types';
+import { FORECAST_DAYS } from '../../data/mockData';
+import { CityData, INDIAN_CITIES } from '../../data/indiaCities';
+import { NasaSatelliteThermalMap } from '../NasaSatelliteThermalMap';
 
 interface PredictiveForecastViewProps {
   forecastDays?: ForecastDay[];
   selectedCity?: CityData;
+  weather?: WeatherTelemetry;
+  dataSourceMode?: 'live_api' | 'imd_heatwave';
   onOpenCitySelector?: () => void;
 }
 
 export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
   forecastDays,
   selectedCity,
+  weather,
+  dataSourceMode = 'live_api',
   onOpenCitySelector,
 }) => {
   const activeForecast = (forecastDays && forecastDays.length > 0) ? forecastDays : FORECAST_DAYS;
@@ -47,6 +52,22 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
     setTimeout(() => setStocksVerified(false), 4000);
   };
 
+  // Dynamically calculate SVG Y coordinate based on actual temperatures of selected day
+  const hourlyPts = selectedDay.hourlyStress || [];
+  const allTemps = hourlyPts.length > 0 ? hourlyPts.flatMap((p) => [p.temp, p.wbgt]) : [selectedDay.maxTemp, selectedDay.minTemp];
+  const minTempChart = Math.min(...allTemps, 20);
+  const maxTempChart = Math.max(...allTemps, 36);
+
+  const getYCoord = (val: number) => {
+    const range = Math.max(8, maxTempChart - minTempChart);
+    const fraction = (val - minTempChart) / range;
+    return Math.round(170 - fraction * 130);
+  };
+
+  const curfewY = getYCoord(33);
+  const safeLimitY = getYCoord(28);
+  const isCurfewBreached = selectedDay.hourlyStress?.some((p) => p.wbgt >= 33 || p.temp >= 42) || selectedDay.maxWBGT >= 33;
+
   return (
     <div id="predictive-forecast-screen" className="space-y-4 sm:space-y-6 pb-12">
       
@@ -56,14 +77,16 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
             <h2 className="text-lg sm:text-xl font-headline font-bold text-white">
-              5-Day Predictive Heat Stress & Hospital Surge Horizon
+              7-Day Predictive Heat Stress & Hospital Surge Horizon
             </h2>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-              XGBOOST v2.4
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold">
+              {dataSourceMode === 'live_api' ? 'LIVE 7-DAY SATELLITE FORECAST' : 'IMD HEATWAVE DRILL (XGBOOST v2.4)'}
             </span>
           </div>
           <p className="text-xs text-[#e0c0b1]/70 mt-0.5">
-            Biometeorological neural ensemble trained on 187 IMD stations, INSAT-3DR LST, and Sion Hospital trauma logs
+            {dataSourceMode === 'live_api' 
+              ? `Real-time Open-Meteo biometeorological forecast synchronized with ${selectedCity?.name || 'IMD'} station telemetry`
+              : 'Biometeorological neural ensemble trained on 187 IMD stations, INSAT-3DR LST, and Sion Hospital trauma logs'}
           </p>
         </div>
 
@@ -87,15 +110,15 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
         </div>
       </div>
 
-      {/* 5-Day Interactive Selector Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5">
+      {/* 7-Day Interactive Selector Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3">
         {activeForecast.map((day, idx) => {
           const isSelected = selectedDayIndex === idx;
-          const isPeak = idx === 2; // Wednesday peak
+          const isDanger = day.maxWBGT >= 33.5 || day.maxTemp >= 42.0;
 
           return (
             <div
-              key={day.dayName}
+              key={day.dayName + idx}
               id={`forecast-day-card-${idx}`}
               onClick={() => setSelectedDayIndex(idx)}
               className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-left relative overflow-hidden ${
@@ -104,9 +127,9 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
                   : 'bg-[#0b1326] border-[#2d3449] hover:border-slate-500 hover:bg-[#131b2e]'
               }`}
             >
-              {isPeak && (
+              {isDanger && (
                 <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-mono font-bold px-2 py-0.5 rounded-bl-lg">
-                  PEAK DANGER
+                  PEAK HEAT
                 </div>
               )}
 
@@ -126,14 +149,16 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
 
               <div className="flex items-center justify-between text-[11px] font-mono mt-2 pt-2 border-t border-[#2d3449]/70">
                 <span className="text-slate-400">WBGT Max:</span>
-                <span className={day.maxWBGT >= 34 ? 'text-red-400 font-bold' : 'text-orange-400'}>
+                <span className={day.maxWBGT >= 33 ? 'text-red-400 font-bold' : day.maxWBGT >= 29 ? 'text-orange-400' : 'text-emerald-400'}>
                   {day.maxWBGT}°C
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-[11px] font-mono mt-1">
                 <span className="text-slate-400">Risk Score:</span>
-                <span className="text-amber-300 font-bold">{day.riskScore}/100</span>
+                <span className={`font-bold ${day.riskScore >= 75 ? 'text-red-400' : day.riskScore >= 45 ? 'text-amber-300' : 'text-emerald-400'}`}>
+                  {day.riskScore}/100
+                </span>
               </div>
 
               <div className="mt-2 text-[10px] font-mono px-2 py-0.5 rounded bg-[#060e20] text-slate-300 truncate border border-[#2d3449]">
@@ -157,7 +182,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
                   Thermal Trajectory & Surge Probability: {selectedDay.dayName}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Continuous simulation of Ambient Dry Bulb vs WBGT Stress Curve
+                  Continuous diurnal simulation of Ambient Dry Bulb vs WBGT Stress Curve ({selectedDay.dateStr})
                 </p>
               </div>
               <span className="text-xs font-mono text-orange-400 font-bold bg-orange-500/10 px-2.5 py-1 rounded-lg border border-orange-500/30">
@@ -174,51 +199,64 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
                 <line x1="30" y1="60" x2="520" y2="60" stroke="#171f33" strokeWidth="1" />
 
                 {/* Safe limit (28°C) */}
-                <line x1="30" y1="125" x2="520" y2="125" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
-                <text x="35" y="120" fill="#38bdf8" fontSize="9" fontFamily="JetBrains Mono">Safe Limit 28°C</text>
+                {safeLimitY >= 25 && safeLimitY <= 175 && (
+                  <>
+                    <line x1="30" y1={safeLimitY} x2="520" y2={safeLimitY} stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+                    <text x="35" y={safeLimitY - 4} fill="#38bdf8" fontSize="9" fontFamily="JetBrains Mono">Safe Limit 28°C</text>
+                  </>
+                )}
 
                 {/* Critical line (33°C) */}
-                <line x1="30" y1="55" x2="520" y2="55" stroke="#ef4444" strokeWidth="1" strokeDasharray="3 3" />
-                <text x="35" y="50" fill="#ef4444" fontSize="9" fontFamily="JetBrains Mono" fontWeight="bold">33°C Curfew Line</text>
+                {curfewY >= 20 && curfewY <= 175 && (
+                  <>
+                    <line x1="30" y1={curfewY} x2="520" y2={curfewY} stroke="#ef4444" strokeWidth="1" strokeDasharray="3 3" />
+                    <text x="35" y={curfewY - 4} fill="#ef4444" fontSize="9" fontFamily="JetBrains Mono" fontWeight="bold">
+                      33°C Curfew Line {isCurfewBreached ? '(Protocol Active)' : '(Conditions Safe)'}
+                    </text>
+                  </>
+                )}
 
-                {/* Dynamic path for selected day's hourly stress */}
-                <path
-                  d={`M 40 ${190 - (selectedDay.hourlyStress[0].temp - 25) * 6} 
-                      Q 120 ${190 - (selectedDay.hourlyStress[1].temp - 25) * 6.5} 
-                        200 ${190 - (selectedDay.hourlyStress[2].temp - 25) * 7} 
-                      T 280 ${190 - (selectedDay.hourlyStress[3].temp - 25) * 7.5} 
-                      T 360 ${190 - (selectedDay.hourlyStress[4].temp - 25) * 7.2} 
-                      T 440 ${190 - (selectedDay.hourlyStress[5].temp - 25) * 6.8} 
-                      T 500 ${190 - (selectedDay.hourlyStress[6].temp - 25) * 6.2}`}
-                  fill="none"
-                  stroke="#ea580c"
-                  strokeWidth="3.5"
-                />
+                {/* Dynamic Temperature Curve */}
+                {hourlyPts.length > 1 && (
+                  <path
+                    d={hourlyPts.map((pt, i) => {
+                      const x = 50 + i * ((470) / (hourlyPts.length - 1));
+                      const y = getYCoord(pt.temp);
+                      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                    }).join(' ')}
+                    fill="none"
+                    stroke="#ea580c"
+                    strokeWidth="3.5"
+                  />
+                )}
 
-                {/* WBGT line */}
-                <path
-                  d={`M 40 ${190 - (selectedDay.hourlyStress[0].wbgt - 22) * 8} 
-                      Q 120 ${190 - (selectedDay.hourlyStress[1].wbgt - 22) * 8.5} 
-                        200 ${190 - (selectedDay.hourlyStress[2].wbgt - 22) * 9} 
-                      T 280 ${190 - (selectedDay.hourlyStress[3].wbgt - 22) * 9.5} 
-                      T 360 ${190 - (selectedDay.hourlyStress[4].wbgt - 22) * 9.2} 
-                      T 440 ${190 - (selectedDay.hourlyStress[5].wbgt - 22) * 8.6} 
-                      T 500 ${190 - (selectedDay.hourlyStress[6].wbgt - 22) * 8.2}`}
-                  fill="none"
-                  stroke="#f97316"
-                  strokeWidth="2.5"
-                  strokeDasharray="4 2"
-                />
+                {/* Dynamic WBGT line */}
+                {hourlyPts.length > 1 && (
+                  <path
+                    d={hourlyPts.map((pt, i) => {
+                      const x = 50 + i * ((470) / (hourlyPts.length - 1));
+                      const y = getYCoord(pt.wbgt);
+                      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                    }).join(' ')}
+                    fill="none"
+                    stroke="#f97316"
+                    strokeWidth="2"
+                    strokeDasharray="4 2"
+                  />
+                )}
 
                 {/* Plot points */}
-                {selectedDay.hourlyStress.map((pt, i) => {
-                  const cx = 40 + i * 76.6;
-                  const cy = 190 - (pt.temp - 25) * 7.2;
+                {hourlyPts.map((pt, i) => {
+                  const cx = 50 + i * ((470) / Math.max(1, hourlyPts.length - 1));
+                  const cyTemp = getYCoord(pt.temp);
 
                   return (
-                    <g key={pt.hour}>
-                      <circle cx={cx} cy={cy} r="4.5" fill="#f97316" stroke="#060e20" strokeWidth="2" />
-                      <text x={cx} y="185" textAnchor="middle" fill="#94a3b8" fontSize="9" fontFamily="JetBrains Mono">
+                    <g key={pt.hour + i}>
+                      <circle cx={cx} cy={cyTemp} r="4.5" fill="#f97316" stroke="#060e20" strokeWidth="2" />
+                      <text x={cx} y={cyTemp - 8} textAnchor="middle" fill="#fff" fontSize="9" fontFamily="JetBrains Mono" fontWeight="bold">
+                        {pt.temp}°
+                      </text>
+                      <text x={cx} y="190" textAnchor="middle" fill="#94a3b8" fontSize="9" fontFamily="JetBrains Mono">
                         {pt.hour}
                       </text>
                     </g>
@@ -297,38 +335,56 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
               <div className="flex items-center gap-2">
                 <Hospital className="w-5 h-5 text-red-400" />
                 <h3 className="text-base font-headline font-bold text-white">
-                  Hospital Admission Surge Outlook (Ward G/North & L)
+                  Hospital Admission Surge Outlook ({selectedCity ? selectedCity.name : 'Target District'})
                 </h3>
               </div>
-              <span className="text-xs font-mono font-bold text-red-400 bg-red-500/20 px-2 py-0.5 rounded border border-red-500/30">
-                +{selectedDay.projectedSurgeAdmissions} ADMISSIONS / 24H
+              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${
+                selectedDay.riskScore >= 70 
+                  ? 'text-red-400 bg-red-500/20 border-red-500/30' 
+                  : 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30'
+              }`}>
+                +{selectedDay.projectedSurgeAdmissions} {selectedDay.riskScore >= 70 ? 'ADMISSIONS / 24H' : 'ROUTINE BASELINE / 24H'}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3 font-mono text-xs">
               <div className="p-2.5 rounded-xl bg-[#060e20] border border-[#2d3449]">
                 <span className="text-slate-400 block text-[10px]">Outdoor Labor (Heatstroke)</span>
-                <span className="text-lg font-bold text-red-400">58%</span>
-                <span className="text-[10px] text-slate-500 block">Severe Hypovolemia</span>
+                <span className={`text-lg font-bold ${selectedDay.riskScore >= 70 ? 'text-red-400' : 'text-slate-300'}`}>
+                  {selectedDay.riskScore >= 70 ? '58%' : '14%'}
+                </span>
+                <span className="text-[10px] text-slate-500 block">
+                  {selectedDay.riskScore >= 70 ? 'Severe Hypovolemia' : 'Mild Dehydration'}
+                </span>
               </div>
               <div className="p-2.5 rounded-xl bg-[#060e20] border border-[#2d3449]">
-                <span className="text-slate-400 block text-[10px]">Geriatric & Cardiac Failure</span>
-                <span className="text-lg font-bold text-orange-400">28%</span>
-                <span className="text-[10px] text-slate-500 block">Decompensated CHF</span>
+                <span className="text-slate-400 block text-[10px]">Geriatric & Cardiac Load</span>
+                <span className={`text-lg font-bold ${selectedDay.riskScore >= 70 ? 'text-orange-400' : 'text-slate-300'}`}>
+                  {selectedDay.riskScore >= 70 ? '28%' : '18%'}
+                </span>
+                <span className="text-[10px] text-slate-500 block">Cardiovascular Strain</span>
               </div>
               <div className="p-2.5 rounded-xl bg-[#060e20] border border-[#2d3449]">
                 <span className="text-slate-400 block text-[10px]">Pediatric & Infants</span>
-                <span className="text-lg font-bold text-amber-300">14%</span>
-                <span className="text-[10px] text-slate-500 block">Electrolyte Crisis</span>
+                <span className="text-lg font-bold text-amber-300">
+                  {selectedDay.riskScore >= 70 ? '14%' : '8%'}
+                </span>
+                <span className="text-[10px] text-slate-500 block">Electrolyte Balance</span>
               </div>
             </div>
 
             <div className="space-y-2 text-xs text-slate-300">
-              <div className="p-3 rounded-xl bg-red-950/20 border border-red-500/20">
-                <strong className="text-red-300 block font-semibold mb-1">
-                  Tactical Resource Requisition Advisory:
+              <div className={`p-3 rounded-xl border ${
+                selectedDay.riskScore >= 70
+                  ? 'bg-red-950/20 border-red-500/20 text-red-200'
+                  : 'bg-emerald-950/20 border-emerald-500/20 text-emerald-200'
+              }`}>
+                <strong className={`block font-semibold mb-1 ${selectedDay.riskScore >= 70 ? 'text-red-300' : 'text-emerald-300'}`}>
+                  Tactical Clinical Advisory:
                 </strong>
-                Recommended prepositioning of 1,200 liters chilled 0.9% Normal Saline, 40 additional ice tubs at Sion Hospital trauma overflow, and deployment of 6 mobile dialysis stations.
+                {selectedDay.riskScore >= 70
+                  ? `Recommended prepositioning of 1,200 liters chilled 0.9% Normal Saline, rapid ice immersion tubs at ${selectedCity?.name || 'municipal'} emergency trauma overflow, and deployment of mobile heat triage teams.`
+                  : `Ambient dry-bulb and WBGT thermal index are currently within normal biometeorological tolerances. Standard municipal hospital outpatient wards and routine hydration advisories remain active.`}
               </div>
             </div>
           </div>
@@ -362,37 +418,13 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
           </div>
         </div>
 
-        {/* Right (5 Cols): NASA MODIS Satellite Thermal Anomaly */}
-        <div className="lg:col-span-5 bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-base font-headline font-bold text-white flex items-center gap-2">
-                <Layers className="w-4 h-4 text-orange-400" />
-                NASA MODIS Satellite Thermal Map
-              </h3>
-              <span className="text-[10px] font-mono text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
-                +4.8°C ANOMALY
-              </span>
-            </div>
-
-            <div className="relative rounded-xl overflow-hidden border border-[#2d3449] aspect-video bg-[#060e20] group">
-              <img
-                src={ASSET_IMAGES.nasaModis}
-                alt="NASA MODIS Thermal Anomaly Mumbai"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#060e20] via-transparent to-transparent" />
-              <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center text-[10px] font-mono bg-[#0b1326]/90 px-2.5 py-1 rounded border border-[#2d3449] text-slate-300">
-                <span>Land Surface Temp (LST):</span>
-                <span className="text-red-400 font-bold">47.6°C Peak Core</span>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-[11px] text-slate-400 mt-2 font-mono">
-            Direct thermal radiation from asphalt transit corridor and dense corrugated tin roofing trapped in high-density informal settlement clusters.
-          </p>
+        {/* Right (5 Cols): Real-Time NASA Satellite Thermal Map */}
+        <div className="lg:col-span-5 flex flex-col">
+          <NasaSatelliteThermalMap
+            city={selectedCity || INDIAN_CITIES[0]}
+            weather={weather || selectedCity?.weather || INDIAN_CITIES[0].weather}
+            dataSourceMode={dataSourceMode}
+          />
         </div>
 
       </div>

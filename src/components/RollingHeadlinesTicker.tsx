@@ -11,6 +11,8 @@ import {
   FileText
 } from 'lucide-react';
 import { CityData, INDIAN_CITIES } from '../data/indiaCities';
+import { WeatherTelemetry } from '../types';
+import { CityLiveSummary } from '../services/weatherApiService';
 
 export interface CityHeadline {
   cityId: string;
@@ -35,7 +37,7 @@ export const CRUCIAL_CITY_HEADLINES: CityHeadline[] = [
     wbgt: 34.6,
     severity: 'EXTREME',
     grapStage: 'GRAP IV CURFEW',
-    headline: 'IMD Red Alert Scenario: 47.8°C at Safdarjung. Severe Loo winds; outdoor labor halted.',
+    headline: 'IMD Red Alert Drill: 47.8°C at Safdarjung. Severe Loo winds; outdoor labor halted.',
     updateTime: '14:15 IST',
   },
   {
@@ -47,7 +49,7 @@ export const CRUCIAL_CITY_HEADLINES: CityHeadline[] = [
     wbgt: 35.1,
     severity: 'EXTREME',
     grapStage: 'RED ALERT',
-    headline: 'Peak Summer Record Scenario: 49.6°C breached. 108 Mobile Resuscitation Ambulances active.',
+    headline: 'Peak Summer Record Drill: 49.6°C breached. 108 Mobile Resuscitation Ambulances active.',
     updateTime: '14:20 IST',
   },
   {
@@ -59,7 +61,7 @@ export const CRUCIAL_CITY_HEADLINES: CityHeadline[] = [
     wbgt: 33.9,
     severity: 'CRITICAL',
     grapStage: 'ORANGE ALERT',
-    headline: 'Vidarbha thermal stress spike. NMC activates 85 misting shelters and cold ORS booths.',
+    headline: 'Vidarbha thermal stress drill. NMC activates 85 misting shelters and cold ORS booths.',
     updateTime: '13:55 IST',
   },
   {
@@ -83,7 +85,7 @@ export const CRUCIAL_CITY_HEADLINES: CityHeadline[] = [
     wbgt: 33.5,
     severity: 'CRITICAL',
     grapStage: 'DISASTER NOTICE',
-    headline: 'Bihar Disaster Management Statewide Heat Notice. Outdoor coaching centers shut.',
+    headline: 'Bihar Disaster Management Heat Notice. Outdoor coaching centers shut.',
     updateTime: '14:18 IST',
   }
 ];
@@ -95,6 +97,9 @@ interface RollingHeadlinesTickerProps {
   onOpenReport?: () => void;
   onOpenHealthReport?: () => void;
   onOpenPushSettings?: () => void;
+  weather?: WeatherTelemetry;
+  dataSourceMode?: 'live_api' | 'imd_heatwave';
+  citiesLiveWeather?: Record<string, CityLiveSummary>;
 }
 
 export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
@@ -102,6 +107,9 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
   cities = INDIAN_CITIES,
   onSelectCity,
   onOpenHealthReport,
+  weather,
+  dataSourceMode = 'live_api',
+  citiesLiveWeather,
 }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
@@ -110,30 +118,46 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
   // Dynamic headlines list: current selected city is item #0
   const activeHeadlines = useMemo(() => {
     const list: CityHeadline[] = [];
-    if (selectedCity && selectedCity.weather) {
+    const activeCurrentWeather = weather || selectedCity?.weather;
+
+    if (selectedCity && activeCurrentWeather) {
       list.push({
         cityId: selectedCity.id,
         cityName: `${selectedCity.name} (Current)`,
         state: selectedCity.state,
-        temp: selectedCity.weather.dryBulbTemp,
-        heatIndex: selectedCity.weather.heatIndex,
-        wbgt: selectedCity.weather.wbgt,
-        severity: (selectedCity.weather.riskLevel as any) || 'MODERATE',
-        grapStage: selectedCity.weather.grapStage,
-        headline: `Live station reading: ${selectedCity.weather.dryBulbTemp}°C • WBGT: ${selectedCity.weather.wbgt}°C • Humidity: ${selectedCity.weather.humidity}% • Status: ${selectedCity.weather.grapStage}`,
-        updateTime: selectedCity.weather.lastUpdated,
+        temp: activeCurrentWeather.dryBulbTemp,
+        heatIndex: activeCurrentWeather.heatIndex,
+        wbgt: activeCurrentWeather.wbgt,
+        severity: (activeCurrentWeather.riskLevel as any) || 'MODERATE',
+        grapStage: activeCurrentWeather.grapStage,
+        headline: dataSourceMode === 'live_api'
+          ? `Live station telemetry: ${activeCurrentWeather.dryBulbTemp}°C • WBGT: ${activeCurrentWeather.wbgt}°C • Humidity: ${activeCurrentWeather.humidity}% • Status: ${activeCurrentWeather.grapStage}`
+          : `IMD Heatwave Drill: ${activeCurrentWeather.dryBulbTemp}°C • WBGT: ${activeCurrentWeather.wbgt}°C • Status: ${activeCurrentWeather.grapStage}`,
+        updateTime: activeCurrentWeather.lastUpdated,
       });
     }
 
-    CRUCIAL_CITY_HEADLINES.forEach(h => {
+    CRUCIAL_CITY_HEADLINES.forEach((h) => {
       // Avoid exact duplicate
       if (!selectedCity || selectedCity.id !== h.cityId) {
-        list.push(h);
+        if (dataSourceMode === 'live_api' && citiesLiveWeather && citiesLiveWeather[h.cityId]) {
+          const live = citiesLiveWeather[h.cityId];
+          list.push({
+            ...h,
+            temp: live.dryBulbTemp,
+            heatIndex: live.heatIndex,
+            wbgt: live.wbgt,
+            severity: (live.riskLevel as any) || 'MODERATE',
+            headline: `Live satellite telemetry: ${h.cityName} is at ${live.dryBulbTemp}°C (WBGT ${live.wbgt}°C) • Humidity: ${live.humidity}% • Status: Advisory Active`,
+          });
+        } else {
+          list.push(h);
+        }
       }
     });
 
     return list;
-  }, [selectedCity]);
+  }, [selectedCity, weather, dataSourceMode, citiesLiveWeather]);
 
   // Auto-advance through alerts gently every 8 seconds
   useEffect(() => {

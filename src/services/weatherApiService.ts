@@ -370,3 +370,66 @@ export function generateCalibratedCityForecast(city: CityData, horizonDays: numb
   return forecastList;
 }
 
+export interface CityLiveSummary {
+  dryBulbTemp: number;
+  wbgt: number;
+  humidity: number;
+  heatIndex: number;
+  riskLevel: 'EXTREME' | 'VERY_HIGH' | 'HIGH' | 'MODERATE';
+}
+
+/**
+ * Fetch live current weather for multiple Indian cities in a single Open-Meteo batch request
+ */
+export async function fetchLiveBatchCitiesWeather(
+  cities: CityData[]
+): Promise<Record<string, CityLiveSummary>> {
+  try {
+    const lats = cities.map((c) => c.lat.toFixed(4)).join(',');
+    const lngs = cities.map((c) => c.lng.toFixed(4)).join(',');
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m&timezone=auto`;
+
+    const res = await fetch(url, { cache: 'no-cache' });
+    if (!res.ok) {
+      throw new Error(`Batch weather fetch failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    const results: any[] = Array.isArray(data) ? data : [data];
+    const map: Record<string, CityLiveSummary> = {};
+
+    cities.forEach((city, i) => {
+      const item = results[i]?.current;
+      if (item && typeof item.temperature_2m === 'number') {
+        const dryBulbTemp = Number(item.temperature_2m.toFixed(1));
+        const humidity = Math.round(item.relative_humidity_2m ?? 65);
+        const apparentTemp = Number(item.apparent_temperature?.toFixed(1) ?? dryBulbTemp);
+        const windSpeed = Number(item.wind_speed_10m?.toFixed(1) ?? 3.5);
+        const wbgt = calculateWBGT(dryBulbTemp, humidity, windSpeed, 800);
+
+        let riskLevel: 'EXTREME' | 'VERY_HIGH' | 'HIGH' | 'MODERATE' = 'MODERATE';
+        if (wbgt >= 33.5 || apparentTemp >= 46.0) {
+          riskLevel = 'EXTREME';
+        } else if (wbgt >= 31.5 || apparentTemp >= 42.0) {
+          riskLevel = 'VERY_HIGH';
+        } else if (wbgt >= 29.5 || apparentTemp >= 38.0) {
+          riskLevel = 'HIGH';
+        }
+
+        map[city.id] = {
+          dryBulbTemp,
+          wbgt,
+          humidity,
+          heatIndex: apparentTemp,
+          riskLevel,
+        };
+      }
+    });
+
+    return map;
+  } catch (err) {
+    console.warn('Batch city live weather fetch failed, falling back to local model:', err);
+    return {};
+  }
+}
+
