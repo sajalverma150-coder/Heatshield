@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   AlertTriangle, 
   Droplet, 
@@ -19,7 +19,9 @@ import {
   Radio,
   FileText,
   Compass,
-  CheckCircle2
+  CheckCircle2,
+  ShieldAlert,
+  ShieldCheck
 } from 'lucide-react';
 import { WeatherTelemetry, UserHealthProfile, CoolingFacility } from '../../types';
 import { CityData } from '../../data/indiaCities';
@@ -65,16 +67,92 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
   const [showOrderModal, setShowOrderModal] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Hourly curve points
-  const hourlyData = [
-    { time: '08:00', temp: 31.0, wbgt: 26.5, stress: 'Safe Work Limit', sweat: '300 ml/h' },
-    { time: '10:00', temp: 35.5, wbgt: 29.8, stress: 'Moderate Stress', sweat: '500 ml/h' },
-    { time: '12:00', temp: 39.8, wbgt: 32.5, stress: 'High Stress', sweat: '700 ml/h' },
-    { time: '14:00', temp: 42.5, wbgt: 34.2, stress: 'Mandatory Curfew', sweat: '900 ml/h' },
-    { time: '16:00', temp: 40.2, wbgt: 33.1, stress: 'Severe Heat Load', sweat: '800 ml/h' },
-    { time: '18:00', temp: 36.4, wbgt: 30.2, stress: 'Gradual Cooling', sweat: '550 ml/h' },
-    { time: '20:00', temp: 33.2, wbgt: 28.4, stress: 'Urban Heat Island', sweat: '400 ml/h' },
-  ];
+  // Dynamically compute the diurnal trajectory from the current weather or forecast
+  const hourlyData = useMemo(() => {
+    const baseTemp = weather.dryBulbTemp;
+    const baseWbgt = weather.wbgt;
+
+    // Time offsets for typical diurnal cycle
+    const intervals = [
+      { time: '08:00', tempOffset: -4.2, wbgtOffset: -3.5 },
+      { time: '10:00', tempOffset: -1.8, wbgtOffset: -1.6 },
+      { time: '12:00', tempOffset: 1.2, wbgtOffset: 1.1 },
+      { time: '14:00', tempOffset: 2.0, wbgtOffset: 1.8 }, // Peak heat
+      { time: '16:00', tempOffset: 0.8, wbgtOffset: 0.7 },
+      { time: '18:00', tempOffset: -1.9, wbgtOffset: -1.4 },
+      { time: '20:00', tempOffset: -3.6, wbgtOffset: -2.8 },
+    ];
+
+    return intervals.map(({ time, tempOffset, wbgtOffset }) => {
+      const temp = Number((baseTemp + tempOffset).toFixed(1));
+      const wbgt = Number((baseWbgt + wbgtOffset).toFixed(1));
+
+      let stress = 'Safe Work Limit';
+      let sweatRate = '300 ml/h';
+
+      if (wbgt >= 33.5 || temp >= 42.0) {
+        stress = 'Mandatory Curfew';
+        sweatRate = '950 ml/h';
+      } else if (wbgt >= 31.5 || temp >= 39.0) {
+        stress = 'Severe Heat Load';
+        sweatRate = '750 ml/h';
+      } else if (wbgt >= 29.0 || temp >= 35.0) {
+        stress = 'Moderate Stress';
+        sweatRate = '550 ml/h';
+      } else {
+        stress = 'Normal / Safe Limit';
+        sweatRate = '350 ml/h';
+      }
+
+      return { time, temp, wbgt, stress, sweat: sweatRate };
+    });
+  }, [weather.dryBulbTemp, weather.wbgt]);
+
+  // Determine dynamic risk status and directives
+  const statusInfo = useMemo(() => {
+    const isCurfew = weather.wbgt >= 33.5 || weather.dryBulbTemp >= 42.0;
+    const isSevere = weather.wbgt >= 31.5 || weather.dryBulbTemp >= 39.0;
+    const isModerate = weather.wbgt >= 29.0 || weather.dryBulbTemp >= 35.0;
+
+    if (isCurfew) {
+      return {
+        stage: 'Stage IV Severe Heat Curfew',
+        badgeColor: 'bg-red-500/15 text-red-300 border-red-500/30',
+        dotColor: 'text-red-400',
+        window: 'Mandatory Curfew Active (12:30 – 16:30 IST)',
+        summary: 'Extreme thermal hazard active. Outdoor physical labor is prohibited under municipal NDMA order. Seek air-cooled shelters immediately.',
+        hasCurfew: true,
+      };
+    }
+    if (isSevere) {
+      return {
+        stage: 'Stage III Heat Emergency Standby',
+        badgeColor: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+        dotColor: 'text-orange-400',
+        window: 'High Sun Exposure Window (12:00 – 16:00 IST)',
+        summary: 'Significant heat stress danger. Outdoor physical labor should be reduced with mandatory shaded rest and frequent hydration breaks.',
+        hasCurfew: false,
+      };
+    }
+    if (isModerate) {
+      return {
+        stage: 'Stage II Heat Advisory (Yellow Alert)',
+        badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+        dotColor: 'text-amber-400',
+        window: 'Advisory: Hydrate frequently during afternoon hours',
+        summary: 'Moderate thermal conditions. Vulnerable groups, outdoor workers, and seniors should stay hydrated with chilled fluids and ORS.',
+        hasCurfew: false,
+      };
+    }
+    return {
+      stage: 'Normal / Moderate Conditions',
+      badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+      dotColor: 'text-emerald-400',
+      window: 'No Curfew Restrictions • All Public Zones Open',
+      summary: 'Current readings are within safe thermal thresholds. Standard hydration and sun protection recommended for outdoor activities.',
+      hasCurfew: false,
+    };
+  }, [weather.wbgt, weather.dryBulbTemp]);
 
   const handleQuickWaterLog = (amount: number) => {
     onLogWater(amount);
@@ -92,7 +170,19 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
     hasOxygen: true,
   };
 
-  const selectedHour = hourlyData[selectedHourIndex];
+  const selectedHour = hourlyData[selectedHourIndex] || hourlyData[3];
+
+  // SVG Chart boundaries calculation
+  const allTemps = hourlyData.map(d => d.temp);
+  const minChartTemp = Math.min(...allTemps, 20) - 2;
+  const maxChartTemp = Math.max(...allTemps, 45) + 3;
+  const tempRange = maxChartTemp - minChartTemp || 1;
+
+  const getYCoord = (tempVal: number) => {
+    // chart y spans from 165 (bottom) to 35 (top) -> range of 130
+    const fraction = (tempVal - minChartTemp) / tempRange;
+    return Math.round(165 - fraction * 130);
+  };
 
   return (
     <div id="live-telemetry-screen" className="space-y-5 pb-8">
@@ -111,7 +201,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               </span>
             </div>
             <span className="text-xs text-slate-400 block font-mono mt-0.5">
-              Updated {weather.lastUpdated}
+              Source: {weather.lastUpdated}
             </span>
           </div>
         </div>
@@ -121,26 +211,28 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
           {onToggleDataSourceMode && (
             <div className="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-xs">
               <button
+                id="source-toggle-live-api"
                 onClick={() => onToggleDataSourceMode('live_api')}
                 className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
                   dataSourceMode === 'live_api'
-                    ? 'bg-slate-800 text-white shadow-sm'
+                    ? 'bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30'
                     : 'text-slate-400 hover:text-white'
                 }`}
-                title="Real-time live observed data"
+                title="Real-time live satellite readings observed right now"
               >
-                Live Satellite API
+                ● Live Real-Time API
               </button>
               <button
+                id="source-toggle-heatwave-test"
                 onClick={() => onToggleDataSourceMode('imd_heatwave')}
                 className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
                   dataSourceMode === 'imd_heatwave'
                     ? 'bg-orange-500/20 text-orange-300 font-semibold border border-orange-500/30'
                     : 'text-slate-400 hover:text-white'
                 }`}
-                title="Simulated IMD Severe Heatwave (47°C+)"
+                title="Emergency heatwave simulation to test sirens & curfew alerts (42°C+)"
               >
-                IMD Heatwave Test
+                Simulated Heatwave (47°C+)
               </button>
             </div>
           )}
@@ -164,10 +256,34 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors border border-slate-700 flex items-center gap-1.5"
             >
               <MapPin className="w-3 h-3 text-orange-400" />
-              <span>Change</span>
+              <span>Change Station</span>
             </button>
           )}
         </div>
+      </div>
+
+      {/* Data Source Explanation Note (helps user understand real-time vs simulation) */}
+      <div className="px-4 py-2 rounded-xl bg-slate-900/60 border border-slate-800 text-xs flex items-center justify-between text-slate-300">
+        <div className="flex items-center gap-2">
+          <Info className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+          <span>
+            {dataSourceMode === 'live_api' ? (
+              <span>
+                <strong>Live Satellite Mode:</strong> Displaying current real-time observations ({weather.dryBulbTemp}°C). If readings seem lower than summer heatwaves, this reflects today's actual local atmospheric conditions.
+              </span>
+            ) : (
+              <span>
+                <strong>Simulated Emergency Mode:</strong> Simulating a peak Indian summer heatwave ({weather.dryBulbTemp}°C) to test NDMA curfew protocols, shelter allocations, and hospital code orange response.
+              </span>
+            )}
+          </span>
+        </div>
+        <button
+          onClick={() => onToggleDataSourceMode && onToggleDataSourceMode(dataSourceMode === 'live_api' ? 'imd_heatwave' : 'live_api')}
+          className="text-[11px] text-orange-400 hover:underline shrink-0 ml-3"
+        >
+          Switch to {dataSourceMode === 'live_api' ? 'Heatwave Test' : 'Live Real-Time'} →
+        </button>
       </div>
 
       {/* 2. Hero Weather & Curfew Anchor Card */}
@@ -175,20 +291,23 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         id="hero-heat-overview-card"
         className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 relative overflow-hidden shadow-lg"
       >
-        {/* Subtle warm ambient glow in background */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           
           {/* Main Temperature & Threat Summary */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-red-400" />
-                <span>Stage IV Severe Heat Curfew</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 ${statusInfo.badgeColor}`}>
+                {statusInfo.hasCurfew ? (
+                  <Flame className={`w-3.5 h-3.5 ${statusInfo.dotColor}`} />
+                ) : (
+                  <ShieldCheck className={`w-3.5 h-3.5 ${statusInfo.dotColor}`} />
+                )}
+                <span>{statusInfo.stage}</span>
               </span>
               <span className="text-xs font-mono text-slate-400">
-                12:30 – 16:30 IST
+                {statusInfo.window}
               </span>
             </div>
 
@@ -202,7 +321,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             </div>
 
             <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
-              Extreme thermal hazard active. Outdoor physical labor is prohibited under municipal NDMA order. Stay in air-cooled or shaded areas.
+              {statusInfo.summary}
             </p>
           </div>
 
@@ -258,16 +377,28 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
           <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
             <span className="font-medium">WBGT Heat Stress</span>
-            <AlertTriangle className="w-4 h-4 text-red-400" />
+            {weather.wbgt >= 32 ? (
+              <AlertTriangle className="w-4 h-4 text-red-400" />
+            ) : (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            )}
           </div>
           <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
             {weather.wbgt} <span className="text-sm font-sans font-normal text-slate-400">°C</span>
           </div>
-          <div className="text-xs text-red-400 font-medium mt-1">
-            Critical Threshold (&gt;32°C)
+          <div className={`text-xs font-medium mt-1 ${
+            weather.wbgt >= 33.5 ? 'text-red-400' :
+            weather.wbgt >= 31.5 ? 'text-orange-400' :
+            weather.wbgt >= 29.0 ? 'text-amber-400' :
+            'text-emerald-400'
+          }`}>
+            {weather.wbgt >= 33.5 ? 'Critical Threshold (>33.5°C)' :
+             weather.wbgt >= 31.5 ? 'High Heat Strain (>31.5°C)' :
+             weather.wbgt >= 29.0 ? 'Moderate Caution Zone' :
+             'Normal Work Zone (<29°C)'}
           </div>
           <p className="text-[11px] text-slate-400 mt-1">
-            Outdoor work halt limit
+            {weather.wbgt >= 32 ? 'Outdoor work halt advised' : 'Safe for monitored outdoor labor'}
           </p>
         </div>
 
@@ -284,7 +415,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             {weather.humidity}% Relative Humidity
           </div>
           <p className="text-[11px] text-slate-400 mt-1">
-            Suppresses sweat evaporation
+            {weather.humidity >= 65 ? 'Suppresses sweat evaporation' : 'Moderate evaporative cooling rate'}
           </p>
         </div>
 
@@ -298,27 +429,29 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             {weather.solarRadiation} <span className="text-xs font-sans font-normal text-slate-400">W/m²</span>
           </div>
           <div className="text-xs text-amber-400 font-medium mt-1">
-            UV Index 11+ (Extreme)
+            {weather.solarRadiation >= 800 ? 'UV Index 10+ (Very High)' :
+             weather.solarRadiation >= 500 ? 'UV Index 6-8 (High)' :
+             'UV Index 3-5 (Moderate)'}
           </div>
           <p className="text-[11px] text-slate-400 mt-1">
-            Sunburn risk within 10 mins
+            {weather.solarRadiation >= 800 ? 'Sunburn risk within 15 mins' : 'Standard sun protection needed'}
           </p>
         </div>
 
         {/* Wind Speed & Loo Winds */}
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
           <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-            <span className="font-medium">Wind & Loo Gusts</span>
+            <span className="font-medium">Wind Velocity</span>
             <Wind className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
             {weather.windSpeed} <span className="text-xs font-sans font-normal text-slate-400">km/h</span>
           </div>
           <div className="text-xs text-emerald-400 font-medium mt-1">
-            Dry Desiccating Winds
+            {weather.dryBulbTemp >= 40 && weather.windSpeed >= 12 ? 'Dry Desiccating Loo Winds' : 'Moderate Air Movement'}
           </div>
           <p className="text-[11px] text-slate-400 mt-1">
-            Accelerates fluid loss
+            {weather.dryBulbTemp >= 40 ? 'Accelerates fluid loss in sun' : 'Assists ambient air ventilation'}
           </p>
         </div>
 
@@ -337,7 +470,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                   <span>Today's Temperature & Curfew Timeline</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Hourly trajectory • Red band denotes mandatory outdoor curfew
+                  Hourly trajectory calculated for {selectedCity?.name || 'Current Station'}
                 </p>
               </div>
               <div className="text-xs font-mono text-slate-400 hidden sm:flex items-center gap-2">
@@ -360,35 +493,46 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
 
                 {/* Safe limit reference */}
                 <line x1="40" y1="125" x2="560" y2="125" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
-                <text x="45" y="120" fill="#38bdf8" fontSize="10" fontFamily="sans-serif">Safe Limit (28°C)</text>
+                <text x="45" y="120" fill="#38bdf8" fontSize="10" fontFamily="sans-serif">Safe WBGT Limit (29°C)</text>
 
-                {/* Curfew window highlight rectangle */}
-                <rect x="230" y="20" width="180" height="150" fill="#ef4444" fillOpacity="0.08" rx="8" />
-                <text x="320" y="36" fill="#ef4444" fontSize="10" textAnchor="middle" fontWeight="bold">
-                  CURFEW ZONE (12:30 - 16:30)
-                </text>
+                {/* Curfew window highlight rectangle - only shown if curfew thresholds reached */}
+                {statusInfo.hasCurfew && (
+                  <g>
+                    <rect x="230" y="20" width="180" height="150" fill="#ef4444" fillOpacity="0.08" rx="8" />
+                    <text x="320" y="36" fill="#ef4444" fontSize="10" textAnchor="middle" fontWeight="bold">
+                      CURFEW ZONE (12:30 - 16:30)
+                    </text>
+                  </g>
+                )}
 
-                {/* Ambient Dry Bulb Line */}
-                <path
-                  d="M 50 150 Q 130 115 210 65 T 310 30 T 400 45 T 480 95 T 550 135"
-                  fill="none"
-                  stroke="#f97316"
-                  strokeWidth="2.5"
-                />
+                {/* Lines connecting the dynamic points */}
+                {(() => {
+                  const points = hourlyData.map((pt, idx) => ({
+                    x: 50 + idx * 83.3,
+                    yTemp: getYCoord(pt.temp),
+                    yWbgt: getYCoord(pt.wbgt),
+                  }));
 
-                {/* WBGT Line */}
-                <path
-                  d="M 50 165 Q 130 135 210 95 T 310 50 T 400 70 T 480 120 T 550 150"
-                  fill="none"
-                  stroke="#ef4444"
-                  strokeWidth="2.5"
-                  strokeDasharray="2 0"
-                />
+                  const pathTemp = points.reduce((acc, curr, idx) => {
+                    return idx === 0 ? `M ${curr.x} ${curr.yTemp}` : `${acc} L ${curr.x} ${curr.yTemp}`;
+                  }, '');
+
+                  const pathWbgt = points.reduce((acc, curr, idx) => {
+                    return idx === 0 ? `M ${curr.x} ${curr.yWbgt}` : `${acc} L ${curr.x} ${curr.yWbgt}`;
+                  }, '');
+
+                  return (
+                    <>
+                      <path d={pathTemp} fill="none" stroke="#f97316" strokeWidth="2.5" />
+                      <path d={pathWbgt} fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="3 2" />
+                    </>
+                  );
+                })()}
 
                 {/* Interactive Points */}
                 {hourlyData.map((pt, idx) => {
                   const cx = 50 + idx * 83.3;
-                  const cy = 165 - ((pt.wbgt - 26) / 8.5) * 115;
+                  const cy = getYCoord(pt.temp);
                   const isSelected = selectedHourIndex === idx;
 
                   return (
@@ -508,10 +652,14 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 mb-3">
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-slate-400">Cumulative Thermal Strain</span>
-                <span className="text-red-400 font-mono font-bold">94 / 100 (Extreme)</span>
+                <span className={`font-mono font-bold ${
+                  weather.wbgt >= 32 ? 'text-red-400' : 'text-emerald-400'
+                }`}>
+                  {weather.wbgt >= 32 ? 'Elevated Strain (Rest Advised)' : 'Stable Baseline'}
+                </span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                ⚠️ <strong>Clinical Note:</strong> Amlodipine diuretic medication accelerates hydration loss. Rest in cooling shelters every 45 minutes.
+                ⚠️ <strong>Clinical Guidance:</strong> Maintain electrolyte balance with sodium/potassium ORS solutions when engaging in physical activities under outdoor heat.
               </p>
             </div>
           </div>
@@ -583,14 +731,14 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
           </div>
         </div>
 
-        {/* Official Statutory Curfew Directives */}
+        {/* Official Statutory Directives */}
         <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-red-400">
-                <AlertTriangle className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-orange-400">
+                <ShieldAlert className="w-4 h-4" />
                 <h3 className="font-headline font-bold text-white text-sm">
-                  NDMA Heatwave Directives
+                  NDMA Heat Action Protocol
                 </h3>
               </div>
               <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
@@ -600,12 +748,14 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
 
             <div className="space-y-2 text-xs text-slate-300">
               <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 shrink-0" />
-                <span><strong>No Outdoor Labor:</strong> Physical and construction work strictly suspended between 12:30 and 16:30.</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0" />
+                <span>
+                  <strong>{statusInfo.hasCurfew ? 'Outdoor Labor Curfew:' : 'Standard Work Window:'}</strong> {statusInfo.hasCurfew ? 'Physical work strictly suspended during peak heat hours.' : 'Normal shifts permitted with mandatory drinking water facilities.'}
+                </span>
               </div>
               <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0" />
-                <span><strong>Hydration Stations:</strong> Free chilled ORS is available at transit hubs, metro concourses, and bus stops.</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
+                <span><strong>Hydration Stations:</strong> Free chilled ORS is available at transit hubs, metro concourses, and bus stops across the district.</span>
               </div>
             </div>
           </div>
@@ -646,11 +796,11 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                 ISSUED UNDER SECTION 30(2)(v) & 51 OF DISASTER MANAGEMENT ACT, 2005
               </p>
               <p>
-                In view of IMD Severe Heatwave Warning and AWS WBGT recordings exceeding 34.2°C, the following statutory directives are in immediate force across all wards:
+                In view of IMD Heatwave Warning Guidelines and AWS WBGT monitoring thresholds, the following statutory directives govern municipal heat action:
               </p>
               <ol className="list-decimal list-inside space-y-2 text-slate-200">
-                <li><strong>Curfew on Outdoor Unshaded Labor:</strong> Complete halt from 12:30 to 16:30 IST.</li>
-                <li><strong>Free ORS & Water Stations:</strong> Obligatory for all commercial employers and builders.</li>
+                <li><strong>Curfew on Outdoor Unshaded Labor:</strong> Enforced whenever WBGT breaches 33.5°C or ambient temp breaches 42°C.</li>
+                <li><strong>Free ORS & Water Stations:</strong> Obligatory for all commercial employers and municipal bus/metro junctions.</li>
                 <li><strong>Designated Cooling Refuges:</strong> Municipal community halls and transit hubs open with 24/7 air-cooling.</li>
                 <li><strong>Hospital Heat Wings:</strong> Mass casualty emergency departments activated under Code Orange heat protocols.</li>
               </ol>

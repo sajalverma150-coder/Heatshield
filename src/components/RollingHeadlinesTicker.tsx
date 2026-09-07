@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   AlertTriangle, 
   ChevronLeft, 
@@ -19,7 +19,7 @@ export interface CityHeadline {
   temp: number;
   heatIndex: number;
   wbgt?: number;
-  severity: 'EXTREME' | 'CRITICAL' | 'HIGH';
+  severity: 'EXTREME' | 'CRITICAL' | 'HIGH' | 'MODERATE';
   grapStage: string;
   headline: string;
   updateTime: string;
@@ -35,7 +35,7 @@ export const CRUCIAL_CITY_HEADLINES: CityHeadline[] = [
     wbgt: 34.6,
     severity: 'EXTREME',
     grapStage: 'GRAP IV CURFEW',
-    headline: 'IMD Red Alert: 47.8°C at Safdarjung. Severe Loo winds; outdoor construction halted.',
+    headline: 'IMD Red Alert Scenario: 47.8°C at Safdarjung. Severe Loo winds; outdoor labor halted.',
     updateTime: '14:15 IST',
   },
   {
@@ -47,7 +47,7 @@ export const CRUCIAL_CITY_HEADLINES: CityHeadline[] = [
     wbgt: 35.1,
     severity: 'EXTREME',
     grapStage: 'RED ALERT',
-    headline: 'All-Time Heatwave Record: 49.6°C breached. 108 Mobile Resuscitation Ambulances active.',
+    headline: 'Peak Summer Record Scenario: 49.6°C breached. 108 Mobile Resuscitation Ambulances active.',
     updateTime: '14:20 IST',
   },
   {
@@ -83,7 +83,7 @@ export const CRUCIAL_CITY_HEADLINES: CityHeadline[] = [
     wbgt: 33.5,
     severity: 'CRITICAL',
     grapStage: 'DISASTER NOTICE',
-    headline: 'Bihar Disaster Management Statewide Red Heatwave Notice. Outdoor coaching centers shut.',
+    headline: 'Bihar Disaster Management Statewide Heat Notice. Outdoor coaching centers shut.',
     updateTime: '14:18 IST',
   }
 ];
@@ -107,18 +107,46 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
 
+  // Dynamic headlines list: current selected city is item #0
+  const activeHeadlines = useMemo(() => {
+    const list: CityHeadline[] = [];
+    if (selectedCity && selectedCity.weather) {
+      list.push({
+        cityId: selectedCity.id,
+        cityName: `${selectedCity.name} (Current)`,
+        state: selectedCity.state,
+        temp: selectedCity.weather.dryBulbTemp,
+        heatIndex: selectedCity.weather.heatIndex,
+        wbgt: selectedCity.weather.wbgt,
+        severity: (selectedCity.weather.riskLevel as any) || 'MODERATE',
+        grapStage: selectedCity.weather.grapStage,
+        headline: `Live station reading: ${selectedCity.weather.dryBulbTemp}°C • WBGT: ${selectedCity.weather.wbgt}°C • Humidity: ${selectedCity.weather.humidity}% • Status: ${selectedCity.weather.grapStage}`,
+        updateTime: selectedCity.weather.lastUpdated,
+      });
+    }
+
+    CRUCIAL_CITY_HEADLINES.forEach(h => {
+      // Avoid exact duplicate
+      if (!selectedCity || selectedCity.id !== h.cityId) {
+        list.push(h);
+      }
+    });
+
+    return list;
+  }, [selectedCity]);
+
   // Auto-advance through alerts gently every 8 seconds
   useEffect(() => {
     if (!isAutoPlay || isDismissed) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % CRUCIAL_CITY_HEADLINES.length);
+      setCurrentIndex((prev) => (prev + 1) % activeHeadlines.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, [isAutoPlay, isDismissed]);
+  }, [isAutoPlay, isDismissed, activeHeadlines.length]);
 
-  if (isDismissed) return null;
+  if (isDismissed || activeHeadlines.length === 0) return null;
 
-  const currentItem = CRUCIAL_CITY_HEADLINES[currentIndex];
+  const currentItem = activeHeadlines[currentIndex] || activeHeadlines[0];
 
   const handleCityClick = () => {
     const found = (cities || INDIAN_CITIES).find(
@@ -131,12 +159,14 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % CRUCIAL_CITY_HEADLINES.length);
+    setCurrentIndex((prev) => (prev + 1) % activeHeadlines.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + CRUCIAL_CITY_HEADLINES.length) % CRUCIAL_CITY_HEADLINES.length);
+    setCurrentIndex((prev) => (prev - 1 + activeHeadlines.length) % activeHeadlines.length);
   };
+
+  const isCurrentActiveCity = selectedCity && currentItem.cityId === selectedCity.id;
 
   return (
     <aside 
@@ -148,12 +178,16 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
         
         {/* Left: IMD Live Badge */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 font-mono text-[10px] font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-            <span>IMD ALERT</span>
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border font-mono text-[10px] font-bold ${
+            isCurrentActiveCity 
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              : 'bg-red-500/10 border-red-500/30 text-red-400'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentActiveCity ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'}`} />
+            <span>{isCurrentActiveCity ? 'CURRENT LIVE' : 'IMD ALERT'}</span>
           </div>
           <span className="text-slate-400 hidden md:inline text-[11px]">
-            {currentIndex + 1} of {CRUCIAL_CITY_HEADLINES.length}
+            {currentIndex + 1} of {activeHeadlines.length}
           </span>
         </div>
 
@@ -170,7 +204,7 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
             {currentItem.headline}
           </span>
           <span className="hidden lg:inline text-[10px] font-mono text-orange-400/80 group-hover:underline shrink-0">
-            View Station →
+            {isCurrentActiveCity ? 'Active Station ✓' : 'Switch to City →'}
           </span>
         </div>
 
@@ -199,8 +233,8 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
           </button>
           <button
             onClick={() => setIsDismissed(true)}
-            className="p-1 ml-1 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors"
-            title="Dismiss alert banner"
+            className="p-1 rounded text-slate-500 hover:text-slate-300 transition-colors ml-1"
+            title="Dismiss banner"
           >
             <X className="w-3.5 h-3.5" />
           </button>

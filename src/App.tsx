@@ -79,6 +79,10 @@ export function App() {
       try {
         const liveWeather = await fetchLiveWeatherFromApi(city.lat, city.lng, city.weather);
         setWeather(liveWeather);
+        setSelectedCity((prev) => ({
+          ...prev,
+          weather: liveWeather,
+        }));
       } catch (err) {
         console.warn('Failed to fetch live API weather, falling back to calibrated IMD station model:', err);
         setWeather(city.weather);
@@ -87,6 +91,10 @@ export function App() {
       }
     } else {
       setWeather(city.weather);
+      setSelectedCity((prev) => ({
+        ...prev,
+        weather: city.weather,
+      }));
     }
   };
 
