@@ -7,12 +7,8 @@ import {
   PhoneCall, 
   Globe, 
   BellRing, 
-  Smartphone, 
-  Monitor, 
   Settings2, 
-  Menu,
-  Clock,
-  Radio
+  Menu
 } from 'lucide-react';
 import { NavigationTab, UserRole, LanguageCode, WeatherTelemetry } from '../types';
 import { CityData } from '../data/indiaCities';
@@ -25,8 +21,6 @@ interface NavbarProps {
   onChangeRole: (role: UserRole) => void;
   language: LanguageCode;
   onChangeLanguage: (lang: LanguageCode) => void;
-  isMobileFrame: boolean;
-  onToggleMobileFrame: () => void;
   weather: WeatherTelemetry;
   selectedCity: CityData;
   onOpenCitySelector: () => void;
@@ -45,8 +39,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onChangeRole,
   language,
   onChangeLanguage,
-  isMobileFrame,
-  onToggleMobileFrame,
   weather,
   selectedCity,
   onOpenCitySelector,
@@ -224,23 +216,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span className="text-[10px] text-emerald-400 font-mono">Config</span>
                   </button>
                 )}
-
-                {/* Phone Frame Toggle (Desktop) */}
-                <button
-                  onClick={() => {
-                    setIsSettingsOpen(false);
-                    onToggleMobileFrame();
-                  }}
-                  className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-200 hover:text-white transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    {isMobileFrame ? <Monitor className="w-4 h-4 text-orange-400" /> : <Smartphone className="w-4 h-4 text-orange-400" />}
-                    <span>{isMobileFrame ? t.desktopCanvas : t.phoneSimulator}</span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    {isMobileFrame ? 'Active' : 'Toggle'}
-                  </span>
-                </button>
 
               </div>
             )}

@@ -49,7 +49,6 @@ export function App() {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
   const [userRole, setUserRole] = useState<UserRole>('citizen');
   const [language, setLanguage] = useState<LanguageCode>('en');
-  const [isMobileFrame, setIsMobileFrame] = useState<boolean>(false);
   
   // Active city & GPS selection state
   const [selectedCity, setSelectedCity] = useState<CityData>(INDIAN_CITIES[0]);
@@ -321,43 +320,40 @@ export function App() {
       <div className="min-h-screen bg-[#090e17] text-[#e2e8f0] flex flex-col selection:bg-orange-500 selection:text-white">
         
         {/* Top Header */}
-      <Navbar
-        currentTab={currentTab}
-        onSelectTab={setCurrentTab}
-        userRole={userRole}
-        onChangeRole={setUserRole}
-        language={language}
-        onChangeLanguage={setLanguage}
-        isMobileFrame={isMobileFrame}
-        onToggleMobileFrame={() => setIsMobileFrame(!isMobileFrame)}
-        weather={weather}
-        selectedCity={selectedCity}
-        onOpenCitySelector={() => setIsCitySelectorOpen(true)}
-        onRefreshTelemetry={handleRefreshTelemetry}
-        onTriggerSOS={() => setIsSOSOpen(true)}
-        onOpenTriage={() => setIsTriageOpen(true)}
-        onOpenPushSettings={() => setIsPushSettingsOpen(true)}
-        onOpenHealthReport={() => setIsHealthReportOpen(true)}
-        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
-      />
+        <Navbar
+          currentTab={currentTab}
+          onSelectTab={setCurrentTab}
+          userRole={userRole}
+          onChangeRole={setUserRole}
+          language={language}
+          onChangeLanguage={setLanguage}
+          weather={weather}
+          selectedCity={selectedCity}
+          onOpenCitySelector={() => setIsCitySelectorOpen(true)}
+          onRefreshTelemetry={handleRefreshTelemetry}
+          onTriggerSOS={() => setIsSOSOpen(true)}
+          onOpenTriage={() => setIsTriageOpen(true)}
+          onOpenPushSettings={() => setIsPushSettingsOpen(true)}
+          onOpenHealthReport={() => setIsHealthReportOpen(true)}
+          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+        />
 
-      {/* Permanent Rolling Headlines Ticker for Critical Cities in India */}
-      <RollingHeadlinesTicker
-        selectedCity={selectedCity}
-        cities={INDIAN_CITIES}
-        onSelectCity={handleSelectCity}
-        onOpenHealthReport={() => setIsHealthReportOpen(true)}
-        onOpenPushSettings={() => setIsPushSettingsOpen(true)}
-        weather={weather}
-        dataSourceMode={dataSourceMode}
-        citiesLiveWeather={batchCitiesWeather}
-      />
+        {/* Permanent Rolling Headlines Ticker for Critical Cities in India */}
+        <RollingHeadlinesTicker
+          selectedCity={selectedCity}
+          cities={INDIAN_CITIES}
+          onSelectCity={handleSelectCity}
+          onOpenHealthReport={() => setIsHealthReportOpen(true)}
+          onOpenPushSettings={() => setIsPushSettingsOpen(true)}
+          weather={weather}
+          dataSourceMode={dataSourceMode}
+          citiesLiveWeather={batchCitiesWeather}
+        />
 
-      {/* Main Container Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        
-        {/* Left Sidebar (Desktop View) */}
-        {!isMobileFrame && (
+        {/* Main Responsive Container Layout */}
+        <div className="flex-1 flex overflow-hidden">
+          
+          {/* Left Sidebar (Desktop / PC View) */}
           <Sidebar
             currentTab={currentTab}
             onSelectTab={setCurrentTab}
@@ -366,70 +362,16 @@ export function App() {
             onOpenCitySelector={() => setIsCitySelectorOpen(true)}
             unreadAlertCount={1}
           />
-        )}
 
-        {/* Dynamic Content Area with padding to prevent mobile bottom-bar overlap */}
-        <main className="flex-1 overflow-y-auto bg-[#090e17] p-3 sm:p-5 lg:p-6 pb-24 lg:pb-6">
-          
-          {/* If Mobile Frame Mode is enabled, render in a phone frame */}
-          {isMobileFrame ? (
-            <div className="max-w-md mx-auto my-4 bg-[#0b1326] rounded-[40px] border-4 border-[#2d3449] shadow-2xl overflow-hidden relative pb-16 ring-1 ring-orange-500/30">
-              
-              {/* Phone Speaker & Camera Notch */}
-              <div className="w-36 h-5 bg-[#060e20] rounded-b-2xl mx-auto flex items-center justify-center gap-2 mb-2 border-b border-x border-[#2d3449]">
-                <div className="w-10 h-1 bg-[#2d3449] rounded-full" />
-                <div className="w-2 h-2 bg-[#2d3449] rounded-full" />
-              </div>
-
-              {/* Status bar */}
-              <div className="px-6 flex justify-between items-center text-[10px] font-mono text-slate-400 mb-2">
-                <span>{selectedCity.name}</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>GPS Active • 5G</span>
-                </div>
-              </div>
-
-              {/* Inner phone scrollable content */}
-              <div className="px-3 pt-1 max-h-[70vh] overflow-y-auto pb-6">
-                {renderActiveView()}
-              </div>
-
-              {/* Mobile bottom nav inside frame */}
-              <div className="absolute bottom-0 left-0 right-0 z-10">
-                <MobileBottomNav
-                  currentTab={currentTab}
-                  onSelectTab={setCurrentTab}
-                  language={language}
-                  isEmbedded={true}
-                  isOpen={isMobileMenuOpen}
-                  onToggleOpen={setIsMobileMenuOpen}
-                  onOpenTriage={() => setIsTriageOpen(true)}
-                  onTriggerSOS={() => setIsSOSOpen(true)}
-                  onOpenPushSettings={() => setIsPushSettingsOpen(true)}
-                  onOpenCitySelector={() => setIsCitySelectorOpen(true)}
-                  onOpenHealthReport={() => setCurrentTab('health-report')}
-                  unreadAlertCount={1}
-                  selectedCity={selectedCity}
-                  onLogWater={handleLogWater}
-                  dataSourceMode={dataSourceMode}
-                  onToggleDataSourceMode={handleToggleDataSourceMode}
-                  onChangeLanguage={setLanguage}
-                  onRefreshTelemetry={handleRefreshTelemetry}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="max-w-7xl mx-auto">
+          {/* Dynamic Content Area: seamlessly fluid on Mobile, Tablet & PC */}
+          <main className="flex-1 overflow-y-auto bg-[#090e17] px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 lg:pb-8">
+            <div className="max-w-6xl mx-auto w-full">
               {renderActiveView()}
             </div>
-          )}
+          </main>
+        </div>
 
-        </main>
-      </div>
-
-      {/* Mobile Bottom Navigation Bar (Standard Mobile Viewport) */}
-      {!isMobileFrame && (
+        {/* Mobile / Tablet Bottom Navigation Bar (Hidden on Desktop) */}
         <MobileBottomNav
           currentTab={currentTab}
           onSelectTab={setCurrentTab}
@@ -449,7 +391,6 @@ export function App() {
           onChangeLanguage={setLanguage}
           onRefreshTelemetry={handleRefreshTelemetry}
         />
-      )}
 
       {/* Indian Cities Search & Automatic GPS Location Modal */}
       <CitySearchSelector

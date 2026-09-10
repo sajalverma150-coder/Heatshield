@@ -27,7 +27,6 @@ export interface MobileBottomNavProps {
   currentTab: NavigationTab;
   onSelectTab: (tab: NavigationTab) => void;
   language: LanguageCode;
-  isEmbedded?: boolean;
   isOpen?: boolean;
   onToggleOpen?: (open: boolean) => void;
   onOpenTriage?: () => void;
@@ -48,7 +47,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentTab,
   onSelectTab,
   language,
-  isEmbedded = false,
   isOpen,
   onToggleOpen,
   onOpenTriage,
@@ -179,14 +177,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     },
   ];
 
-  const containerClass = isEmbedded
-    ? "w-full bg-[#0b1326] border-t border-slate-800/80 px-2 py-2 flex items-center justify-around select-none z-30"
-    : "lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b1326]/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-2 pb-5 flex items-center justify-around select-none shadow-2xl";
-
   return (
     <>
       {/* 5-Button Primary Mobile Bottom Navigation Bar */}
-      <nav id="mobile-bottom-navigation-bar" className={containerClass}>
+      <nav 
+        id="mobile-bottom-navigation-bar" 
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800/80 px-2 pt-2 pb-5 sm:pb-3 flex items-center justify-around select-none shadow-2xl"
+      >
         {primaryTabs.map((item) => {
           const isSelected = item.id === 'more' 
             ? isDrawerOpen || isSecondaryActive 
