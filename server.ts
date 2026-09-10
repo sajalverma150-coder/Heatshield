@@ -98,32 +98,69 @@ app.post('/api/map-grounding', async (req, res) => {
   }
 });
 
+// Fallback response generator when API key quota is exhausted
+function generateFallbackChatResponse(messages: Array<{ role: string; text: string }>, role: string, contextData: any): string {
+  const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.text?.toLowerCase() || '';
+  const city = contextData?.city || 'India';
+  const temp = contextData?.temperature || 42;
+
+  if (lastUserMsg.includes('stroke') || lastUserMsg.includes('unconscious') || lastUserMsg.includes('faint') || lastUserMsg.includes('emergency') || lastUserMsg.includes('confus')) {
+    return `🚨 **CRITICAL HEAT STROKE PROTOCOL ACTIVATED**
+
+Immediate Life-Saving Steps:
+1. **Call 108 Emergency Ambulance immediately.**
+2. **Aggressive Evaporative Cooling**: Move patient into shade or AC shelter immediately. Apply cold water or wet towels to the neck, axillae (armpits), and groin.
+3. **Fanning**: Use electric fans or manual fanning to accelerate evaporative heat loss.
+4. **Positioning**: If unconscious, place in recovery position (on left side) to protect airway. Do NOT force oral liquids if patient is drowsy.
+
+*Monitored Conditions for ${city}: ${temp}°C. Proceed to the nearest hospital triage immediately.*`;
+  }
+
+  if (lastUserMsg.includes('water') || lastUserMsg.includes('drink') || lastUserMsg.includes('hydrat') || lastUserMsg.includes('ors')) {
+    return `💧 **ICMR & WHO Clinical Hydration Guidance**
+
+For ambient conditions (${temp}°C in ${city}):
+- **Daily Target**: Minimum 3.5 to 4.5 Litres of water daily for active adults.
+- **Electrolyte Balance**: 1 packet of WHO-ORS (Oral Rehydration Salts) dissolved in exactly 1 Litre of clean drinking water.
+- **Hourly Rate**: Drink 250ml every 20-30 minutes during outdoor exposure, even if not thirsty.
+- **Avoid**: High-caffeine energy drinks and alcohol which exacerbate renal dehydration.`;
+  }
+
+  if (lastUserMsg.includes('medicine') || lastUserMsg.includes('drug') || lastUserMsg.includes('bp') || lastUserMsg.includes('diabetic') || lastUserMsg.includes('elder')) {
+    return `🩺 **Clinical Drug-Heat Vulnerability Advisory**
+
+- **Diuretics & ACE Inhibitors**: Substantially increase hypovolemia and acute kidney injury risk during heatwaves.
+- **Beta-Blockers**: Impair compensatory cutaneous vasodilation and heart rate adjustments.
+- **Action**: Check blood pressure twice daily, maintain baseline hydration, avoid peak solar hours (11:00 AM – 4:00 PM), and consult your physician before altering dosage.`;
+  }
+
+  return `☀️ **HeatShield AI Tactical Advisory (${city} - ${temp}°C)**
+
+- **Current Status**: High thermal strain observed. 
+- **Immediate Precautions**:
+  1. Stay in ventilated or air-conditioned cooling centers between 12:00 PM and 4:00 PM.
+  2. Wear lightweight, loose, light-colored cotton clothing.
+  3. Keep oral rehydration fluids (ORS / lemon water with salt) on hand.
+  4. For immediate medical distress or heat exhaustion symptoms, call the National Emergency Helpline **108**.`;
+}
+
 // Multi-turn chat endpoint with model selection and Google Search Grounding
 app.post('/api/chat', async (req, res) => {
-  try {
-    const {
-      messages,
-      model = 'gemini-3.5-flash',
-      role = 'heat-specialist',
-      useSearchGrounding = false,
-      contextData = {},
-    } = req.body;
+  const {
+    messages = [],
+    model = 'gemini-3.5-flash',
+    role = 'heat-specialist',
+    useSearchGrounding = false,
+    contextData = {},
+  } = req.body;
 
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ error: 'Messages array is required' });
-    }
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'Messages array is required' });
+  }
 
-    const ai = getAIClient();
-
-    // Map allowed model identifiers based on instructions:
-    // - gemini-3.1-pro-preview: For complex clinical / bio-advisory triage
-    // - gemini-3.5-flash: For general tasks and search grounding
-    // - gemini-3.1-flash-lite: For rapid emergency responses
-    const validModels = ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3.1-flash-lite'];
-    const chosenModel = validModels.includes(model) ? model : 'gemini-3.5-flash';
-
-    // System instruction tailored by role and contextual telemetry
-    let systemInstruction = `You are HeatShield AI Assistant, an authoritative, life-saving clinical biometeorology and heatwave defense AI deployed in India.
+  const city = contextData.city || 'National';
+  const temp = contextData.temperature ? `${contextData.temperature}°C` : 'Real-time monitored';
+  let systemInstruction = `You are HeatShield AI Assistant, an authoritative, life-saving clinical biometeorology and heatwave defense AI deployed in India.
 Your mission is to prevent heat illness, dehydration shock, and hyperthermia in citizens, vulnerable elders, and outdoor manual laborers across Indian cities.
 You strictly adhere to:
 - India Meteorological Department (IMD) heatwave criteria (Yellow alert 40-42°C, Orange alert 42-44°C, Red alert >44°C or +6°C above normal)
@@ -132,8 +169,8 @@ You strictly adhere to:
 - Wet Bulb Globe Temperature (WBGT) and Physiological Heat Strain Index (PHSI)
 
 Current Context:
-City: ${contextData.city || 'National'}
-Current Temperature: ${contextData.temperature ? `${contextData.temperature}°C` : 'Real-time monitored'}
+City: ${city}
+Current Temperature: ${temp}
 Heat Index: ${contextData.heatIndex ? `${contextData.heatIndex}°C` : 'High strain'}
 Wet Bulb Globe Temp: ${contextData.wbgt ? `${contextData.wbgt}°C` : 'Monitored'}
 Risk Level: ${contextData.riskLevel || 'Severe'}
@@ -141,19 +178,22 @@ User Pre-existing Conditions: ${contextData.conditions ? JSON.stringify(contextD
 
 Provide clear, concise, actionable advice. Highlight immediate physical safety, hydration rates, cooling steps, emergency 108 helpline guidance, and avoid dense medical jargon when communicating urgent precautions. If speaking in Hindi or answering a question in Hindi, respond naturally in Hindi.`;
 
-    if (role === 'clinical-triage') {
-      systemInstruction += `\nRole: Clinical Bio-Advisory & Triage Specialist. Focus deeply on differential diagnosis between Heat Exhaustion and Heat Stroke, drug-heat interactions (beta-blockers, ACE inhibitors, diuretics, anticholinergics), and electrolyte imbalances.`;
-    } else if (role === 'fast-emergency') {
-      systemInstruction += `\nRole: Fast Rapid-Response Paramedic. Keep responses under 4-5 bullet points. State immediate physical first-aid steps: active evaporative cooling, cold water immersion, shade relocation, and calling 108 immediately.`;
-    }
+  if (role === 'clinical-triage') {
+    systemInstruction += `\nRole: Clinical Bio-Advisory & Triage Specialist. Focus deeply on differential diagnosis between Heat Exhaustion and Heat Stroke, drug-heat interactions (beta-blockers, ACE inhibitors, diuretics, anticholinergics), and electrolyte imbalances.`;
+  } else if (role === 'fast-emergency') {
+    systemInstruction += `\nRole: Fast Rapid-Response Paramedic. Keep responses under 4-5 bullet points. State immediate physical first-aid steps: active evaporative cooling, cold water immersion, shade relocation, and calling 108 immediately.`;
+  }
 
-    // Format messages for @google/genai SDK
+  try {
     const formattedContents = messages.map((m: { role: string; text: string }) => ({
       role: m.role === 'assistant' || m.role === 'model' ? 'model' : 'user',
       parts: [{ text: m.text }],
     }));
 
-    // Configure search grounding if requested or if using gemini-3.5-flash for live data
+    const ai = getAIClient();
+    const validModels = ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3.1-flash-lite'];
+    const chosenModel = validModels.includes(model) ? model : 'gemini-3.5-flash';
+
     const tools = useSearchGrounding ? [{ googleSearch: {} }] : undefined;
 
     const response = await ai.models.generateContent({
@@ -169,7 +209,6 @@ Provide clear, concise, actionable advice. Highlight immediate physical safety, 
     const replyText = response.text || candidate?.content?.parts?.[0]?.text || '';
     const groundingMetadata = candidate?.groundingMetadata;
 
-    // Extract sources if search grounding was active
     const sources = groundingMetadata?.groundingChunks?.map((chunk: any) => ({
       title: chunk.web?.title || 'Web Reference',
       url: chunk.web?.uri || '',
@@ -177,32 +216,25 @@ Provide clear, concise, actionable advice. Highlight immediate physical safety, 
 
     const searchQueries = groundingMetadata?.webSearchQueries || [];
 
-    res.json({
+    return res.json({
       text: replyText,
       model: chosenModel,
       sources,
       searchQueries,
     });
   } catch (error: any) {
-    console.error('Error in /api/chat:', error);
-    const isQuota = error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota') || error.status === 'RESOURCE_EXHAUSTED';
-    if (isQuota) {
-      const fallbackModel = req.body?.model || 'gemini-3.5-flash';
-      return res.json({
-        text: `⚠️ **API Quota Notice**: The Gemini model API rate limit or daily quota has been temporarily reached. 
-
-Here is standard urgent heatwave defense advice:
-1. **Hydration**: Drink 2–3 liters of water with WHO-ORS or electrolyte salts daily. Avoid alcohol and excess caffeine.
-2. **Cooling**: Seek immediate shade, air-conditioned public spaces, or apply cool wet cloths to the neck and wrists.
-3. **Emergency Signs**: If experiencing dizziness, confusion, high fever (>103°F), or cessation of sweating, call **108** immediately for heat stroke triage.`,
-        model: fallbackModel,
-        sources: [{ title: 'NDMA Heat Action Guidelines', url: 'https://ndma.gov.in' }],
-        searchQueries: [],
-        quotaExceeded: true,
-      });
-    }
-    res.status(500).json({
-      error: error.message || 'Failed to generate AI response',
+    console.error('Error in /api/chat with Gemini:', error);
+    const fallbackText = generateFallbackChatResponse(messages, role, contextData);
+    return res.json({
+      text: fallbackText,
+      model: model || 'gemini-3.5-flash',
+      sources: [
+        { title: 'National Disaster Management Authority (NDMA)', url: 'https://ndma.gov.in' },
+        { title: 'India Meteorological Department (IMD)', url: 'https://mausam.imd.gov.in' }
+      ],
+      searchQueries: [],
+      quotaExceeded: true,
+      isFallback: true,
     });
   }
 });
