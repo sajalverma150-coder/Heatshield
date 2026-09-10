@@ -2,6 +2,8 @@
 // Supports any building, monument, area, street, hospital, commercial hub, or transit node.
 // Uses Photon (Komoot OSM Elasticsearch) with Nominatim fallback + instant local index. Zero API keys required.
 
+import { ALL_INDIAN_DISTRICTS } from '../data/indiaDistricts';
+
 export interface LocationSearchResult {
   id: string;
   name: string;
@@ -553,7 +555,7 @@ export async function searchGlobalLocations(
   const results: LocationSearchResult[] = [];
   const seenIds = new Set<string>();
 
-  // 1. Instant Match against Curated Popular Indian Landmarks (0ms Latency)
+  // 1. Instant Match against Curated Popular Indian Landmarks & All 750+ Indian Districts (0ms Latency)
   const localMatches = POPULAR_INDIAN_LANDMARKS.filter((item) => {
     return (
       item.name.toLowerCase().includes(cleanQuery) ||
@@ -563,12 +565,31 @@ export async function searchGlobalLocations(
     );
   });
 
-  localMatches.forEach((match) => {
+  // Also match all 750+ Indian Districts
+  const districtMatches: LocationSearchResult[] = ALL_INDIAN_DISTRICTS
+    .filter((d) => d.name.toLowerCase().includes(cleanQuery) || d.state.toLowerCase().includes(cleanQuery))
+    .slice(0, 10)
+    .map((d) => ({
+      id: `dist-${d.state.toLowerCase().replace(/\s+/g, '-')}-${d.name.toLowerCase().replace(/\s+/g, '-')}`,
+      name: d.name,
+      displayName: `${d.name} District, ${d.state}`,
+      secondaryText: `${d.state} • ${d.zone}`,
+      lat: d.lat,
+      lng: d.lng,
+      category: 'area' as const,
+      typeLabel: 'District HQ',
+      city: d.name,
+      state: d.state,
+    }));
+
+  [...localMatches, ...districtMatches].forEach((match) => {
+    const coordKey = `${match.lat.toFixed(4)},${match.lng.toFixed(4)}`;
+    if (seenIds.has(coordKey)) return;
     let dist: number | undefined;
     if (options?.lat && options?.lng) {
       dist = calculateGeodesicDistance(options.lat, options.lng, match.lat, match.lng);
     }
-    seenIds.add(`${match.lat.toFixed(4)},${match.lng.toFixed(4)}`);
+    seenIds.add(coordKey);
     results.push({ ...match, distanceKm: dist });
   });
 

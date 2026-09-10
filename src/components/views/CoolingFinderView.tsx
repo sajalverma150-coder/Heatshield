@@ -26,7 +26,7 @@ import {
   Building2
 } from 'lucide-react';
 import { CoolingFacility } from '../../types';
-import { CityData } from '../../data/indiaCities';
+import { CityData, calculateDistanceKm, formatShelterDistance } from '../../data/indiaCities';
 import { InteractiveGisMap } from '../InteractiveGisMap';
 import { GpsNavigationModal } from '../GpsNavigationModal';
 import { LocationAutocomplete } from '../LocationAutocomplete';
@@ -35,6 +35,7 @@ import { LocationSearchResult, calculateGeodesicDistance } from '../../services/
 interface CoolingFinderViewProps {
   facilities: CoolingFacility[];
   selectedCity?: CityData;
+  userCoords?: { lat: number; lng: number } | null;
   onOpenCitySelector?: () => void;
   onNavigateToFacility: (facility: CoolingFacility) => void;
   onTriggerSOS: () => void;
@@ -46,6 +47,7 @@ interface CoolingFinderViewProps {
 export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
   facilities,
   selectedCity,
+  userCoords: propUserCoords,
   onOpenCitySelector,
   onNavigateToFacility,
   onTriggerSOS,
@@ -98,7 +100,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
   const [tankerDispatchedNotice, setTankerDispatchedNotice] = useState<string | null>(null);
 
   // User GPS coordinates
-  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(propUserCoords || null);
 
   // Mobile View Mode Switcher ('map' | 'list') for small screens
   const [mobileViewMode, setMobileViewMode] = useState<'map' | 'list'>('map');
@@ -112,6 +114,13 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
     }
   }, [initialActiveNav]);
 
+  // Sync prop userCoords if updated from App
+  useEffect(() => {
+    if (propUserCoords) {
+      setUserCoords(propUserCoords);
+    }
+  }, [propUserCoords]);
+
   // Sync selected facility when city or facilities change
   useEffect(() => {
     if (facilities.length > 0) {
@@ -123,9 +132,9 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
     }
   }, [facilities]);
 
-  // Try detecting user physical GPS for real-time distance calculations
+  // Try detecting user physical GPS for real-time distance calculations if not already provided
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (!propUserCoords && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
@@ -133,19 +142,23 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
         (err) => {
           // Fallback to city center
           if (selectedCity) {
-            setUserCoords({ lat: selectedCity.lat - 0.003, lng: selectedCity.lng - 0.004 });
+            setUserCoords({ lat: selectedCity.lat, lng: selectedCity.lng });
           }
         },
-        { enableHighAccuracy: false, timeout: 5000 }
+        { enableHighAccuracy: true, timeout: 6000 }
       );
     }
-  }, [selectedCity?.id]);
+  }, [selectedCity?.id, propUserCoords]);
 
-  // Dynamic distance computation based on selected landmark or GPS
+  // Dynamic distance computation based on selected landmark or live user GPS
   const facilitiesWithDistances = facilities.map((f) => {
-    if (searchedLandmark) {
-      const d = calculateGeodesicDistance(searchedLandmark.lat, searchedLandmark.lng, f.coordinates[0], f.coordinates[1]);
-      const walk = Math.max(2, Math.round(d * 12));
+    const origin = searchedLandmark
+      ? { lat: searchedLandmark.lat, lng: searchedLandmark.lng }
+      : (userCoords || (selectedCity ? { lat: selectedCity.lat, lng: selectedCity.lng } : null));
+
+    if (origin) {
+      const d = calculateDistanceKm(origin.lat, origin.lng, f.coordinates[0], f.coordinates[1]);
+      const walk = Math.max(1, Math.round(d * 12.5));
       return { ...f, distanceKm: d, walkTimeMins: walk };
     }
     return f;
@@ -159,7 +172,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
         f.address.toLowerCase().includes(searchQuery.toLowerCase());
       return matchCategory && matchSearch;
     })
-    .sort((a, b) => (searchedLandmark ? a.distanceKm - b.distanceKm : 0));
+    .sort((a, b) => a.distanceKm - b.distanceKm); // Always sort closest first!
 
   // Handler to start navigation to a facility
   const handleStartNav = (facility: CoolingFacility) => {
@@ -471,6 +484,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               const isSelected = selectedFacility?.id === fac.id;
               const isNavigating = navTargetFacility?.id === fac.id && isNavModalOpen;
               const occupancyPct = Math.round((fac.currentOccupancy / fac.totalCapacity) * 100);
+              const distDisplay = formatShelterDistance(fac.distanceKm);
 
               return (
                 <div
@@ -498,7 +512,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                           {fac.isHospital ? 'HOSPITAL TRIAGE' : 'AC SHELTER'}
                         </span>
                         <span className="text-xs font-mono text-orange-400 font-semibold">
-                          {fac.walkTimeMins} mins walk ({fac.distanceKm} km)
+                          {distDisplay.combinedLabel}
                         </span>
                         {isNavigating && (
                           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse font-bold">

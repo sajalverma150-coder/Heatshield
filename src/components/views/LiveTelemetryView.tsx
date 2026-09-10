@@ -24,7 +24,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { WeatherTelemetry, UserHealthProfile, CoolingFacility, LanguageCode } from '../../types';
-import { CityData } from '../../data/indiaCities';
+import { CityData, calculateDistanceKm, formatShelterDistance } from '../../data/indiaCities';
 import { useAppTranslation } from '../../i18n/translations';
 import { HydrationTracker } from '../HydrationTracker';
 
@@ -34,6 +34,7 @@ interface LiveTelemetryViewProps {
   userProfile: UserHealthProfile;
   facilities: CoolingFacility[];
   selectedCity?: CityData;
+  userCoords?: { lat: number; lng: number } | null;
   onOpenCitySelector?: () => void;
   onLogWater: (amountMl: number) => void;
   onNavigateToFacility: (facility: CoolingFacility) => void;
@@ -55,6 +56,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
   userProfile,
   facilities,
   selectedCity,
+  userCoords,
   onOpenCitySelector,
   onLogWater,
   onNavigateToFacility,
@@ -169,15 +171,42 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
     setTimeout(() => setToastMessage(null), 2500);
   };
 
-  const nearestShelter = facilities[0] || {
-    name: 'District Community Hall & Cooling Shelter',
-    distanceKm: 0.35,
-    walkTimeMins: 4,
-    indoorTemp: 24.5,
-    capacity: 120,
-    currentOccupancy: 45,
-    hasOxygen: true,
-  };
+  // Compute nearest shelter dynamically based on user coordinates or city center
+  const nearestShelter = useMemo(() => {
+    if (!facilities || facilities.length === 0) {
+      return {
+        id: 'default-shelter',
+        name: 'District Community Hall & Cooling Shelter',
+        distanceKm: 0.35,
+        walkTimeMins: 4,
+        indoorTemp: 24.5,
+        totalCapacity: 120,
+        currentOccupancy: 45,
+        amenities: [],
+        contactPhone: '108',
+        status: 'OPEN' as const,
+        coordinates: [26.8467, 80.9462] as [number, number],
+        category: 'shelter' as const,
+      };
+    }
+
+    if (userCoords) {
+      const sorted = [...facilities].map((fac) => {
+        const dist = calculateDistanceKm(userCoords.lat, userCoords.lng, fac.coordinates[0], fac.coordinates[1]);
+        const walk = Math.max(1, Math.round(dist * 12.5));
+        return { ...fac, distanceKm: dist, walkTimeMins: walk };
+      }).sort((a, b) => a.distanceKm - b.distanceKm);
+
+      return sorted[0];
+    }
+
+    return facilities[0];
+  }, [facilities, userCoords]);
+
+  const shelterDistInfo = useMemo(() => {
+    if (!nearestShelter) return null;
+    return formatShelterDistance(nearestShelter.distanceKm, isHindi);
+  }, [nearestShelter, isHindi]);
 
   const selectedHour = hourlyData[selectedHourIndex] || hourlyData[3];
 
@@ -312,8 +341,14 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               onClick={() => onSwitchTab('cooling-finder')}
               className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
             >
-              <Compass className="w-4 h-4" />
-              <span>{isHindi ? `निकटतम आश्रय (${nearestShelter.walkTimeMins} मि)` : `Nearest Shelter (${nearestShelter.walkTimeMins}m)`}</span>
+              <Compass className="w-4 h-4 shrink-0" />
+              <span>
+                {shelterDistInfo
+                  ? (isHindi
+                      ? `निकटतम आश्रय (${shelterDistInfo.combinedLabel})`
+                      : `Nearest Shelter (${shelterDistInfo.combinedLabel})`)
+                  : (isHindi ? 'निकटतम आश्रय खोजें' : 'Find Nearest Shelter')}
+              </span>
             </button>
 
             {/* AI Triage */}

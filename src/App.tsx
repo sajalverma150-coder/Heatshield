@@ -82,6 +82,7 @@ export function App() {
   const [isHealthReportOpen, setIsHealthReportOpen] = useState<boolean>(false);
   const [isPushSettingsOpen, setIsPushSettingsOpen] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [userGpsCoords, setUserGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   // Function to load weather telemetry for any selected city
   const loadWeatherForCity = async (city: CityData, mode: 'live_api' | 'imd_heatwave' = dataSourceMode) => {
@@ -146,6 +147,7 @@ export function App() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          setUserGpsCoords({ lat: latitude, lng: longitude });
           const { city, distanceKm } = findNearestIndianCity(latitude, longitude);
           
           if (city) {
@@ -230,6 +232,7 @@ export function App() {
             userProfile={userProfile}
             facilities={facilities}
             selectedCity={selectedCity}
+            userCoords={userGpsCoords}
             onOpenCitySelector={() => setIsCitySelectorOpen(true)}
             onLogWater={handleLogWater}
             onNavigateToFacility={handleNavigateToFacility}
@@ -251,6 +254,7 @@ export function App() {
           <CoolingFinderView
             facilities={facilities}
             selectedCity={selectedCity}
+            userCoords={userGpsCoords}
             onOpenCitySelector={() => setIsCitySelectorOpen(true)}
             onNavigateToFacility={handleNavigateToFacility}
             onTriggerSOS={() => setIsSOSOpen(true)}
@@ -401,6 +405,7 @@ export function App() {
         dataSourceMode={dataSourceMode}
         citiesLiveWeather={batchCitiesWeather}
         activeWeather={weather}
+        onGpsDetected={(coords) => setUserGpsCoords({ lat: coords.lat, lng: coords.lng })}
       />
 
       {/* AI Triage Diagnostic Tree Modal */}

@@ -1,4 +1,5 @@
 import { WeatherTelemetry, CoolingFacility, ForecastDay, EmergencyBroadcast } from '../types';
+import { ALL_INDIAN_DISTRICTS, findNearestDistrict } from './indiaDistricts';
 
 export interface CityData {
   id: string;
@@ -1415,6 +1416,523 @@ export const INDIAN_CITIES: CityData[] = [
       audioObdDialed: 70000,
       acknowledged: false,
     }
+  },
+  {
+    id: 'kanpur',
+    name: 'Kanpur',
+    state: 'Uttar Pradesh',
+    region: 'North',
+    lat: 26.4499,
+    lng: 80.3319,
+    pinCode: '208001',
+    population: '3.2 Million',
+    climateZone: 'Central Gangetic Industrial Plain',
+    weather: {
+      stationId: 'AWS-2080-KNP-CHAK',
+      stationName: 'IMD Automatic Weather Station - Chakeri / Kanpur Central',
+      ward: 'Civil Lines & Mall Road Division',
+      pinCode: '208001',
+      lastUpdated: 'Live Sync (IMD Kanpur)',
+      dryBulbTemp: 44.8,
+      wetBulbTemp: 29.8,
+      wbgt: 35.1,
+      heatIndex: 50.2,
+      utci: 47.1,
+      humidity: 39,
+      solarRadiation: 1025,
+      windSpeed: 4.8,
+      uhiAnomaly: 4.2,
+      sweatLossRate: 960,
+      solarRadiativeLoad: 1.32,
+      peakWindowStart: '11:45',
+      peakWindowEnd: '16:45',
+      grapStage: 'UP SDMA - STAGE IV CURFEW',
+      riskLevel: 'EXTREME',
+    },
+    coolingFacilities: [
+      {
+        id: 'knp-1',
+        name: 'GSVM Medical College (LLR Hospital) - Acute Hyperthermia ICU',
+        category: 'triage_hospital',
+        address: 'Swaroop Nagar, Kanpur, Uttar Pradesh 208002',
+        distanceKm: 1.2,
+        walkTimeMins: 14,
+        totalCapacity: 80,
+        currentOccupancy: 64,
+        indoorTemp: 20.8,
+        amenities: ['Rapid Ice Immersion Pods (6)', 'Continuous Hemodynamic Monitors', 'Chilled Normal Saline Infusions', 'Oxygen Heat Beds'],
+        contactPhone: '0512-2535483',
+        status: 'OPEN',
+        coordinates: [26.4782, 80.3120],
+        isHospital: true,
+        heatBedsAvailable: 16,
+        iceBathsAvailable: 4,
+      },
+      {
+        id: 'knp-2',
+        name: 'Kanpur Central Railway Junction Underground Air-Cooled Refuge',
+        category: 'shelter',
+        address: 'Station Rd, Mirpur, Cantt, Kanpur, Uttar Pradesh 208004',
+        distanceKm: 0.5,
+        walkTimeMins: 6,
+        totalCapacity: 250,
+        currentOccupancy: 140,
+        indoorTemp: 23.2,
+        amenities: ['Central Air-Conditioning & High-Velocity Misting Fans', 'Free WHO-ORS Hydration Stalls', 'Filtered Water ATMs', 'Paramedic Standby'],
+        contactPhone: '0512-2321444',
+        status: 'OPEN',
+        coordinates: [26.4542, 80.3512],
+      },
+      {
+        id: 'knp-3',
+        name: 'Ursala Horsman Memorial (UHM) Hospital Heat Stroke Trauma Wing',
+        category: 'triage_hospital',
+        address: 'MG Road, Civil Lines, Kanpur, Uttar Pradesh 208001',
+        distanceKm: 1.5,
+        walkTimeMins: 18,
+        totalCapacity: 50,
+        currentOccupancy: 35,
+        indoorTemp: 21.0,
+        amenities: ['Emergency Ice Baths (4)', 'Critical Core Temperature Sensors', 'Cold IV Fluid Stocks', 'Emergency Ambulance Bay'],
+        contactPhone: '0512-2304561',
+        status: 'OPEN',
+        coordinates: [26.4678, 80.3440],
+        isHospital: true,
+        heatBedsAvailable: 15,
+        iceBathsAvailable: 3,
+      },
+      {
+        id: 'knp-4',
+        name: 'Motijheel Municipal Shaded Misting Pavilion & Hydration Hub',
+        category: 'shelter',
+        address: 'Motijheel Park Complex, Harsh Nagar, Kanpur 208002',
+        distanceKm: 0.8,
+        walkTimeMins: 9,
+        totalCapacity: 180,
+        currentOccupancy: 95,
+        indoorTemp: 24.5,
+        amenities: ['Ultra-Fine Water Droplet Misting Blowers', 'Chilled Drinking Water Bowsers', 'ORS Sachet Distribution', 'Resting Benches'],
+        contactPhone: '0512-2540182',
+        status: 'OPEN',
+        coordinates: [26.4760, 80.3175],
+      }
+    ],
+    forecast: [
+      {
+        dayName: 'Today (Mon)',
+        dateStr: '22 Apr',
+        maxTemp: 44.8,
+        minTemp: 31.0,
+        maxWBGT: 35.1,
+        maxHeatIndex: 50.2,
+        riskScore: 94,
+        grapStage: 'UP STAGE IV',
+        riskLevel: 'EXTREME',
+        projectedSurgeAdmissions: 185,
+        shapFactors: [
+          { factor: 'Dense Industrial Urban Heat Island', impact: 4.6, description: 'Industrial concrete and asphalt radiation trapping' },
+          { factor: 'Bundelkhand Dry Loo Influx', impact: 3.9, description: 'Direct dry westerly heat corridor' },
+        ],
+        hourlyStress: [
+          { hour: '08:00', temp: 33.0, wbgt: 28.0, stressLevel: 50 },
+          { hour: '10:00', temp: 39.0, wbgt: 31.8, stressLevel: 78 },
+          { hour: '12:00', temp: 43.2, wbgt: 34.2, stressLevel: 94 },
+          { hour: '14:00', temp: 44.8, wbgt: 35.1, stressLevel: 99 },
+          { hour: '16:00', temp: 43.6, wbgt: 34.3, stressLevel: 93 },
+          { hour: '18:00', temp: 39.5, wbgt: 31.5, stressLevel: 76 },
+          { hour: '20:00', temp: 35.8, wbgt: 29.2, stressLevel: 64 },
+        ],
+      }
+    ],
+    alert: {
+      id: 'ALERT-KNP-2026-0422-007',
+      code: 'RED CODE 02 / CRITICAL INDUSTRIAL CORRIDOR HEAT EMERGENCY',
+      severity: 'EXTREME_CODE_RED',
+      title: 'KANPUR DISTRICT ADMINISTRATION & UP SDMA HEAT ORDER',
+      issuedBy: 'District Magistrate Kanpur Nagar',
+      issuedAt: '10:00 IST Today',
+      targetWards: ['Civil Lines', 'Swaroop Nagar', 'Kidwai Nagar', 'Govind Nagar', 'Chakeri'],
+      messageEn: 'CRITICAL HEATWAVE ALERT FOR KANPUR: 44.8°C with severe WBGT 35.1°C. Mandatory suspension of all outdoor construction and industrial yard labor from 11:45 to 16:45.',
+      messageHi: 'कानपुर रेड अलर्ट: 44.8°C तापमान व तीव्र लू। दोपहर 11:45 से 4:45 बजे तक सभी खुले निर्माण कार्यों पर अनिवार्य रोक। तुरंत निकटतम वातानुकूलित आश्रय में जाएं।',
+      directives: [
+        'GSVM Medical College and UHM Hospital triage heatstroke wards fully operational.',
+        'Kanpur Nagar Nigam tankers dispensing chilled drinking water with ORS across transport hubs.',
+      ],
+      smsDelivered: 175000,
+      whatsappDelivered: 120000,
+      audioObdDialed: 85000,
+      acknowledged: false,
+    }
+  },
+  {
+    id: 'unnao',
+    name: 'Unnao',
+    state: 'Uttar Pradesh',
+    region: 'North',
+    lat: 26.5393,
+    lng: 80.4878,
+    pinCode: '209801',
+    population: '0.45 Million',
+    climateZone: 'Central UP Gangetic Agro-Industrial Corridor',
+    weather: {
+      stationId: 'AWS-2098-UNN-HQ',
+      stationName: 'IMD Automatic Weather Station - Unnao District Hospital Zone',
+      ward: 'Unnao Sadar & Shukla Ganj Division',
+      pinCode: '209801',
+      lastUpdated: 'Live Sync (IMD Unnao)',
+      dryBulbTemp: 44.2,
+      wetBulbTemp: 29.4,
+      wbgt: 34.7,
+      heatIndex: 49.3,
+      utci: 46.2,
+      humidity: 37,
+      solarRadiation: 1015,
+      windSpeed: 4.4,
+      uhiAnomaly: 3.1,
+      sweatLossRate: 910,
+      solarRadiativeLoad: 1.26,
+      peakWindowStart: '12:00',
+      peakWindowEnd: '16:30',
+      grapStage: 'UP SDMA - STAGE IV CURFEW',
+      riskLevel: 'EXTREME',
+    },
+    coolingFacilities: [
+      {
+        id: 'unn-1',
+        name: 'District Hospital Unnao - Acute Hyperthermia Triage Unit',
+        category: 'triage_hospital',
+        address: 'Near Collectorate, Awas Vikas, Unnao, Uttar Pradesh 209801',
+        distanceKm: 0.6,
+        walkTimeMins: 7,
+        totalCapacity: 50,
+        currentOccupancy: 32,
+        indoorTemp: 21.2,
+        amenities: ['Rapid Ice Immersion Baths (3)', 'Hyperthermia Resuscitation Beds', 'Chilled Normal Saline Stocks', 'Oxygen Support'],
+        contactPhone: '0515-2820222',
+        status: 'OPEN',
+        coordinates: [26.5450, 80.4920],
+        isHospital: true,
+        heatBedsAvailable: 18,
+        iceBathsAvailable: 2,
+      },
+      {
+        id: 'unn-2',
+        name: 'Unnao Junction Railway Shaded Misting & Hydration Center',
+        category: 'shelter',
+        address: 'Railway Station Road, Unnao, Uttar Pradesh 209801',
+        distanceKm: 0.35,
+        walkTimeMins: 4,
+        totalCapacity: 150,
+        currentOccupancy: 78,
+        indoorTemp: 24.0,
+        amenities: ['High Pressure Misting Fans', 'Free Filtered Chilled Drinking Water', 'WHO-ORS Electrolyte Counter', 'Rest Benches'],
+        contactPhone: '0515-2820131',
+        status: 'OPEN',
+        coordinates: [26.5410, 80.4850],
+      },
+      {
+        id: 'unn-3',
+        name: 'Shukla Ganj / Gangaghat Municipal AC Public Refugium (Kanpur Border)',
+        category: 'shelter',
+        address: 'Old Kanpur-Unnao Highway, Shukla Ganj, Gangaghat 209861',
+        distanceKm: 1.8,
+        walkTimeMins: 22,
+        totalCapacity: 120,
+        currentOccupancy: 65,
+        indoorTemp: 23.5,
+        amenities: ['Air-Conditioned Hall', 'Cold Water Dispenser', 'First-Aid Paramedic Desk', 'Electrolyte Solutions'],
+        contactPhone: '0515-2824500',
+        status: 'OPEN',
+        coordinates: [26.4680, 80.3750],
+      },
+      {
+        id: 'unn-4',
+        name: 'GSVM Medical College Kanpur Trauma Center (Nearest Super-Speciality)',
+        category: 'triage_hospital',
+        address: 'Swaroop Nagar, Kanpur (18 km from Unnao City Center)',
+        distanceKm: 18.2,
+        walkTimeMins: 210,
+        totalCapacity: 80,
+        currentOccupancy: 64,
+        indoorTemp: 20.8,
+        amenities: ['Tertiary Hyperthermia ICU', 'Advanced Hemodialysis Cooling', 'Ice Immersion Pods (6)'],
+        contactPhone: '0512-2535483',
+        status: 'OPEN',
+        coordinates: [26.4782, 80.3120],
+        isHospital: true,
+        heatBedsAvailable: 16,
+        iceBathsAvailable: 4,
+      }
+    ],
+    forecast: [
+      {
+        dayName: 'Today (Mon)',
+        dateStr: '22 Apr',
+        maxTemp: 44.2,
+        minTemp: 30.5,
+        maxWBGT: 34.7,
+        maxHeatIndex: 49.3,
+        riskScore: 92,
+        grapStage: 'UP STAGE IV',
+        riskLevel: 'EXTREME',
+        projectedSurgeAdmissions: 95,
+        shapFactors: [
+          { factor: 'High Radiant Heating on Open Fields', impact: 4.3, description: 'Agro-plains boundary layer heating' },
+          { factor: 'Westerly Loo Wind Advection', impact: 3.7, description: 'Hot breeze from Central India' },
+        ],
+        hourlyStress: [
+          { hour: '08:00', temp: 32.5, wbgt: 27.6, stressLevel: 49 },
+          { hour: '10:00', temp: 38.5, wbgt: 31.2, stressLevel: 76 },
+          { hour: '12:00', temp: 42.6, wbgt: 33.9, stressLevel: 92 },
+          { hour: '14:00', temp: 44.2, wbgt: 34.7, stressLevel: 98 },
+          { hour: '16:00', temp: 43.0, wbgt: 34.0, stressLevel: 91 },
+          { hour: '18:00', temp: 39.0, wbgt: 31.0, stressLevel: 74 },
+          { hour: '20:00', temp: 35.2, wbgt: 28.8, stressLevel: 61 },
+        ],
+      }
+    ],
+    alert: {
+      id: 'ALERT-UNN-2026-0422-008',
+      code: 'RED CODE 02 / UNNAO DISTRICT HEATWAVE ADVISORY',
+      severity: 'EXTREME_CODE_RED',
+      title: 'UNNAO DISTRICT DISASTER MANAGEMENT AUTHORITY (DDMA)',
+      issuedBy: 'District Magistrate Unnao & UP SDMA',
+      issuedAt: '10:30 IST Today',
+      targetWards: ['Unnao Sadar', 'Shuklaganj', 'Gangaghat', 'Nawabganj', 'Safipur'],
+      messageEn: 'HEAT ADVISORY FOR UNNAO: Temperature 44.2°C with WBGT 34.7°C. Seek shelter during afternoon hours. Chilled ORS stations active at District Hospital and Junction.',
+      messageHi: 'उन्नाव जिला हीट एडवाइजरी: तापमान 44.2°C। दोपहर में धूप से बचें। जिला अस्पताल और रेलवे स्टेशन पर शीतल जल व ओआरएस उपलब्ध है।',
+      directives: [
+        'Unnao District Hospital Hyperthermia unit placed on 24/7 high emergency alert.',
+        'Kanpur GSVM Trauma Center coordinated for tertiary hyperthermia emergency referrals.',
+      ],
+      smsDelivered: 85000,
+      whatsappDelivered: 62000,
+      audioObdDialed: 45000,
+      acknowledged: false,
+    }
+  },
+  {
+    id: 'varanasi',
+    name: 'Varanasi',
+    state: 'Uttar Pradesh',
+    region: 'North',
+    lat: 25.3176,
+    lng: 82.9739,
+    pinCode: '221001',
+    population: '1.8 Million',
+    climateZone: 'Eastern UP Humid River Basin',
+    weather: {
+      stationId: 'AWS-2210-VNS-BHU',
+      stationName: 'IMD Automatic Weather Station - BHU / Babatpur',
+      ward: 'Varanasi Cantt & Ghats Division',
+      pinCode: '221005',
+      lastUpdated: 'Live Sync (IMD Varanasi)',
+      dryBulbTemp: 44.0,
+      wetBulbTemp: 30.2,
+      wbgt: 35.2,
+      heatIndex: 50.8,
+      utci: 47.4,
+      humidity: 44,
+      solarRadiation: 1010,
+      windSpeed: 3.8,
+      uhiAnomaly: 3.8,
+      sweatLossRate: 980,
+      solarRadiativeLoad: 1.30,
+      peakWindowStart: '12:00',
+      peakWindowEnd: '16:30',
+      grapStage: 'UP SDMA - STAGE IV CURFEW',
+      riskLevel: 'EXTREME',
+    },
+    coolingFacilities: [
+      {
+        id: 'vns-1',
+        name: 'IMS-BHU Sir Sunderlal Hospital - Heat Stroke Trauma Center',
+        category: 'triage_hospital',
+        address: 'BHU Campus, Varanasi, Uttar Pradesh 221005',
+        distanceKm: 1.1,
+        walkTimeMins: 13,
+        totalCapacity: 90,
+        currentOccupancy: 70,
+        indoorTemp: 20.5,
+        amenities: ['Ice Bath Immersion Pods (6)', 'Rapid Core Temp Probes', 'Cold Saline Reserves', 'Trauma ICU'],
+        contactPhone: '0542-2367568',
+        status: 'OPEN',
+        coordinates: [25.2750, 82.9980],
+        isHospital: true,
+        heatBedsAvailable: 20,
+        iceBathsAvailable: 4,
+      },
+      {
+        id: 'vns-2',
+        name: 'Varanasi Cantt Junction Underground AC Public Pavilion',
+        category: 'shelter',
+        address: 'Cantt Railway Station Complex, Varanasi 221002',
+        distanceKm: 0.4,
+        walkTimeMins: 5,
+        totalCapacity: 200,
+        currentOccupancy: 110,
+        indoorTemp: 23.6,
+        amenities: ['Air-Conditioning & Misting Blowers', 'Jal Sansthan Chilled Water Point', 'Free ORS Packets', 'First-Aid'],
+        contactPhone: '0542-2503842',
+        status: 'OPEN',
+        coordinates: [25.3280, 82.9860],
+      }
+    ],
+    forecast: [
+      {
+        dayName: 'Today (Mon)',
+        dateStr: '22 Apr',
+        maxTemp: 44.0,
+        minTemp: 30.5,
+        maxWBGT: 35.2,
+        maxHeatIndex: 50.8,
+        riskScore: 94,
+        grapStage: 'UP STAGE IV',
+        riskLevel: 'EXTREME',
+        projectedSurgeAdmissions: 140,
+        shapFactors: [
+          { factor: 'River Basin Humidity Trap', impact: 4.8, description: 'Ganga river moisture accelerating wet bulb heat stress' },
+        ],
+        hourlyStress: [
+          { hour: '08:00', temp: 32.8, wbgt: 28.2, stressLevel: 52 },
+          { hour: '10:00', temp: 38.6, wbgt: 31.9, stressLevel: 79 },
+          { hour: '12:00', temp: 42.8, wbgt: 34.5, stressLevel: 95 },
+          { hour: '14:00', temp: 44.0, wbgt: 35.2, stressLevel: 99 },
+          { hour: '16:00', temp: 43.1, wbgt: 34.6, stressLevel: 94 },
+          { hour: '18:00', temp: 39.2, wbgt: 31.8, stressLevel: 77 },
+          { hour: '20:00', temp: 35.5, wbgt: 29.5, stressLevel: 65 },
+        ],
+      }
+    ],
+    alert: {
+      id: 'ALERT-VNS-2026-0422-009',
+      code: 'RED CODE 02 / VARANASI RIVER BASIN HEAT STRESS',
+      severity: 'EXTREME_CODE_RED',
+      title: 'VARANASI DISTRICT DISASTER MANAGEMENT CELL (VDMC)',
+      issuedBy: 'District Magistrate Varanasi & UP SDMA',
+      issuedAt: '10:45 IST Today',
+      targetWards: ['Ghats Belt', 'Cantt', 'BHU Zone', 'Shivpur', 'Chowk'],
+      messageEn: 'VARANASI HEAT ALERT: 44°C with high humidity producing WBGT 35.2°C. Pilgrims and outdoor workers must access air-cooled shelters.',
+      messageHi: 'वाराणसी हीट अलर्ट: तापमान 44°C व उच्च उमस। घाटों व खुले क्षेत्रों में रहने वाले तुरंत वातानुकूलित आश्रयों में जाएं।',
+      directives: [
+        'IMS BHU Sir Sunderlal Hospital emergency heat units operational.',
+        'Misting arches and chilled ORS deployed along Dashashwamedh and Godowlia pathways.',
+      ],
+      smsDelivered: 140000,
+      whatsappDelivered: 95000,
+      audioObdDialed: 60000,
+      acknowledged: false,
+    }
+  },
+  {
+    id: 'bengaluru',
+    name: 'Bengaluru',
+    state: 'Karnataka',
+    region: 'South',
+    lat: 12.9716,
+    lng: 77.5946,
+    pinCode: '560001',
+    population: '13.2 Million',
+    climateZone: 'Southern Deccan Semi-Arid Plateau',
+    weather: {
+      stationId: 'AWS-5600-BLR-HAL',
+      stationName: 'IMD Automatic Weather Station - Bengaluru City & HAL',
+      ward: 'BBMP Central & Indiranagar Zone',
+      pinCode: '560001',
+      lastUpdated: 'Live Sync (IMD Bengaluru)',
+      dryBulbTemp: 38.6,
+      wetBulbTemp: 26.2,
+      wbgt: 31.4,
+      heatIndex: 42.1,
+      utci: 39.8,
+      humidity: 48,
+      solarRadiation: 960,
+      windSpeed: 4.0,
+      uhiAnomaly: 2.8,
+      sweatLossRate: 680,
+      solarRadiativeLoad: 1.15,
+      peakWindowStart: '12:30',
+      peakWindowEnd: '15:30',
+      grapStage: 'STAGE II - HEAT ADVISORY',
+      riskLevel: 'HIGH',
+    },
+    coolingFacilities: [
+      {
+        id: 'blr-1',
+        name: 'Victoria Hospital (BMCRI) - Acute Thermal Ward',
+        category: 'triage_hospital',
+        address: 'Fort Road, Near City Market, Bengaluru 560002',
+        distanceKm: 0.9,
+        walkTimeMins: 11,
+        totalCapacity: 70,
+        currentOccupancy: 45,
+        indoorTemp: 22.0,
+        amenities: ['Rapid Ice Baths (4)', 'Thermal ICU', 'Cold Saline Stocks'],
+        contactPhone: '080-26701150',
+        status: 'OPEN',
+        coordinates: [12.9620, 77.5750],
+        isHospital: true,
+        heatBedsAvailable: 25,
+        iceBathsAvailable: 3,
+      },
+      {
+        id: 'blr-2',
+        name: 'Majestic KSRTC & Metro Interchange AC Refugium',
+        category: 'shelter',
+        address: 'Kempegowda Bus Station, Majestic, Bengaluru 560009',
+        distanceKm: 0.45,
+        walkTimeMins: 5,
+        totalCapacity: 300,
+        currentOccupancy: 160,
+        indoorTemp: 23.0,
+        amenities: ['Central Air Conditioning', 'Free ORS Hydration Stall', 'RO Filtered Water'],
+        contactPhone: '080-22870000',
+        status: 'OPEN',
+        coordinates: [12.9770, 77.5720],
+      }
+    ],
+    forecast: [
+      {
+        dayName: 'Today (Mon)',
+        dateStr: '22 Apr',
+        maxTemp: 38.6,
+        minTemp: 24.2,
+        maxWBGT: 31.4,
+        maxHeatIndex: 42.1,
+        riskScore: 78,
+        grapStage: 'GRAP II',
+        riskLevel: 'HIGH',
+        projectedSurgeAdmissions: 65,
+        shapFactors: [
+          { factor: 'Urban Concrete Heat Island', impact: 3.4, description: 'Rapid urbanization elevating urban microclimate' },
+        ],
+        hourlyStress: [
+          { hour: '08:00', temp: 28.0, wbgt: 24.0, stressLevel: 35 },
+          { hour: '10:00', temp: 33.5, wbgt: 28.0, stressLevel: 58 },
+          { hour: '12:00', temp: 37.2, wbgt: 30.5, stressLevel: 74 },
+          { hour: '14:00', temp: 38.6, wbgt: 31.4, stressLevel: 82 },
+          { hour: '16:00', temp: 37.0, wbgt: 30.8, stressLevel: 75 },
+          { hour: '18:00', temp: 33.0, wbgt: 27.5, stressLevel: 52 },
+          { hour: '20:00', temp: 29.5, wbgt: 25.0, stressLevel: 38 },
+        ],
+      }
+    ],
+    alert: {
+      id: 'ALERT-BLR-2026-0422-011',
+      code: 'YELLOW CODE 01 / BENGALURU URBAN HEAT ADVISORY',
+      severity: 'HIGH',
+      title: 'BBMP HEAT ACTION PLAN (HAP) ADVISORY',
+      issuedBy: 'BBMP Special Commissioner (Health)',
+      issuedAt: '11:00 IST Today',
+      targetWards: ['Majestic', 'Indiranagar', 'Whitefield', 'Electronic City', 'Koramangala'],
+      messageEn: 'BENGALURU HEAT ADVISORY: 38.6°C. Stay hydrated and avoid prolonged afternoon exposure.',
+      messageHi: 'बेंगलुरु हीट एडवाइजरी: 38.6°C तापमान। पर्याप्त पानी पिएं और दोपहर की धूप से बचें।',
+      directives: ['Public hydration stalls activated at all major BMTC & Namma Metro terminals.'],
+      smsDelivered: 120000,
+      whatsappDelivered: 85000,
+      audioObdDialed: 40000,
+      acknowledged: false,
+    }
   }
 ];
 
@@ -1428,11 +1946,55 @@ export function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lo
     Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) *
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Number((R * c).toFixed(1));
+  return Number((R * c).toFixed(2));
 }
 
-// Find nearest Indian city from coordinates
+// Format distance and walk time unambiguously
+export function formatShelterDistance(distanceKm: number, isHindi: boolean = false): {
+  distanceLabel: string;
+  walkTimeLabel: string;
+  combinedLabel: string;
+} {
+  const walkMins = Math.max(1, Math.round(distanceKm * 12.5)); // ~4.8 km/h walking speed
+  let distStr = '';
+  if (distanceKm < 1.0) {
+    const meters = Math.max(50, Math.round(distanceKm * 1000));
+    distStr = isHindi ? `${meters} मी.` : `${meters} m`;
+  } else {
+    distStr = isHindi ? `${distanceKm.toFixed(1)} किमी` : `${distanceKm.toFixed(1)} km`;
+  }
+
+  const walkStr = isHindi ? `${walkMins} मिनट` : `${walkMins} min`;
+  const combined = `${distStr} • ${walkStr}`;
+
+  return {
+    distanceLabel: distStr,
+    walkTimeLabel: walkStr,
+    combinedLabel: combined,
+  };
+}
+
+// Recompute cooling facility distances and walk times based on user's exact GPS coordinates
+export function recomputeFacilityDistances(
+  facilities: CoolingFacility[],
+  userCoords: { lat: number; lng: number }
+): CoolingFacility[] {
+  return facilities
+    .map((fac) => {
+      const dist = calculateDistanceKm(userCoords.lat, userCoords.lng, fac.coordinates[0], fac.coordinates[1]);
+      const walkMins = Math.max(1, Math.round(dist * 12.5));
+      return {
+        ...fac,
+        distanceKm: dist,
+        walkTimeMins: walkMins,
+      };
+    })
+    .sort((a, b) => a.distanceKm - b.distanceKm);
+}
+
+// Find nearest Indian city or district from coordinates across all 750+ Indian districts
 export function findNearestIndianCity(userLat: number, userLng: number): { city: CityData; distanceKm: number } {
+  // First check all fully initialized cities in INDIAN_CITIES
   let nearestCity = INDIAN_CITIES[0];
   let minDistance = calculateDistanceKm(userLat, userLng, nearestCity.lat, nearestCity.lng);
 
@@ -1444,35 +2006,111 @@ export function findNearestIndianCity(userLat: number, userLng: number): { city:
     }
   }
 
-  return { city: nearestCity, distanceKm: minDistance };
+  // Check known Indian towns/landmarks
+  for (const [key, info] of Object.entries(KNOWN_INDIAN_COORDS)) {
+    const dist = calculateDistanceKm(userLat, userLng, info.lat, info.lng);
+    if (dist < minDistance) {
+      minDistance = dist;
+      const formattedName = key.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      nearestCity = generateDynamicCityData(formattedName, { lat: info.lat, lng: info.lng }, info.state);
+    }
+  }
+
+  // Exhaustive search across all 750+ Indian Districts
+  for (const distInfo of ALL_INDIAN_DISTRICTS) {
+    const dist = calculateDistanceKm(userLat, userLng, distInfo.lat, distInfo.lng);
+    if (dist < minDistance) {
+      minDistance = dist;
+      nearestCity = generateDynamicCityData(distInfo.name, { lat: distInfo.lat, lng: distInfo.lng }, distInfo.state);
+    }
+  }
+
+  // Ensure cooling facilities within the matched city are sorted and measured from the user's actual location
+  const updatedFacilities = recomputeFacilityDistances(nearestCity.coolingFacilities, { lat: userLat, lng: userLng });
+
+  return { 
+    city: {
+      ...nearestCity,
+      coolingFacilities: updatedFacilities,
+    }, 
+    distanceKm: minDistance 
+  };
 }
 
 // Known Indian City Coordinates dictionary
 const KNOWN_INDIAN_COORDS: Record<string, { lat: number; lng: number; state: string; zone: string }> = {
-  'lucknow': { lat: 26.8467, lng: 80.9462, state: 'Uttar Pradesh', zone: 'Indo-Gangetic Basin Humid Loo Corridor' },
+  'unnao': { lat: 26.5393, lng: 80.4878, state: 'Uttar Pradesh', zone: 'Central UP Gangetic Agro-Industrial Corridor' },
+  'shuklaganj': { lat: 26.4680, lng: 80.3750, state: 'Uttar Pradesh', zone: 'Ganga Trans-River Corridor' },
+  'gangaghat': { lat: 26.4680, lng: 80.3750, state: 'Uttar Pradesh', zone: 'Ganga Trans-River Corridor' },
   'kanpur': { lat: 26.4499, lng: 80.3319, state: 'Uttar Pradesh', zone: 'Central Gangetic Industrial Plain' },
+  'lucknow': { lat: 26.8467, lng: 80.9462, state: 'Uttar Pradesh', zone: 'Indo-Gangetic Basin Humid Loo Corridor' },
   'varanasi': { lat: 25.3176, lng: 82.9739, state: 'Uttar Pradesh', zone: 'Eastern UP Humid River Basin' },
   'agra': { lat: 27.1767, lng: 78.0081, state: 'Uttar Pradesh', zone: 'Semi-Arid Yamuna Basin' },
   'prayagraj': { lat: 25.4358, lng: 81.8463, state: 'Uttar Pradesh', zone: 'Sangam River Plain Heat Zone' },
   'allahabad': { lat: 25.4358, lng: 81.8463, state: 'Uttar Pradesh', zone: 'Sangam River Plain Heat Zone' },
+  'noida': { lat: 28.5355, lng: 77.3910, state: 'Uttar Pradesh', zone: 'NCR Urban Heat Island' },
+  'greater noida': { lat: 28.4744, lng: 77.5040, state: 'Uttar Pradesh', zone: 'NCR Urban Plain' },
+  'ghaziabad': { lat: 28.6692, lng: 77.4538, state: 'Uttar Pradesh', zone: 'NCR Western Industrial Belt' },
+  'meerut': { lat: 28.9845, lng: 77.7064, state: 'Uttar Pradesh', zone: 'Western UP Heat Plain' },
+  'gorakhpur': { lat: 26.7606, lng: 83.3732, state: 'Uttar Pradesh', zone: 'Eastern UP Tarai Basin' },
+  'bareilly': { lat: 28.3670, lng: 79.4304, state: 'Uttar Pradesh', zone: 'Rohilkhand Plain' },
+  'aligarh': { lat: 27.8974, lng: 78.0880, state: 'Uttar Pradesh', zone: 'Doab Continental Heat Zone' },
+  'moradabad': { lat: 28.8386, lng: 78.7733, state: 'Uttar Pradesh', zone: 'Ramganga Basin' },
+  'jhansi': { lat: 25.4484, lng: 78.5685, state: 'Uttar Pradesh', zone: 'Bundelkhand Rock Heat Epicenter' },
+  'ayodhya': { lat: 26.7922, lng: 82.1998, state: 'Uttar Pradesh', zone: 'Saryu River Basin' },
+  'faizabad': { lat: 26.7730, lng: 82.1460, state: 'Uttar Pradesh', zone: 'Saryu River Basin' },
+  'mathura': { lat: 27.4924, lng: 77.6737, state: 'Uttar Pradesh', zone: 'Braj Semi-Arid Basin' },
+  'raebareli': { lat: 26.2236, lng: 81.2409, state: 'Uttar Pradesh', zone: 'Central Awadh Plain' },
+  'fatehpur': { lat: 25.9304, lng: 80.8124, state: 'Uttar Pradesh', zone: 'Doab Central Belt' },
+  'sitapur': { lat: 27.5684, lng: 80.6829, state: 'Uttar Pradesh', zone: 'Awadh Tarai Fringe' },
+  'hardoi': { lat: 27.3989, lng: 80.1313, state: 'Uttar Pradesh', zone: 'Central UP Sandy Loam Basin' },
   'delhi': { lat: 28.6139, lng: 77.2090, state: 'Delhi NCR', zone: 'Semi-Arid Continental Heat Epicenter' },
+  'new delhi': { lat: 28.6139, lng: 77.2090, state: 'Delhi NCR', zone: 'Semi-Arid Continental Heat Epicenter' },
+  'gurugram': { lat: 28.4595, lng: 77.0266, state: 'Haryana', zone: 'Aravalli Fringe NCR' },
+  'gurgaon': { lat: 28.4595, lng: 77.0266, state: 'Haryana', zone: 'Aravalli Fringe NCR' },
+  'faridabad': { lat: 28.4089, lng: 77.3178, state: 'Haryana', zone: 'Yamuna Plain NCR' },
   'mumbai': { lat: 19.0760, lng: 72.8777, state: 'Maharashtra', zone: 'Coastal Humid Tropical' },
   'pune': { lat: 18.5204, lng: 73.8567, state: 'Maharashtra', zone: 'Deccan Plateau Semi-Arid' },
   'nagpur': { lat: 21.1458, lng: 79.0882, state: 'Maharashtra', zone: 'Central India Ultra-Dry Heat Corridor' },
+  'nashik': { lat: 19.9975, lng: 73.7898, state: 'Maharashtra', zone: 'Western Ghats Leeward Plain' },
+  'aurangabad': { lat: 19.8762, lng: 75.3433, state: 'Maharashtra', zone: 'Marathwada Dry Plateau' },
+  'chhatrapati sambhajinagar': { lat: 19.8762, lng: 75.3433, state: 'Maharashtra', zone: 'Marathwada Dry Plateau' },
   'ahmedabad': { lat: 23.0225, lng: 72.5714, state: 'Gujarat', zone: 'Arid Western Dryline' },
   'surat': { lat: 21.1702, lng: 72.8311, state: 'Gujarat', zone: 'Coastal Western Plain' },
+  'vadodara': { lat: 22.3072, lng: 73.1812, state: 'Gujarat', zone: 'Central Gujarat Plain' },
+  'rajkot': { lat: 22.3039, lng: 70.8022, state: 'Gujarat', zone: 'Saurashtra Semi-Arid Plain' },
   'jaipur': { lat: 26.9124, lng: 75.7873, state: 'Rajasthan', zone: 'Thar Desert Fringe Extreme Heat' },
   'jodhpur': { lat: 26.2389, lng: 73.0243, state: 'Rajasthan', zone: 'Thar Arid Zone' },
+  'kota': { lat: 25.2138, lng: 75.8648, state: 'Rajasthan', zone: 'Hadoti Chambal Basin' },
+  'bikaner': { lat: 28.0229, lng: 73.3119, state: 'Rajasthan', zone: 'Thar Desert Core' },
+  'udaipur': { lat: 24.5854, lng: 73.7125, state: 'Rajasthan', zone: 'Mewar Valley' },
   'bhopal': { lat: 23.2599, lng: 77.4126, state: 'Madhya Pradesh', zone: 'Central Vindhya Plateau' },
   'indore': { lat: 22.7196, lng: 75.8577, state: 'Madhya Pradesh', zone: 'Malwa Plateau Semi-Arid' },
+  'gwalior': { lat: 26.2183, lng: 78.1828, state: 'Madhya Pradesh', zone: 'Chambal Gird Heat Basin' },
+  'jabalpur': { lat: 23.1815, lng: 79.9864, state: 'Madhya Pradesh', zone: 'Narmada Valley' },
   'patna': { lat: 25.5941, lng: 85.1376, state: 'Bihar', zone: 'Middle Gangetic Wet Bulb Epicenter' },
   'gaya': { lat: 24.7955, lng: 85.0002, state: 'Bihar', zone: 'South Bihar Extreme Heat Valley' },
+  'muzaffarpur': { lat: 26.1209, lng: 85.3647, state: 'Bihar', zone: 'North Bihar Humid Basin' },
   'kolkata': { lat: 22.5726, lng: 88.3639, state: 'West Bengal', zone: 'Gangetic Delta High-Humidity Trap' },
   'hyderabad': { lat: 17.3850, lng: 78.4867, state: 'Telangana', zone: 'Deccan Interior High Radiation' },
   'bengaluru': { lat: 12.9716, lng: 77.5946, state: 'Karnataka', zone: 'Southern Deccan Plateau' },
   'chennai': { lat: 13.0827, lng: 80.2707, state: 'Tamil Nadu', zone: 'Coromandel Coastal Humid' },
+  'coimbatore': { lat: 11.0168, lng: 76.9558, state: 'Tamil Nadu', zone: 'Kongu Nadu Semi-Arid' },
+  'madurai': { lat: 9.9252, lng: 78.1198, state: 'Tamil Nadu', zone: 'Vaigai River Plain' },
   'chandigarh': { lat: 30.7333, lng: 76.7794, state: 'Punjab & Haryana', zone: 'Shivalik Foothill Hot Plain' },
+  'ludhiana': { lat: 30.9010, lng: 75.8573, state: 'Punjab', zone: 'Malwa Hot Plain' },
+  'amritsar': { lat: 31.6340, lng: 74.8723, state: 'Punjab', zone: 'Majha Plain' },
   'ranchi': { lat: 23.3441, lng: 85.3096, state: 'Jharkhand', zone: 'Chota Nagpur Plateau' },
+  'jamshedpur': { lat: 22.8046, lng: 86.2029, state: 'Jharkhand', zone: 'Subarnarekha Industrial Basin' },
+  'raipur': { lat: 21.2514, lng: 81.6296, state: 'Chhattisgarh', zone: 'Mahanadi Basin' },
+  'bhubaneswar': { lat: 20.2961, lng: 85.8245, state: 'Odisha', zone: 'Coastal Plain Heat Trap' },
+  'visakhapatnam': { lat: 17.6868, lng: 83.2185, state: 'Andhra Pradesh', zone: 'Eastern Coastal Humid' },
+  'vijayawada': { lat: 16.5062, lng: 80.6480, state: 'Andhra Pradesh', zone: 'Krishna River Basin' },
+  'kochi': { lat: 9.9312, lng: 76.2673, state: 'Kerala', zone: 'Malabar Coast Humid' },
+  'thiruvananthapuram': { lat: 8.5241, lng: 76.9366, state: 'Kerala', zone: 'South Coastal Tropical' },
+  'guwahati': { lat: 26.1445, lng: 91.7362, state: 'Assam', zone: 'Brahmaputra Valley' },
+  'dehradun': { lat: 30.3165, lng: 78.0322, state: 'Uttarakhand', zone: 'Doon Valley' },
+  'haridwar': { lat: 29.9457, lng: 78.1642, state: 'Uttarakhand', zone: 'Upper Ganga Foothills' },
 };
 
 // Generate dynamic city or landmark data if user searches for ANY location across India
