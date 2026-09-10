@@ -310,25 +310,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   </button>
                 )}
 
-                {/* Log Rehydration */}
-                {onLogWater && (
-                  <button
-                    id="mobile-drawer-log-water-btn"
-                    onClick={() => {
-                      onLogWater(250);
-                    }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-cyan-500/40 hover:border-cyan-400 flex items-center gap-2 text-left group cursor-pointer"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
-                      <Droplet className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-cyan-300">{t.quickLog250}</div>
-                      <div className="text-[10px] text-slate-400">{language === 'hi' ? 'जल सेवन दर्ज करें' : 'Log hydration'}</div>
-                    </div>
-                  </button>
-                )}
-
                 {/* Push Alerts & Siren Sounds */}
                 {onOpenPushSettings && (
                   <button
