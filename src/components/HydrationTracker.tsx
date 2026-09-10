@@ -58,12 +58,12 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
   return (
     <div 
       id="hydration-tracking-section" 
-      className={`p-3.5 sm:p-5 rounded-2xl bg-[#0b1326] border border-[#2d3449] relative transition-all duration-300 ${className}`}
+      className={`p-3.5 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 relative transition-all duration-300 shadow-sm ${className}`}
     >
       {/* Header: Title, Guidelines Badge & Risk Tier */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
+          <div className="p-2 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
             <Droplet className="w-5 h-5" />
           </div>
           <div>
@@ -82,7 +82,7 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
         </div>
 
         {/* Dynamic Risk Badge */}
-        <div className={`px-2.5 py-1 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 self-start sm:self-auto shadow-sm ${assessment.badgeColors.bg} ${assessment.badgeColors.border} ${assessment.badgeColors.text}`}>
+        <div className={`px-2.5 py-1 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 self-start sm:self-auto ${assessment.badgeColors.bg} ${assessment.badgeColors.border} ${assessment.badgeColors.text} ${assessment.badgeColors.glow}`}>
           <span className="relative flex h-2 w-2">
             {assessment.tier === 'CRITICAL' && (
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
@@ -104,12 +104,12 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
       </div>
 
       {/* Environmental Context Summary Strip */}
-      <div className="p-3 rounded-xl bg-[#060e20] border border-[#2d3449] mb-4 font-mono text-xs flex flex-wrap items-center justify-between gap-2.5">
+      <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 mb-4 font-mono text-xs flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2">
           <SunMedium className="w-4 h-4 text-amber-400" />
-          <span className="text-slate-300 font-semibold">{isHindi ? 'परिवेश स्थिति:' : 'Ambient Condition:'}</span>
+          <span className="text-slate-400 font-medium">{isHindi ? 'परिवेश स्थिति:' : 'Ambient Condition:'}</span>
           <span className="text-white font-bold">{weather.dryBulbTemp}°C</span>
-          <span className="text-slate-500">|</span>
+          <span className="text-slate-600">|</span>
           <span className="text-slate-400">{isHindi ? 'हीट इंडेक्स:' : 'Heat Index:'}</span>
           <span className="text-orange-400 font-bold">{assessment.heatIndex.toFixed(1)}°C</span>
         </div>
@@ -161,33 +161,33 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
           ) : assessment.recommendedAction}
         </p>
 
-        <p className="text-xs text-slate-400 font-sans leading-relaxed">
-          <strong className="text-slate-300">{isHindi ? 'शरीर पर प्रभाव:' : 'Physiological Impact:'}</strong> {isHindi ? (
+        <p className="text-xs text-slate-300 font-sans leading-relaxed">
+          <strong className="text-slate-200">{isHindi ? 'शरीर पर प्रभाव:' : 'Physiological Impact:'}</strong> {isHindi ? (
             `हीट इंडेक्स ${assessment.heatIndex.toFixed(1)}°C पर पसीने की उच्च दर (${assessment.sweatLossRateMlHr} मिली/घंटा) के कारण रक्त की मात्रा घटती है। निर्धारित मात्रा में जल एवं ओआरएस लेने से इलेक्ट्रोलाइट संतुलन बना रहता है।`
           ) : assessment.clinicalImpact}
         </p>
 
         {/* Detailed Bio-Logic Explanation Drawer */}
         {showExplanation && (
-          <div className="mt-3.5 pt-3 border-t border-[#2d3449]/60 text-xs font-mono text-slate-300 space-y-2 animate-in fade-in">
+          <div className="mt-3.5 pt-3 border-t border-slate-800 text-xs font-mono text-slate-300 space-y-2 animate-in fade-in">
             <div className="flex items-center justify-between text-slate-400">
               <span>● {isHindi ? 'परिवेश हीट इंडेक्स तनाव:' : 'Ambient Heat Index Stressor:'}</span>
-              <span className="text-white font-semibold">{assessment.heatIndex.toFixed(1)}°C ({assessment.heatIndexCategory})</span>
+              <span className="text-white font-bold">{assessment.heatIndex.toFixed(1)}°C ({assessment.heatIndexCategory})</span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>● {isHindi ? 'बुनियादी कोशिकीय आवश्यकता:' : 'Baseline Cellular Need:'}</span>
-              <span className="text-white">{assessment.baselineTargetMl} {isHindi ? 'मिली/दिन' : 'ml/day'}</span>
+              <span className="text-slate-200 font-semibold">{assessment.baselineTargetMl} {isHindi ? 'मिली/दिन' : 'ml/day'}</span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>● {isHindi ? 'लू में पसीने की अतिरिक्त क्षति:' : 'Heatwave Sweat Loss Add-on:'}</span>
-              <span className="text-amber-300 font-semibold">+{assessment.heatAdjustedTargetMl - assessment.baselineTargetMl} {isHindi ? 'मिली' : 'ml'}</span>
+              <span className="text-amber-400 font-bold">+{assessment.heatAdjustedTargetMl - assessment.baselineTargetMl} {isHindi ? 'मिली' : 'ml'}</span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>● {isHindi ? 'अनुशंसित दैनिक कुल मात्रा:' : 'Total Prescribed Fluid Target:'}</span>
-              <span className="text-cyan-300 font-bold">{conditionIntake.recommendedTargetMl} {isHindi ? 'मिली' : 'ml'}</span>
+              <span className="text-cyan-400 font-bold">{conditionIntake.recommendedTargetMl} {isHindi ? 'मिली' : 'ml'}</span>
             </div>
             {assessment.hasDiureticOrVulnerability && (
-              <div className="text-xs text-red-300/90 pt-2 border-t border-red-500/20">
+              <div className="text-xs text-red-300 pt-2 border-t border-red-500/30 bg-red-950/20 p-2 rounded">
                 ⚠️ <strong>{isHindi ? 'हृदय/मूत्रवर्धक औषधि संवेदनशीलता सक्रिय:' : 'Cardiovascular / Diuretic Multiplier Active:'}</strong> {isHindi ? 'एंटीहाइपरटेंसिव दवाएं गुर्दे द्वारा तरल उत्सर्जन बढ़ाती हैं, जिससे लू में निर्जलीकरण का खतरा बढ़ जाता है।' : 'Antihypertensive diuretic medication accelerates renal fluid clearance, increasing dehydration risk vulnerability under heat stress.'}
               </div>
             )}

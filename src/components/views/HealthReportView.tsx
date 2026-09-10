@@ -278,7 +278,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           <button
             id="download-health-report-btn"
             onClick={handleDownloadDossier}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer font-bold"
           >
             {downloadToast ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Download className="w-4 h-4 text-cyan-400" />}
             <span>{downloadToast ? (isHindi ? 'डाउनलोड हुआ!' : 'Downloaded!') : (isHindi ? 'JSON निर्यात' : 'Export JSON')}</span>
@@ -287,16 +287,16 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           <button
             id="copy-health-report-btn"
             onClick={handleCopySummary}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer font-bold"
           >
-            {copyToast ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            {copyToast ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-slate-300" />}
             <span>{copyToast ? (isHindi ? 'कॉपी हुआ!' : 'Copied!') : (isHindi ? 'सारांश कॉपी करें' : 'Copy Summary')}</span>
           </button>
         </div>
       </div>
 
       {/* Interactive Clinical Interventions Strip */}
-      <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-orange-500/30 flex flex-wrap items-center justify-between gap-3 text-xs font-mono shadow-sm print:hidden">
+      <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-orange-500/30 flex flex-wrap items-center justify-between gap-3 text-xs font-mono shadow-xs print:hidden">
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-orange-400" />
           <span className="text-white font-bold">{isHindi ? 'तत्काल नैदानिक कदम:' : 'Recommended Immediate Clinical Actions:'}</span>
@@ -316,9 +316,9 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
             <button
               id="report-open-triage-btn"
               onClick={onOpenTriage}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-orange-500/40 text-orange-300 font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-orange-500/40 text-orange-300 font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
+              <ShieldCheck className="w-3.5 h-3.5 text-orange-400" />
               <span>{isHindi ? 'प्राथमिक उपचार ट्रियाज' : 'Launch First-Aid Triage'}</span>
             </button>
           )}
@@ -336,7 +336,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
       </div>
 
       {/* Printable Clinical Dossier Container */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-8 space-y-6 shadow-sm print:bg-white print:text-black print:border-none print:p-0">
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-8 space-y-6 shadow-xs print:bg-white print:text-black print:border-none print:p-0">
         
         {/* Document Header */}
         <div className="border-b border-slate-800 pb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -372,7 +372,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           {/* Patient Card */}
           <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 print:bg-gray-50 print:border-gray-300 space-y-2.5">
             <h4 className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-              <UserCheck className="w-4 h-4" />
+              <UserCheck className="w-4 h-4 text-orange-400" />
               Patient Profile & Vulnerability Cohort
             </h4>
             <div className="flex justify-between border-b border-slate-800/80 pb-1">
@@ -399,7 +399,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
                     </span>
                   ))
                 ) : (
-                  <span className="text-emerald-400 text-[11px]">No chronic comorbidities reported</span>
+                  <span className="text-emerald-400 text-[11px] font-bold">No chronic comorbidities reported</span>
                 )}
               </div>
             </div>
@@ -408,7 +408,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
             <div className="border-b border-slate-800/80 pb-1.5">
               <div className="flex justify-between text-slate-400 mb-1">
                 <span>Today's Hydration Intake:</span>
-                <strong className="text-cyan-400">{safeProfile.hydrationTodayMl} ml / {safeProfile.targetHydrationMl} ml target</strong>
+                <strong className="text-cyan-400 font-bold">{safeProfile.hydrationTodayMl} ml / {safeProfile.targetHydrationMl} ml target</strong>
               </div>
               <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                 <div 
@@ -427,7 +427,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           {/* Environmental Telemetry Card */}
           <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 print:bg-gray-50 print:border-gray-300 space-y-2.5">
             <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
-              <Flame className="w-4 h-4" />
+              <Flame className="w-4 h-4 text-cyan-400" />
               Ambient Thermal Telemetry ({cityName})
             </h4>
             <div className="flex justify-between border-b border-slate-800/80 pb-1">
@@ -436,15 +436,15 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
             </div>
             <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">Wet Bulb Globe Temp (WBGT):</span>
-              <strong className="text-amber-400 print:text-amber-700">{weather.wbgt.toFixed(1)}°C (Curfew Threshold)</strong>
+              <strong className="text-amber-400 print:text-amber-700 font-bold">{weather.wbgt.toFixed(1)}°C (Curfew Threshold)</strong>
             </div>
             <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">Ambient Temp / Humidity:</span>
-              <span className="text-slate-200 print:text-black">{weather.dryBulbTemp}°C / {weather.humidity}% RH</span>
+              <span className="text-slate-200 print:text-black font-bold">{weather.dryBulbTemp}°C / {weather.humidity}% RH</span>
             </div>
             <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">Solar Radiation Load:</span>
-              <span className="text-amber-300">{weather.solarRadiation || 850} W/m² (Peak UV Index 11+)</span>
+              <span className="text-amber-300 font-bold">{weather.solarRadiation || 850} W/m² (Peak UV Index 11+)</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-400">Heatwave Curfew Status:</span>

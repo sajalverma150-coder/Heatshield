@@ -88,18 +88,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside id="tactical-sidebar-navigation" className="hidden lg:flex flex-col w-64 xl:w-72 bg-slate-900/80 border-r border-slate-800/80 p-4 shrink-0 select-none justify-between">
+    <aside id="tactical-sidebar-navigation" className="hidden lg:flex flex-col w-64 xl:w-72 bg-slate-900 border-r border-slate-800 p-4 shrink-0 select-none justify-between text-slate-100">
       
       <div>
         {/* Current Active Station Card */}
         <div 
           onClick={onOpenCitySelector}
-          className="p-3 mb-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-orange-500/40 cursor-pointer transition-all group shadow-sm"
+          className="p-3 mb-4 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-orange-500/50 cursor-pointer transition-all group shadow-xs"
           title="Click to change monitoring station or use GPS"
         >
           <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
             <span className="flex items-center gap-1.5 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               {t.monitoringStation}
             </span>
             <span className="text-[11px] text-orange-400 font-mono group-hover:underline flex items-center">
@@ -123,21 +123,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 key={item.id}
                 id={`nav-item-${item.id}`}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-sm font-medium transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-sm font-semibold transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-orange-500/15 text-white border border-orange-500/30 shadow-sm'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/40 border border-transparent'
+                    ? 'bg-orange-600 text-white shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/80 border border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`${isActive ? 'text-orange-400' : 'text-slate-400'}`}>
+                  <div className={`${isActive ? 'text-white' : 'text-slate-400'}`}>
                     {item.icon}
                   </div>
                   <span className="truncate">{item.label}</span>
                 </div>
 
                 {item.badge && (
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold shrink-0 ${
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
+                    isActive ? 'bg-white/20 text-white' :
                     item.badgeVariant === 'red' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
                     item.badgeVariant === 'orange' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' :
                     item.badgeVariant === 'emerald' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :

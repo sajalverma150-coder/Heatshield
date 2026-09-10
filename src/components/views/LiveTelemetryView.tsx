@@ -380,7 +380,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span className="font-medium">{isHindi ? 'WBGT ताप तनाव' : 'WBGT Heat Stress'}</span>
+              <span className="font-semibold">{isHindi ? 'WBGT ताप तनाव' : 'WBGT Heat Stress'}</span>
               {weather.wbgt >= 32 ? (
                 <AlertTriangle className="w-4 h-4 text-red-400" />
               ) : (
@@ -392,11 +392,11 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             </div>
           </div>
           <div className="mt-3">
-            <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-md ${
-              weather.wbgt >= 33.5 ? 'bg-red-500/20 text-red-300' :
-              weather.wbgt >= 31.5 ? 'bg-orange-500/20 text-orange-300' :
-              weather.wbgt >= 29.0 ? 'bg-amber-500/20 text-amber-300' :
-              'bg-emerald-500/20 text-emerald-300'
+            <span className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-md ${
+              weather.wbgt >= 33.5 ? 'bg-red-500/15 text-red-300 border border-red-500/30' :
+              weather.wbgt >= 31.5 ? 'bg-orange-500/15 text-orange-300 border border-orange-500/30' :
+              weather.wbgt >= 29.0 ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' :
+              'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
             }`}>
               {weather.wbgt >= 33.5 ? (isHindi ? 'गंभीर (>33.5°C)' : 'Critical (>33.5°C)') :
                weather.wbgt >= 31.5 ? (isHindi ? 'उच्च तनाव (>31.5°C)' : 'High Strain (>31.5°C)') :
@@ -413,7 +413,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span className="font-medium">{isHindi ? 'हीट इंडेक्स / आर्द्रता' : 'Heat Index / RH'}</span>
+              <span className="font-semibold">{isHindi ? 'हीट इंडेक्स / आर्द्रता' : 'Heat Index / RH'}</span>
               <Sun className="w-4 h-4 text-orange-400" />
             </div>
             <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
@@ -421,7 +421,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             </div>
           </div>
           <div className="mt-3">
-            <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-md bg-orange-500/20 text-orange-300">
+            <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md bg-orange-500/15 text-orange-300 border border-orange-500/30">
               {weather.humidity}% {isHindi ? 'सापेक्ष आर्द्रता' : 'Relative Humidity'}
             </span>
             <p className="text-[11px] text-slate-400 mt-1.5 line-clamp-1">
@@ -434,7 +434,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span className="font-medium">{isHindi ? 'सौर एवं यूवी विकिरण' : 'Solar & UV Load'}</span>
+              <span className="font-semibold">{isHindi ? 'सौर एवं यूवी विकिरण' : 'Solar & UV Load'}</span>
               <Sun className="w-4 h-4 text-amber-400" />
             </div>
             <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
@@ -442,7 +442,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             </div>
           </div>
           <div className="mt-3">
-            <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300">
+            <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30">
               {weather.solarRadiation >= 800 ? (isHindi ? 'यूवी 10+ (अति तीव्र)' : 'UV 10+ (Extreme)') :
                weather.solarRadiation >= 500 ? (isHindi ? 'यूवी 6-8 (उच्च)' : 'UV 6-8 (High)') :
                (isHindi ? 'यूवी 3-5 (मध्यम)' : 'UV 3-5 (Moderate)')}
@@ -457,7 +457,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span className="font-medium">{isHindi ? 'पवन गति' : 'Wind Velocity'}</span>
+              <span className="font-semibold">{isHindi ? 'पवन गति' : 'Wind Velocity'}</span>
               <Wind className="w-4 h-4 text-emerald-400" />
             </div>
             <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
@@ -465,7 +465,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             </div>
           </div>
           <div className="mt-3">
-            <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300">
+            <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
               {weather.dryBulbTemp >= 40 && weather.windSpeed >= 12 ? (isHindi ? 'लू की गर्म हवाएं सक्रिय' : 'Loo Winds Active') : (isHindi ? 'सामान्य वायु प्रवाह' : 'Normal Air Movement')}
             </span>
             <p className="text-[11px] text-slate-400 mt-1.5 line-clamp-1">
@@ -497,13 +497,13 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                   <span className="w-2.5 h-1 bg-orange-400 rounded-full" /> Temp
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2.5 h-1 bg-red-400 rounded-full" /> WBGT
+                  <span className="w-2.5 h-1 bg-red-500 rounded-full" /> WBGT
                 </span>
               </div>
             </div>
 
             {/* Clean SVG Temperature Graph */}
-            <div className="w-full h-48 mt-4 bg-slate-950/60 rounded-xl border border-slate-800/80 p-3 relative">
+            <div className="w-full h-48 mt-4 bg-slate-950/60 rounded-xl border border-slate-800 p-3 relative">
               <svg viewBox="0 0 600 200" className="w-full h-full overflow-visible">
                 {/* Reference Grid lines */}
                 <line x1="40" y1="160" x2="560" y2="160" stroke="#1e293b" strokeWidth="1" />
@@ -511,13 +511,13 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                 <line x1="40" y1="60" x2="560" y2="60" stroke="#1e293b" strokeWidth="1" />
 
                 {/* Safe limit reference */}
-                <line x1="40" y1="125" x2="560" y2="125" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
+                <line x1="40" y1="125" x2="560" y2="125" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
                 <text x="45" y="120" fill="#38bdf8" fontSize="10" fontFamily="sans-serif">Safe WBGT Limit (29°C)</text>
 
                 {/* Curfew window highlight rectangle - only shown if curfew thresholds reached */}
                 {statusInfo.hasCurfew && (
                   <g>
-                    <rect x="230" y="20" width="180" height="150" fill="#ef4444" fillOpacity="0.08" rx="8" />
+                    <rect x="230" y="20" width="180" height="150" fill="#ef4444" fillOpacity="0.12" rx="8" />
                     <text x="320" y="36" fill="#ef4444" fontSize="10" textAnchor="middle" fontWeight="bold">
                       CURFEW ZONE (12:30 - 16:30)
                     </text>
@@ -542,8 +542,8 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
 
                   return (
                     <>
-                      <path d={pathTemp} fill="none" stroke="#f97316" strokeWidth="2.5" />
-                      <path d={pathWbgt} fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="3 2" />
+                      <path d={pathTemp} fill="none" stroke="#ea580c" strokeWidth="2.5" />
+                      <path d={pathWbgt} fill="none" stroke="#dc2626" strokeWidth="2" strokeDasharray="3 2" />
                     </>
                   );
                 })()}
@@ -557,21 +557,21 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                   return (
                     <g key={pt.time} className="cursor-pointer" onClick={() => setSelectedHourIndex(idx)}>
                       {isSelected && (
-                        <circle cx={cx} cy={cy} r="10" fill="#f97316" fillOpacity="0.2" />
+                        <circle cx={cx} cy={cy} r="10" fill="#ea580c" fillOpacity="0.3" />
                       )}
                       <circle
                         cx={cx}
                         cy={cy}
                         r={isSelected ? 5.5 : 4}
                         fill={isSelected ? '#ffffff' : (pt.wbgt >= 33 ? '#ef4444' : '#f97316')}
-                        stroke="#090e17"
+                        stroke="#0f172a"
                         strokeWidth="2"
                       />
                       <text
                         x={cx}
                         y="185"
                         textAnchor="middle"
-                        fill={isSelected ? '#ffffff' : '#64748b'}
+                        fill={isSelected ? '#ffffff' : '#94a3b8'}
                         fontSize="10"
                         fontWeight={isSelected ? 'bold' : 'normal'}
                       >
@@ -585,13 +585,13 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
           </div>
 
           {/* Selected Hour Details Bar */}
-          <div className="mt-3 p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+          <div className="mt-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between text-xs">
             <div className="flex items-center gap-3">
-              <span className="font-semibold text-orange-400 bg-orange-500/10 px-2.5 py-1 rounded-md border border-orange-500/20 font-mono">
+              <span className="font-bold text-orange-300 bg-orange-500/15 px-2.5 py-1 rounded-md border border-orange-500/30 font-mono">
                 {selectedHour.time} IST
               </span>
               <div>
-                <span className="text-white font-medium">
+                <span className="text-white font-bold">
                   Air {selectedHour.temp}°C • WBGT {selectedHour.wbgt}°C
                 </span>
                 <span className="text-slate-400 block text-[11px]">
@@ -630,21 +630,21 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
                 <h3 className="font-headline font-bold text-white text-sm">
                   {isHindi ? 'निकटतम अधिकृत शीतलन आश्रय स्थल' : 'Nearest Designated Cooling Shelter'}
                 </h3>
               </div>
-              <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              <span className="text-xs font-mono text-emerald-300 bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30 font-bold">
                 {nearestShelter.walkTimeMins} {isHindi ? 'मिनट पैदल' : 'min walk'}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1">
-              <div className="font-semibold text-white text-sm">
+            <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+              <div className="font-bold text-white text-sm">
                 {nearestShelter.name}
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-300">
                 {isHindi ? 'वातानुकूलित आंतरिक तापमान:' : 'Chilled indoor temperature:'} <strong className="text-emerald-400">{nearestShelter.indoorTemp}°C</strong> • {isHindi ? 'मिस्टिंग पंखे, ठंडा WHO-ओआरएस एवं रीहाइड्रेशन बेड उपलब्ध' : 'Misting fans, cold WHO-ORS & hydration beds available'}
               </p>
             </div>
@@ -674,19 +674,19 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                   {isHindi ? 'NDMA हीट एक्शन प्रोटोकॉल आदेश' : 'NDMA Heat Action Protocol'}
                 </h3>
               </div>
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-mono text-slate-300 bg-slate-800 px-2 py-0.5 rounded font-bold border border-slate-700">
                 {isHindi ? 'आदेश संख्या #419-B' : 'Order #419-B'}
               </span>
             </div>
 
             <div className="space-y-2 text-xs text-slate-300">
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2">
+              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0" />
                 <span>
                   <strong>{statusInfo.hasCurfew ? (isHindi ? 'बाहरी श्रम कर्फ्यू:' : 'Outdoor Labor Curfew:') : (isHindi ? 'मानक कार्य खिड़की:' : 'Standard Work Window:')}</strong> {statusInfo.hasCurfew ? (isHindi ? 'चरम गर्मी के दौरान शारीरिक कार्य पूरी तरह से निलंबित।' : 'Physical work strictly suspended during peak heat hours.') : (isHindi ? 'पेयजल की अनिवार्य सुविधा के साथ सामान्य शिफ्ट अनुमत।' : 'Normal shifts permitted with mandatory drinking water facilities.')}
                 </span>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2">
+              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
                 <span><strong>{isHindi ? 'जलयोजन केंद्र:' : 'Hydration Stations:'}</strong> {isHindi ? 'जिले भर में ट्रांजिट हब, मेट्रो स्टेशन और बस स्टॉप पर मुफ्त ठंडा ओआरएस उपलब्ध है।' : 'Free chilled ORS is available at transit hubs, metro concourses, and bus stops across the district.'}</span>
               </div>
@@ -697,7 +697,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             <span className="text-xs text-slate-400">{isHindi ? 'धारा 51 आपदा प्रबंधन अधिनियम 2005' : 'Section 51 DMA 2005'}</span>
             <button
               onClick={() => setShowOrderModal(true)}
-              className="text-xs text-orange-400 hover:text-orange-300 font-medium flex items-center gap-1 cursor-pointer"
+              className="text-xs text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1 cursor-pointer"
             >
               <Info className="w-3.5 h-3.5" />
               <span>{isHindi ? 'पूर्ण कार्यकारी आदेश पढ़ें' : 'Read Full Executive Order'}</span>

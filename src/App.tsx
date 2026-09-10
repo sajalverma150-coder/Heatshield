@@ -321,7 +321,7 @@ export function App() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-[#090e17] text-[#e2e8f0] flex flex-col selection:bg-orange-500 selection:text-white">
+      <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col selection:bg-orange-500 selection:text-white">
         
         {/* Top Header */}
         <Navbar
