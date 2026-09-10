@@ -93,25 +93,25 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* Center: Clean Clickable Location & Weather Pill (Responsive & Truncated without overlapping) */}
-        <div className="flex items-center justify-center min-w-0 shrink max-w-[140px] sm:max-w-[220px] md:max-w-none">
+        {/* Center: Clean Clickable Location & Weather Pill (Visible on md+ desktop/tablet where space permits) */}
+        <div className="hidden md:flex items-center justify-center">
           <button
             id="navbar-city-selector-btn"
             onClick={onOpenCitySelector}
-            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 text-white text-xs transition-all shadow-sm group min-w-0"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 text-white text-xs transition-all shadow-sm group cursor-pointer"
             title={t.searchCityPrompt}
           >
-            <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-orange-400 shrink-0" />
-            <span className="font-semibold text-slate-200 group-hover:text-white truncate max-w-[50px] xs:max-w-[80px] sm:max-w-none text-[11px] sm:text-xs">
+            <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+            <span className="font-semibold text-slate-200 group-hover:text-white">
               {selectedCity.name}
             </span>
-            <span className="text-orange-400 font-mono font-bold text-[10px] sm:text-xs bg-orange-500/10 px-1 sm:px-2 py-0.5 rounded-full border border-orange-500/20 shrink-0">
+            <span className="text-orange-400 font-mono font-bold text-xs bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20 shrink-0">
               {weather.dryBulbTemp}°C
             </span>
-            <span className="hidden md:inline-flex text-[11px] text-slate-400 font-mono">
+            <span className="text-[11px] text-slate-400 font-mono">
               WBGT {weather.wbgt}°C
             </span>
-            <ChevronDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400 group-hover:text-white transition-colors shrink-0" />
+            <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-white transition-colors shrink-0" />
           </button>
         </div>
 
