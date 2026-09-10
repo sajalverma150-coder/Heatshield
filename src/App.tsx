@@ -10,9 +10,7 @@ import { PredictiveForecastView } from './components/views/PredictiveForecastVie
 import { EmergencyAlertsView } from './components/views/EmergencyAlertsView';
 import { PersonalHealthProfileView } from './components/views/PersonalHealthProfileView';
 import { HealthReportView } from './components/views/HealthReportView';
-import { GeminiChatView } from './components/views/GeminiChatView';
 import { AuthProvider } from './context/AuthContext';
-import { Bot, Sparkles } from 'lucide-react';
 import { TriageModal } from './components/modals/TriageModal';
 import { EmergencyCallModal } from './components/modals/EmergencyCallModal';
 import { HealthReportModal } from './components/modals/HealthReportModal';
@@ -271,16 +269,6 @@ export function App() {
             language={language}
           />
         );
-      case 'ai-chat':
-        return (
-          <GeminiChatView
-            language={language}
-            selectedCity={selectedCity}
-            weather={weather}
-            userProfile={userProfile}
-            onTriggerSOS={() => setIsSOSOpen(true)}
-          />
-        );
       case 'forecast':
         return (
           <PredictiveForecastView
@@ -534,23 +522,6 @@ export function App() {
       <PushNotificationBanner
         onLogWater={handleLogWater}
       />
-
-      {/* Floating Gemini AI Quick-Launch Button (Available across all screens) */}
-      {currentTab !== 'ai-chat' && (
-        <button
-          onClick={() => setCurrentTab('ai-chat')}
-          className="fixed bottom-20 lg:bottom-6 right-5 z-40 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold text-xs shadow-xl shadow-orange-950/50 flex items-center gap-2 border border-orange-400/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-          title="Open Gemini AI Heat Advisor with Live Search Grounding"
-        >
-          <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-            <Sparkles className="w-3 h-3 text-white" />
-          </div>
-          <span className="font-headline tracking-wide">
-            {language === 'hi' ? 'जेमिनी एआई बॉट' : 'Ask Gemini AI'}
-          </span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-        </button>
-      )}
 
       </div>
     </AuthProvider>

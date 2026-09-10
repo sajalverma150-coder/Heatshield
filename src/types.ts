@@ -5,8 +5,7 @@ export type NavigationTab =
   | 'forecast' 
   | 'alerts' 
   | 'profile'
-  | 'health-report'
-  | 'ai-chat';
+  | 'health-report';
 
 export type UserRole = 'citizen' | 'civic_authority' | 'hospital_triage' | 'system_admin';
 

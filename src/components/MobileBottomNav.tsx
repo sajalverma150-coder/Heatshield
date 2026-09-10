@@ -130,14 +130,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
     },
     {
-      id: 'ai-chat',
-      title: language === 'hi' ? 'जेमिनी एआई बॉट' : 'Gemini AI Chat',
-      description: language === 'hi' ? 'मल्टी-टर्न चैट, गूगल सर्च ग्राउंडिंग व क्लिनिकल सलाह' : 'Multi-turn chat, Google Search Grounding & biometeorology',
-      icon: <Sparkles className="w-5 h-5 text-orange-400" />,
-      badge: 'Gemini 3.5',
-      badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
-    },
-    {
       id: 'cooling-finder',
       title: t.coolingFinder,
       description: language === 'hi' ? 'मानचित्र, पेयजल कियोस्क व आपातकालीन बेड' : 'GIS map, hydration points, and emergency surge beds',

@@ -15,13 +15,9 @@ import {
   RefreshCw,
   Clock,
   HardHat,
-  Droplet,
-  Cloud,
-  LogIn,
-  LogOut
+  Droplet
 } from 'lucide-react';
 import { UserHealthProfile, LanguageCode } from '../../types';
-import { useAuth } from '../../context/AuthContext';
 
 interface PersonalHealthProfileViewProps {
   profile: UserHealthProfile;
@@ -37,29 +33,21 @@ export const PersonalHealthProfileView: React.FC<PersonalHealthProfileViewProps>
   language = 'en',
 }) => {
   const isHindi = language === 'hi';
-  const { user, signInWithGoogle, signInAsGuest, signOutUser, saveUserProfileToFirestore, getUserProfileFromFirestore, authError, clearAuthError } = useAuth();
-  const [formData, setFormData] = useState<UserHealthProfile>(profile);
+  const [formData, setFormData] = useState<UserHealthProfile>(() => {
+    const saved = localStorage.getItem('heatshield_user_profile');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return profile;
+  });
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
   const [showAddMedModal, setShowAddMedModal] = useState<boolean>(false);
   const [newMedName, setNewMedName] = useState<string>('');
   const [newMedDosage, setNewMedDosage] = useState<string>('');
   const [newMedType, setNewMedType] = useState<string>('');
   const [saveSuccessToast, setSaveSuccessToast] = useState<string | null>(null);
-
-  // Auto-sync profile from Firestore when signed in
-  useEffect(() => {
-    if (user) {
-      getUserProfileFromFirestore().then((cloudProfile) => {
-        if (cloudProfile && cloudProfile.name) {
-          setFormData(prev => ({
-            ...prev,
-            ...cloudProfile,
-          }));
-          onUpdateProfile(cloudProfile);
-        }
-      });
-    }
-  }, [user]);
 
   // Dynamic calculation of personal bio-multiplier risk score (0 - 100)
   const calculateRiskScore = () => {
@@ -124,18 +112,14 @@ export const PersonalHealthProfileView: React.FC<PersonalHealthProfileViewProps>
     setShowAddMedModal(false);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     onUpdateProfile(formData);
-    if (user) {
-      await saveUserProfileToFirestore(formData);
-      setSaveSuccessToast(
-        isHindi
-          ? 'प्रोफ़ाइल और बायो-मल्टीप्लायर फायरबेस फायरस्टोर क्लाउड पर सफलतापूर्वक सहेजा गया'
-          : 'Profile & Bio-Multiplier Synced to Firebase Firestore Cloud'
-      );
-    } else {
-      setSaveSuccessToast('Profile & Bio-Multiplier Synced to Local Storage (Sign in for Cloud)');
-    }
+    localStorage.setItem('heatshield_user_profile', JSON.stringify(formData));
+    setSaveSuccessToast(
+      isHindi
+        ? 'व्यक्तिगत स्वास्थ्य प्रोफ़ाइल और बायो-मल्टीप्लायर सुरक्षित रूप से सहेजा गया'
+        : 'Health Profile & Bio-Multiplier Saved Successfully'
+    );
     setTimeout(() => setSaveSuccessToast(null), 3500);
   };
 
@@ -151,7 +135,7 @@ export const PersonalHealthProfileView: React.FC<PersonalHealthProfileViewProps>
               {isHindi ? 'व्यक्तिगत स्वास्थ्य प्रोफ़ाइल एवं बायो-परामर्श' : 'Personalized Bio-Advisory & Health Memory'}
             </h2>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-500/15 text-orange-300 border border-orange-500/30">
-              {user ? user.email : 'ID: RAJESH-KUMAR-52'}
+              {formData.name ? `${formData.name.toUpperCase()} • ${formData.age}Y` : 'ID: RAJESH-KUMAR-52'}
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -162,30 +146,6 @@ export const PersonalHealthProfileView: React.FC<PersonalHealthProfileViewProps>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {user ? (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/70 border border-emerald-500/30 text-xs font-mono text-emerald-400">
-              <Cloud className="w-3.5 h-3.5" />
-              <span>{'isGuest' in user && user.isGuest ? 'Local Profile' : 'Firestore Synced'}</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => signInWithGoogle().catch(() => {})}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <LogIn className="w-3.5 h-3.5 text-orange-400" />
-                <span>{isHindi ? 'Google साइन-इन' : 'Sign In with Google'}</span>
-              </button>
-              <button
-                onClick={() => signInAsGuest()}
-                className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 transition-colors cursor-pointer"
-                title="Use offline guest profile"
-              >
-                <span>{isHindi ? 'अतिथि' : 'Guest'}</span>
-              </button>
-            </div>
-          )}
-
           <button
             id="view-paramedic-qr-btn"
             onClick={() => setShowQrModal(true)}
@@ -204,21 +164,6 @@ export const PersonalHealthProfileView: React.FC<PersonalHealthProfileViewProps>
           </button>
         </div>
       </div>
-
-      {authError && !user && (
-        <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-xl text-red-300 text-xs flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-red-400">Auth Notice:</span>
-            <span>{authError}</span>
-          </div>
-          <button
-            onClick={() => signInAsGuest()}
-            className="px-3 py-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shrink-0 cursor-pointer"
-          >
-            Use Quick Profile
-          </button>
-        </div>
-      )}
 
       {saveSuccessToast && (
         <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs font-mono flex items-center gap-2">
