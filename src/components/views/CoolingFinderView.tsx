@@ -59,6 +59,34 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
   const [searchedLandmark, setSearchedLandmark] = useState<LocationSearchResult | null>(null);
   const [callModalFacility, setCallModalFacility] = useState<CoolingFacility | null>(null);
 
+  // Google Maps Grounding State (gemini-3.5-flash with googleMaps tool)
+  const [mapsGroundingResults, setMapsGroundingResults] = useState<{ text: string; places: Array<{ title: string; uri: string }> } | null>(null);
+  const [isSearchingMaps, setIsSearchingMaps] = useState<boolean>(false);
+
+  const handleMapsGroundingSearch = async () => {
+    setIsSearchingMaps(true);
+    try {
+      const res = await fetch('/api/map-grounding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `Verified AC cooling shelters, public shade centers, and drinking water kiosks near ${selectedCity?.name || 'Mumbai'}`,
+          cityName: selectedCity?.name || 'Mumbai',
+          latitude: selectedCity?.lat || 19.0760,
+          longitude: selectedCity?.lng || 72.8777,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMapsGroundingResults(data);
+      }
+    } catch (err) {
+      console.error('Maps grounding error:', err);
+    } finally {
+      setIsSearchingMaps(false);
+    }
+  };
+
   // Active Navigation HUD state
   const [navTargetFacility, setNavTargetFacility] = useState<CoolingFacility | null>(initialActiveNav || null);
   const [isNavModalOpen, setIsNavModalOpen] = useState<boolean>(Boolean(initialActiveNav));
@@ -381,6 +409,60 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                 </button>
               </div>
             )}
+
+            {/* Google Maps Grounding Feature Widget */}
+            <div className="p-3 bg-gradient-to-r from-slate-900 via-slate-900 to-orange-950/30 rounded-xl border border-orange-500/30 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 rounded-lg bg-orange-500/20 text-orange-400">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-headline font-bold text-white">Google Maps Grounding</h5>
+                    <p className="text-[10px] text-slate-400">Live verified places via gemini-3.5-flash</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleMapsGroundingSearch}
+                  disabled={isSearchingMaps}
+                  className="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                >
+                  {isSearchingMaps ? (
+                    <span className="animate-spin text-xs">⏳</span>
+                  ) : (
+                    <MapPin className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isSearchingMaps ? 'Locating...' : 'Scan Nearby'}</span>
+                </button>
+              </div>
+
+              {mapsGroundingResults && (
+                <div className="mt-2 pt-2 border-t border-slate-800 space-y-2 text-xs animate-in fade-in">
+                  <p className="text-slate-300 text-[11px] leading-relaxed line-clamp-3">
+                    {mapsGroundingResults.text}
+                  </p>
+                  {mapsGroundingResults.places.length > 0 && (
+                    <div className="space-y-1 pt-1">
+                      <span className="text-[10px] font-mono text-orange-400 font-bold uppercase tracking-wider block">Verified Locations:</span>
+                      <div className="space-y-1 max-h-36 overflow-y-auto">
+                        {mapsGroundingResults.places.map((place, idx) => (
+                          <a
+                            key={idx}
+                            href={place.uri}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-lg bg-slate-950/70 hover:bg-slate-800 border border-slate-800 flex items-center justify-between text-xs text-white transition-colors group"
+                          >
+                            <span className="truncate font-medium text-[11px] text-slate-200 group-hover:text-orange-300">{place.title}</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400 shrink-0 ml-1" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Cards List */}
