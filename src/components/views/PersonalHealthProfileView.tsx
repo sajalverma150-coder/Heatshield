@@ -37,7 +37,7 @@ export const PersonalHealthProfileView: React.FC<PersonalHealthProfileViewProps>
   language = 'en',
 }) => {
   const isHindi = language === 'hi';
-  const { user, signInWithGoogle, signOutUser, saveUserProfileToFirestore, getUserProfileFromFirestore } = useAuth();
+  const { user, signInWithGoogle, signInAsGuest, signOutUser, saveUserProfileToFirestore, getUserProfileFromFirestore, authError, clearAuthError } = useAuth();
   const [formData, setFormData] = useState<UserHealthProfile>(profile);
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
   const [showAddMedModal, setShowAddMedModal] = useState<boolean>(false);
@@ -161,20 +161,29 @@ export const PersonalHealthProfileView: React.FC<PersonalHealthProfileViewProps>
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {user ? (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/70 border border-emerald-500/30 text-xs font-mono text-emerald-400">
               <Cloud className="w-3.5 h-3.5" />
-              <span>Synced</span>
+              <span>{'isGuest' in user && user.isGuest ? 'Local Profile' : 'Firestore Synced'}</span>
             </div>
           ) : (
-            <button
-              onClick={() => signInWithGoogle().catch(() => {})}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <LogIn className="w-3.5 h-3.5 text-orange-400" />
-              <span>{isHindi ? 'क्लाउड सिंक साइन-इन' : 'Sign In with Google'}</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => signInWithGoogle().catch(() => {})}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5 text-orange-400" />
+                <span>{isHindi ? 'Google साइन-इन' : 'Sign In with Google'}</span>
+              </button>
+              <button
+                onClick={() => signInAsGuest()}
+                className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 transition-colors cursor-pointer"
+                title="Use offline guest profile"
+              >
+                <span>{isHindi ? 'अतिथि' : 'Guest'}</span>
+              </button>
+            </div>
           )}
 
           <button
@@ -195,6 +204,21 @@ export const PersonalHealthProfileView: React.FC<PersonalHealthProfileViewProps>
           </button>
         </div>
       </div>
+
+      {authError && !user && (
+        <div className="p-3 bg-red-950/30 border border-red-500/30 rounded-xl text-red-300 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-red-400">Auth Notice:</span>
+            <span>{authError}</span>
+          </div>
+          <button
+            onClick={() => signInAsGuest()}
+            className="px-3 py-1 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shrink-0 cursor-pointer"
+          >
+            Use Quick Profile
+          </button>
+        </div>
+      )}
 
       {saveSuccessToast && (
         <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs font-mono flex items-center gap-2">

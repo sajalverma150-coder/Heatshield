@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 
@@ -296,21 +297,38 @@ Provide factual citations.`,
   }
 });
 
+// Explicit JSON 404 for any unregistered /api routes so they do not return HTML
+app.all('/api/*', (req, res) => {
+  res.status(404).json({ error: `API endpoint ${req.method} ${req.originalUrl} not found` });
+});
+
 // Vite integration / Static serving
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
-    const { createServer: createViteServer } = await import('vite');
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
+  const distPath = path.join(process.cwd(), 'dist');
+  const hasDist = fs.existsSync(path.join(distPath, 'index.html'));
+
+  if (process.env.NODE_ENV === 'production' || (hasDist && process.env.NODE_ENV !== 'development')) {
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
+  } else {
+    try {
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'spa',
+      });
+      app.use(vite.middlewares);
+    } catch (err) {
+      console.warn('Vite dev middleware startup issue, checking dist fallback:', err);
+      if (hasDist) {
+        app.use(express.static(distPath));
+        app.get('*', (req, res) => {
+          res.sendFile(path.join(distPath, 'index.html'));
+        });
+      }
+    }
   }
 
   app.listen(PORT, '0.0.0.0', () => {

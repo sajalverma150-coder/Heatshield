@@ -13,7 +13,9 @@ import {
   Sparkles,
   Cloud,
   LogIn,
-  LogOut
+  LogOut,
+  User as UserIcon,
+  AlertCircle
 } from 'lucide-react';
 import { NavigationTab, LanguageCode } from '../types';
 import { CityData } from '../data/indiaCities';
@@ -39,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const t = useAppTranslation(language);
 
-  const { user, signInWithGoogle, signOutUser } = useAuth();
+  const { user, signInWithGoogle, signInAsGuest, signOutUser, authError, clearAuthError } = useAuth();
 
   const navItems: Array<{
     id: NavigationTab;
@@ -171,9 +173,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-2.5 rounded-xl bg-slate-950/60 border border-emerald-500/30 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 min-w-0">
               {user.photoURL ? (
-                <img src={user.photoURL} alt="User" className="w-7 h-7 rounded-full border border-emerald-400" />
+                <img src={user.photoURL} alt="User" className="w-7 h-7 rounded-full border border-emerald-400 shrink-0" />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+                <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
                   {user.displayName?.charAt(0) || 'U'}
                 </div>
               )}
@@ -183,7 +185,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <div className="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
                   <Cloud className="w-2.5 h-2.5" />
-                  Firestore Sync
+                  {'isGuest' in user && user.isGuest ? 'Local Profile Sync' : 'Firestore Sync'}
                 </div>
               </div>
             </div>
@@ -196,13 +198,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           </div>
         ) : (
-          <button
-            onClick={() => signInWithGoogle().catch(() => {})}
-            className="w-full p-2.5 rounded-xl bg-slate-950/70 hover:bg-slate-800 border border-slate-700/80 text-xs text-white font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
-          >
-            <LogIn className="w-3.5 h-3.5 text-orange-400" />
-            <span>{language === 'hi' ? 'Google साइन-इन (क्लाउड सिंक)' : 'Google Sign-In'}</span>
-          </button>
+          <div className="space-y-1.5">
+            {authError && (
+              <div className="p-2 rounded-lg bg-red-950/40 border border-red-500/30 text-[10px] text-red-300 flex flex-col gap-1">
+                <div className="flex items-start gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                  <span className="leading-tight">{authError}</span>
+                </div>
+                <button
+                  onClick={() => signInAsGuest()}
+                  className="mt-1 px-2 py-1 rounded bg-orange-600 hover:bg-orange-500 text-white font-bold text-[10px] transition-colors text-center cursor-pointer"
+                >
+                  ⚡ Quick Profile (Offline/Guest)
+                </button>
+              </div>
+            )}
+            <button
+              onClick={() => signInWithGoogle().catch(() => {})}
+              className="w-full p-2.5 rounded-xl bg-slate-950/70 hover:bg-slate-800 border border-slate-700/80 text-xs text-white font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+            >
+              <LogIn className="w-3.5 h-3.5 text-orange-400" />
+              <span>{language === 'hi' ? 'Google साइन-इन' : 'Google Sign-In'}</span>
+            </button>
+            <button
+              onClick={() => signInAsGuest()}
+              className="w-full py-1.5 px-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <UserIcon className="w-3 h-3 text-slate-400" />
+              <span>{language === 'hi' ? 'त्वरित प्रोफाइल (अतिथि)' : 'Quick Guest Profile'}</span>
+            </button>
+          </div>
         )}
 
         <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 text-xs">
