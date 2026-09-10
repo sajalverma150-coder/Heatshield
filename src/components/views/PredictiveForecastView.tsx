@@ -72,18 +72,18 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
     <div id="predictive-forecast-screen" className="space-y-4 sm:space-y-6 pb-12">
       
       {/* Top Header & ML Model Metadata */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[#0b1326] p-4 rounded-2xl border border-[#2d3449]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
             <h2 className="text-lg sm:text-xl font-headline font-bold text-white">
               7-Day Predictive Heat Stress & Hospital Surge Horizon
             </h2>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-semibold">
               {dataSourceMode === 'live_api' ? 'LIVE 7-DAY SATELLITE FORECAST' : 'IMD HEATWAVE DRILL (XGBOOST v2.4)'}
             </span>
           </div>
-          <p className="text-xs text-[#e0c0b1]/70 mt-0.5">
+          <p className="text-xs text-slate-400 mt-0.5">
             {dataSourceMode === 'live_api' 
               ? `Real-time Open-Meteo biometeorological forecast synchronized with ${selectedCity?.name || 'IMD'} station telemetry`
               : 'Biometeorological neural ensemble trained on 187 IMD stations, INSAT-3DR LST, and Sion Hospital trauma logs'}
@@ -91,17 +91,17 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2 text-xs font-mono">
-          <div className="px-3 py-1.5 rounded-xl bg-[#060e20] border border-[#2d3449] text-slate-300 flex items-center gap-1.5">
+          <div className="px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800 text-slate-300 flex items-center gap-1.5">
             <Cpu className="w-3.5 h-3.5 text-cyan-400" />
             <span>Confidence: <strong className="text-emerald-400">94.2%</strong></span>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-[#060e20] border border-[#2d3449] text-slate-300 flex items-center gap-1.5">
+          <div className="px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800 text-slate-300 flex items-center gap-1.5">
             <span>Station:</span>
             <strong className="text-white">{selectedCity ? selectedCity.name : 'Dharavi-AWS-4019'}</strong>
             {onOpenCitySelector && (
               <button
                 onClick={onOpenCitySelector}
-                className="text-[10px] text-orange-400 hover:underline ml-1"
+                className="text-[10px] text-orange-400 hover:underline ml-1 cursor-pointer"
               >
                 (Switch)
               </button>
@@ -123,8 +123,8 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
               onClick={() => setSelectedDayIndex(idx)}
               className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-left relative overflow-hidden ${
                 isSelected
-                  ? 'bg-[#171f33] border-orange-500 shadow-xl shadow-orange-950/20 ring-1 ring-orange-500/50'
-                  : 'bg-[#0b1326] border-[#2d3449] hover:border-slate-500 hover:bg-[#131b2e]'
+                  ? 'bg-slate-800 border-orange-500 shadow-sm ring-1 ring-orange-500/50'
+                  : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
               }`}
             >
               {isDanger && (
@@ -147,7 +147,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
                 <span className="text-xs font-mono text-slate-400">/ {day.minTemp}°C</span>
               </div>
 
-              <div className="flex items-center justify-between text-[11px] font-mono mt-2 pt-2 border-t border-[#2d3449]/70">
+              <div className="flex items-center justify-between text-[11px] font-mono mt-2 pt-2 border-t border-slate-800">
                 <span className="text-slate-400">WBGT Max:</span>
                 <span className={day.maxWBGT >= 33 ? 'text-red-400 font-bold' : day.maxWBGT >= 29 ? 'text-orange-400' : 'text-emerald-400'}>
                   {day.maxWBGT}°C
@@ -161,7 +161,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
                 </span>
               </div>
 
-              <div className="mt-2 text-[10px] font-mono px-2 py-0.5 rounded bg-[#060e20] text-slate-300 truncate border border-[#2d3449]">
+              <div className="mt-2 text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950/60 text-slate-300 truncate border border-slate-800">
                 {day.grapStage}
               </div>
             </div>
@@ -173,7 +173,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         
         {/* Left (7 Cols): Multi-Metric Trajectory Graph */}
-        <div className="lg:col-span-7 bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5 flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center justify-between mb-2">
               <div>
@@ -191,12 +191,12 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
             </div>
 
             {/* SVG Graph Canvas */}
-            <div className="relative w-full h-56 sm:h-64 mt-4 bg-[#060e20] rounded-xl border border-[#2d3449] p-2 sm:p-4">
+            <div className="relative w-full h-56 sm:h-64 mt-4 bg-slate-950/80 rounded-xl border border-slate-800 p-2 sm:p-4">
               <svg viewBox="0 0 550 200" className="w-full h-full overflow-visible">
                 {/* Horizontal reference grid lines */}
-                <line x1="30" y1="160" x2="520" y2="160" stroke="#171f33" strokeWidth="1" />
-                <line x1="30" y1="110" x2="520" y2="110" stroke="#171f33" strokeWidth="1" />
-                <line x1="30" y1="60" x2="520" y2="60" stroke="#171f33" strokeWidth="1" />
+                <line x1="30" y1="160" x2="520" y2="160" stroke="#1e293b" strokeWidth="1" />
+                <line x1="30" y1="110" x2="520" y2="110" stroke="#1e293b" strokeWidth="1" />
+                <line x1="30" y1="60" x2="520" y2="60" stroke="#1e293b" strokeWidth="1" />
 
                 {/* Safe limit (28°C) */}
                 {safeLimitY >= 25 && safeLimitY <= 175 && (
@@ -252,7 +252,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
 
                   return (
                     <g key={pt.hour + i}>
-                      <circle cx={cx} cy={cyTemp} r="4.5" fill="#f97316" stroke="#060e20" strokeWidth="2" />
+                      <circle cx={cx} cy={cyTemp} r="4.5" fill="#f97316" stroke="#020617" strokeWidth="2" />
                       <text x={cx} y={cyTemp - 8} textAnchor="middle" fill="#fff" fontSize="9" fontFamily="JetBrains Mono" fontWeight="bold">
                         {pt.temp}°
                       </text>
@@ -282,7 +282,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
         </div>
 
         {/* Right (5 Cols): Explainable AI - SHAP Feature Attributions */}
-        <div className="lg:col-span-5 bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5 flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-base font-headline font-bold text-white flex items-center gap-2">
@@ -298,9 +298,9 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
               Decomposition of meteorological and built-environment drivers forcing thermal stress in {selectedDay.dayName}:
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {selectedDay.shapFactors.map((factor, i) => (
-                <div key={i} className="p-2.5 rounded-xl bg-[#060e20] border border-[#2d3449]">
+                <div key={i} className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
                   <div className="flex items-center justify-between text-xs font-mono mb-1">
                     <span className="text-slate-200 font-semibold truncate pr-2">
                       {factor.factor}
@@ -317,7 +317,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
             </div>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-[#2d3449] text-[11px] font-mono text-slate-400 flex items-center justify-between">
+          <div className="mt-3 pt-3 border-t border-slate-800 text-[11px] font-mono text-slate-400 flex items-center justify-between">
             <span>Model Loss (RMSE): 0.38°C</span>
             <span className="text-cyan-400">Tree Depth: 8 Levels</span>
           </div>
@@ -329,7 +329,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         
         {/* Left (7 Cols): Hospital Surge Planner */}
-        <div className="lg:col-span-7 bg-[#0b1326] rounded-2xl border border-red-500/30 p-4 sm:p-5 flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -340,15 +340,15 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
               </div>
               <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${
                 selectedDay.riskScore >= 70 
-                  ? 'text-red-400 bg-red-500/20 border-red-500/30' 
-                  : 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30'
+                  ? 'text-red-400 bg-red-500/15 border-red-500/30' 
+                  : 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30'
               }`}>
                 +{selectedDay.projectedSurgeAdmissions} {selectedDay.riskScore >= 70 ? 'ADMISSIONS / 24H' : 'ROUTINE BASELINE / 24H'}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3 font-mono text-xs">
-              <div className="p-2.5 rounded-xl bg-[#060e20] border border-[#2d3449]">
+              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">Outdoor Labor (Heatstroke)</span>
                 <span className={`text-lg font-bold ${selectedDay.riskScore >= 70 ? 'text-red-400' : 'text-slate-300'}`}>
                   {selectedDay.riskScore >= 70 ? '58%' : '14%'}
@@ -357,14 +357,14 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
                   {selectedDay.riskScore >= 70 ? 'Severe Hypovolemia' : 'Mild Dehydration'}
                 </span>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#060e20] border border-[#2d3449]">
+              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">Geriatric & Cardiac Load</span>
                 <span className={`text-lg font-bold ${selectedDay.riskScore >= 70 ? 'text-orange-400' : 'text-slate-300'}`}>
                   {selectedDay.riskScore >= 70 ? '28%' : '18%'}
                 </span>
                 <span className="text-[10px] text-slate-500 block">Cardiovascular Strain</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#060e20] border border-[#2d3449]">
+              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">Pediatric & Infants</span>
                 <span className="text-lg font-bold text-amber-300">
                   {selectedDay.riskScore >= 70 ? '14%' : '8%'}
@@ -390,12 +390,12 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
           </div>
 
           {/* Action Triggers */}
-          <div className="mt-4 pt-3 border-t border-[#2d3449] flex flex-wrap items-center justify-between gap-2">
+          <div className="mt-4 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <button
                 id="dispatch-eoc-requisition-btn"
                 onClick={handleSendRequisition}
-                className="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-red-950/30"
+                className="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
                 <span>Dispatch EOC Requisition</span>
@@ -403,7 +403,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
               <button
                 id="verify-stocks-btn"
                 onClick={handleVerifyStocks}
-                className="px-3.5 py-1.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-[#2d3449] text-slate-300 text-xs font-mono flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Verify Cold Saline Stocks</span>
@@ -411,7 +411,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
             </div>
 
             {(eocRequisitionSent || stocksVerified) && (
-              <span className="text-xs font-mono text-emerald-400 animate-pulse">
+              <span className="text-xs font-mono text-emerald-400">
                 {eocRequisitionSent ? '✓ EOC Requisition Broadcast to DDMA' : '✓ 8,500 Units Chilled Saline Confirmed In-Stock'}
               </span>
             )}

@@ -23,10 +23,13 @@ import {
   ShieldAlert,
   ShieldCheck
 } from 'lucide-react';
-import { WeatherTelemetry, UserHealthProfile, CoolingFacility } from '../../types';
+import { WeatherTelemetry, UserHealthProfile, CoolingFacility, LanguageCode } from '../../types';
 import { CityData } from '../../data/indiaCities';
+import { useAppTranslation } from '../../i18n/translations';
+import { HydrationTracker } from '../HydrationTracker';
 
 interface LiveTelemetryViewProps {
+  language?: LanguageCode;
   weather: WeatherTelemetry;
   userProfile: UserHealthProfile;
   facilities: CoolingFacility[];
@@ -47,6 +50,7 @@ interface LiveTelemetryViewProps {
 }
 
 export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
+  language = 'en',
   weather,
   userProfile,
   facilities,
@@ -57,12 +61,17 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
   onOpenTriage,
   onTriggerSOS,
   onSwitchTab,
+  onSimulateInactivity,
   onOpenHealthReport,
+  onOpenPushSettings,
   isLiveApiLoading = false,
   dataSourceMode = 'live_api',
   onToggleDataSourceMode,
   onRefreshTelemetry,
 }) => {
+  const langCode: LanguageCode = language === 'hi' ? 'hi' : 'en';
+  const isHindi = langCode === 'hi';
+  const t = useAppTranslation(langCode);
   const [selectedHourIndex, setSelectedHourIndex] = useState<number>(3); // 14:00 peak
   const [showOrderModal, setShowOrderModal] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -116,43 +125,43 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
 
     if (isCurfew) {
       return {
-        stage: 'Stage IV Severe Heat Curfew',
+        stage: isHindi ? 'चरण IV गंभीर लू कर्फ्यू' : 'Stage IV Severe Heat Curfew',
         badgeColor: 'bg-red-500/15 text-red-300 border-red-500/30',
         dotColor: 'text-red-400',
-        window: 'Mandatory Curfew Active (12:30 – 16:30 IST)',
-        summary: 'Extreme thermal hazard active. Outdoor physical labor is prohibited under municipal NDMA order. Seek air-cooled shelters immediately.',
+        window: isHindi ? 'अनिवार्य कर्फ्यू लागू (12:30 – 16:30 IST)' : 'Mandatory Curfew Active (12:30 – 16:30 IST)',
+        summary: isHindi ? 'अत्यधिक थर्मल संकट सक्रिय। नगर निगम NDMA आदेश के तहत खुले में शारीरिक श्रम प्रतिबंधित है। तुरंत वातानुकूलित आश्रय लें।' : 'Extreme thermal hazard active. Outdoor physical labor is prohibited under municipal NDMA order. Seek air-cooled shelters immediately.',
         hasCurfew: true,
       };
     }
     if (isSevere) {
       return {
-        stage: 'Stage III Heat Emergency Standby',
+        stage: isHindi ? 'चरण III लू आपातकालीन स्टैंडबाय' : 'Stage III Heat Emergency Standby',
         badgeColor: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
         dotColor: 'text-orange-400',
-        window: 'High Sun Exposure Window (12:00 – 16:00 IST)',
-        summary: 'Significant heat stress danger. Outdoor physical labor should be reduced with mandatory shaded rest and frequent hydration breaks.',
+        window: isHindi ? 'तीव्र धूप जोखिम खिड़की (12:00 – 16:00 IST)' : 'High Sun Exposure Window (12:00 – 16:00 IST)',
+        summary: isHindi ? 'महत्वपूर्ण ताप तनाव का खतरा। छायादार विश्राम और बार-बार पानी पीने के अनिवार्य अंतराल के साथ शारीरिक श्रम घटाएं।' : 'Significant heat stress danger. Outdoor physical labor should be reduced with mandatory shaded rest and frequent hydration breaks.',
         hasCurfew: false,
       };
     }
     if (isModerate) {
       return {
-        stage: 'Stage II Heat Advisory (Yellow Alert)',
+        stage: isHindi ? 'चरण II लू परामर्श (पीला अलर्ट)' : 'Stage II Heat Advisory (Yellow Alert)',
         badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
         dotColor: 'text-amber-400',
-        window: 'Advisory: Hydrate frequently during afternoon hours',
-        summary: 'Moderate thermal conditions. Vulnerable groups, outdoor workers, and seniors should stay hydrated with chilled fluids and ORS.',
+        window: isHindi ? 'परामर्श: दोपहर के समय निरंतर पानी पिएं' : 'Advisory: Hydrate frequently during afternoon hours',
+        summary: isHindi ? 'मध्यम तापमान स्थितियां। संवेदनशील समूह, खुले में काम करने वाले और बुजुर्ग ठंडे पेय तथा ओआरएस का सेवन करें।' : 'Moderate thermal conditions. Vulnerable groups, outdoor workers, and seniors should stay hydrated with chilled fluids and ORS.',
         hasCurfew: false,
       };
     }
     return {
-      stage: 'Normal / Moderate Conditions',
+      stage: isHindi ? 'सामान्य / मध्यम स्थितियां' : 'Normal / Moderate Conditions',
       badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
       dotColor: 'text-emerald-400',
-      window: 'No Curfew Restrictions • All Public Zones Open',
-      summary: 'Current readings are within safe thermal thresholds. Standard hydration and sun protection recommended for outdoor activities.',
+      window: isHindi ? 'कोई प्रतिबंध नहीं • सभी सार्वजनिक क्षेत्र खुले' : 'No Curfew Restrictions • All Public Zones Open',
+      summary: isHindi ? 'वर्तमान तापमान सुरक्षित सीमा में है। धूप में निकलने पर मानक जलयोजन और सुरक्षा उपाय अपनाएं।' : 'Current readings are within safe thermal thresholds. Standard hydration and sun protection recommended for outdoor activities.',
       hasCurfew: false,
     };
-  }, [weather.wbgt, weather.dryBulbTemp]);
+  }, [weather.wbgt, weather.dryBulbTemp, isHindi]);
 
   const handleQuickWaterLog = (amount: number) => {
     onLogWater(amount);
@@ -190,31 +199,29 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
       {/* 1. Master Hero Weather & Curfew Anchor Card */}
       <section 
         id="hero-heat-overview-card"
-        className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 relative overflow-hidden shadow-lg"
+        className="p-5 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 relative overflow-hidden shadow-sm"
       >
-        <div className="absolute top-0 right-0 w-72 h-72 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
-
         {/* Top bar inside Hero: Station identity & Data Stream Switcher */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 mb-3.5 border-b border-slate-800/80 relative z-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/80">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${dataSourceMode === 'live_api' ? 'bg-emerald-400 animate-pulse' : 'bg-orange-500'}`} />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-white text-sm sm:text-base truncate">
+                <span className="font-headline font-bold text-white text-base sm:text-lg truncate">
                   {selectedCity ? `${selectedCity.name}, ${selectedCity.state}` : 'New Delhi, NCR'}
                 </span>
                 {onOpenCitySelector && (
                   <button
                     onClick={onOpenCitySelector}
-                    className="px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-orange-400 hover:text-orange-300 text-[11px] font-medium transition-colors border border-slate-700/60 flex items-center gap-1 shrink-0"
+                    className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-slate-700 text-orange-400 hover:text-orange-300 text-xs font-medium transition-colors border border-slate-700/60 flex items-center gap-1 shrink-0"
                   >
                     <MapPin className="w-3 h-3" />
                     <span>Change</span>
                   </button>
                 )}
               </div>
-              <span className="text-[11px] text-slate-400 block font-mono truncate mt-0.5">
-                {weather.stationName} • {dataSourceMode === 'live_api' ? 'Live Satellite Observation' : 'IMD Heatwave Drill'}
+              <span className="text-xs text-slate-400 block font-mono truncate mt-0.5">
+                {weather.stationName} • {dataSourceMode === 'live_api' ? 'Live Telemetry' : 'IMD Heatwave Drill'}
               </span>
             </div>
           </div>
@@ -222,30 +229,30 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
           <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
             {/* Stream Toggle */}
             {onToggleDataSourceMode && (
-              <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+              <div className="flex items-center bg-slate-950/70 p-1 rounded-xl border border-slate-800/80 text-xs">
                 <button
                   id="source-toggle-live-api"
                   onClick={() => onToggleDataSourceMode('live_api')}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
                     dataSourceMode === 'live_api'
-                      ? 'bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30'
+                      ? 'bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30 shadow-xs'
                       : 'text-slate-400 hover:text-white'
                   }`}
-                  title="Real-time live satellite readings observed right now"
+                  title="Real-time live satellite telemetry"
                 >
                   ● Live API
                 </button>
                 <button
                   id="source-toggle-heatwave-test"
                   onClick={() => onToggleDataSourceMode('imd_heatwave')}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
                     dataSourceMode === 'imd_heatwave'
-                      ? 'bg-orange-500/20 text-orange-300 font-semibold border border-orange-500/30'
+                      ? 'bg-orange-500/20 text-orange-300 font-semibold border border-orange-500/30 shadow-xs'
                       : 'text-slate-400 hover:text-white'
                   }`}
-                  title="Emergency heatwave simulation to test sirens & curfew alerts (47°C+)"
+                  title="Heatwave stress simulation (47°C+)"
                 >
-                  Heatwave Drill (47°C)
+                  Heatwave Drill
                 </button>
               </div>
             )}
@@ -255,21 +262,21 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               <button
                 onClick={onRefreshTelemetry}
                 disabled={isLiveApiLoading}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700"
+                className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700/80"
                 title="Refresh telemetry"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLiveApiLoading ? 'animate-spin text-orange-400' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${isLiveApiLoading ? 'animate-spin text-orange-400' : ''}`} />
               </button>
             )}
           </div>
         </div>
 
         {/* Hero Core Stats */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           
           {/* Main Temperature & Threat Summary */}
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
               <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 ${statusInfo.badgeColor}`}>
                 {statusInfo.hasCurfew ? (
                   <Flame className={`w-3.5 h-3.5 ${statusInfo.dotColor}`} />
@@ -283,12 +290,12 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               </span>
             </div>
 
-            <div className="flex items-baseline gap-3">
+            <div className="flex items-baseline gap-4">
               <span className="text-5xl sm:text-6xl font-headline font-bold text-white tracking-tight">
                 {weather.dryBulbTemp}°C
               </span>
-              <div className="text-slate-300 text-sm font-sans">
-                Feels like <strong className="text-orange-400 font-semibold">{weather.heatIndex}°C</strong> in sun
+              <div className="text-slate-300 text-sm">
+                {isHindi ? 'अनुभूति तापमान' : 'Feels like'} <strong className="text-orange-400 font-semibold">{weather.heatIndex}°C</strong>
               </div>
             </div>
 
@@ -298,36 +305,36 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
           </div>
 
           {/* Primary Action Buttons */}
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 pt-2 sm:pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-col gap-2.5 shrink-0 pt-2 lg:pt-0">
             {/* Find Shelter */}
             <button
               id="hero-find-shelter-btn"
               onClick={() => onSwitchTab('cooling-finder')}
-              className="col-span-2 sm:col-span-1 px-3.5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold shadow-md shadow-orange-950/40 transition-all flex items-center justify-center gap-2 active:scale-95"
+              className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
             >
               <Compass className="w-4 h-4" />
-              <span>Nearest Shelter ({nearestShelter.walkTimeMins}m)</span>
+              <span>{isHindi ? `निकटतम आश्रय (${nearestShelter.walkTimeMins} मि)` : `Nearest Shelter (${nearestShelter.walkTimeMins}m)`}</span>
             </button>
 
             {/* AI Triage */}
             <button
               id="hero-ai-triage-btn"
               onClick={onOpenTriage}
-              className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 hover:border-orange-500/50 transition-all flex items-center justify-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700/80 hover:border-orange-500/50 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-orange-400" />
-              <span>Symptom Triage</span>
+              <span>{isHindi ? 'लक्षण ट्राइएज' : 'Symptom Triage'}</span>
             </button>
 
             {/* Quick Water Log */}
             <button
               id="hero-quick-water-btn"
               onClick={() => handleQuickWaterLog(250)}
-              className="px-3 py-2.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 text-xs font-medium border border-cyan-700/50 transition-all flex items-center justify-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-medium border border-cyan-700/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               title="Log +250ml water intake immediately"
             >
               <Droplet className="w-4 h-4 text-cyan-400" />
-              <span>+250ml Water</span>
+              <span>+250{isHindi ? 'मिली जल' : 'ml Water'}</span>
             </button>
           </div>
 
@@ -335,96 +342,112 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
 
         {/* Toast confirmation message */}
         {toastMessage && (
-          <div className="mt-3 px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-medium flex items-center gap-1.5 animate-in fade-in duration-200">
-            <CheckCircle2 className="w-3.5 h-3.5" />
+          <div className="mt-4 px-3.5 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center gap-2 animate-in fade-in duration-200">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{toastMessage}</span>
           </div>
         )}
       </section>
 
-      {/* 3. Essential Vitals Grid (4 Clean Bento Cards) */}
+      {/* 2. Essential Vitals Grid (4 Clean Bento Cards) */}
       <section id="biometeorology-vitals-grid" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
         {/* WBGT Card */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-            <span className="font-medium">WBGT Heat Stress</span>
-            {weather.wbgt >= 32 ? (
-              <AlertTriangle className="w-4 h-4 text-red-400" />
-            ) : (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            )}
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+              <span className="font-medium">{isHindi ? 'WBGT ताप तनाव' : 'WBGT Heat Stress'}</span>
+              {weather.wbgt >= 32 ? (
+                <AlertTriangle className="w-4 h-4 text-red-400" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              )}
+            </div>
+            <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
+              {weather.wbgt}<span className="text-sm font-sans font-normal text-slate-400 ml-1">°C</span>
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
-            {weather.wbgt} <span className="text-sm font-sans font-normal text-slate-400">°C</span>
+          <div className="mt-3">
+            <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-md ${
+              weather.wbgt >= 33.5 ? 'bg-red-500/20 text-red-300' :
+              weather.wbgt >= 31.5 ? 'bg-orange-500/20 text-orange-300' :
+              weather.wbgt >= 29.0 ? 'bg-amber-500/20 text-amber-300' :
+              'bg-emerald-500/20 text-emerald-300'
+            }`}>
+              {weather.wbgt >= 33.5 ? (isHindi ? 'गंभीर (>33.5°C)' : 'Critical (>33.5°C)') :
+               weather.wbgt >= 31.5 ? (isHindi ? 'उच्च तनाव (>31.5°C)' : 'High Strain (>31.5°C)') :
+               weather.wbgt >= 29.0 ? (isHindi ? 'सावधानी क्षेत्र' : 'Caution Zone') :
+               (isHindi ? 'सुरक्षित क्षेत्र (<29°C)' : 'Safe Zone (<29°C)')}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-1.5 line-clamp-1">
+              {weather.wbgt >= 32 ? (isHindi ? 'बाहरी कार्य स्थगित करने की सलाह' : 'Outdoor work halt advised') : (isHindi ? 'निगरानी में बाहरी कार्य सुरक्षित' : 'Safe for monitored outdoor labor')}
+            </p>
           </div>
-          <div className={`text-xs font-medium mt-1 ${
-            weather.wbgt >= 33.5 ? 'text-red-400' :
-            weather.wbgt >= 31.5 ? 'text-orange-400' :
-            weather.wbgt >= 29.0 ? 'text-amber-400' :
-            'text-emerald-400'
-          }`}>
-            {weather.wbgt >= 33.5 ? 'Critical Threshold (>33.5°C)' :
-             weather.wbgt >= 31.5 ? 'High Heat Strain (>31.5°C)' :
-             weather.wbgt >= 29.0 ? 'Moderate Caution Zone' :
-             'Normal Work Zone (<29°C)'}
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            {weather.wbgt >= 32 ? 'Outdoor work halt advised' : 'Safe for monitored outdoor labor'}
-          </p>
         </div>
 
         {/* Heat Index & Humidity */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-            <span className="font-medium">Heat Index / RH</span>
-            <Sun className="w-4 h-4 text-orange-400" />
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+              <span className="font-medium">{isHindi ? 'हीट इंडेक्स / आर्द्रता' : 'Heat Index / RH'}</span>
+              <Sun className="w-4 h-4 text-orange-400" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
+              {weather.heatIndex}<span className="text-sm font-sans font-normal text-slate-400 ml-1">°C</span>
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
-            {weather.heatIndex} <span className="text-sm font-sans font-normal text-slate-400">°C</span>
+          <div className="mt-3">
+            <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-md bg-orange-500/20 text-orange-300">
+              {weather.humidity}% {isHindi ? 'सापेक्ष आर्द्रता' : 'Relative Humidity'}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-1.5 line-clamp-1">
+              {weather.humidity >= 65 ? (isHindi ? 'वाष्पीकरणीय शीतलन बाधित' : 'Suppresses evaporative cooling') : (isHindi ? 'मध्यम वाष्पीकरणीय शीतलन' : 'Moderate evaporative cooling')}
+            </p>
           </div>
-          <div className="text-xs text-orange-400 font-medium mt-1">
-            {weather.humidity}% Relative Humidity
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            {weather.humidity >= 65 ? 'Suppresses sweat evaporation' : 'Moderate evaporative cooling rate'}
-          </p>
         </div>
 
         {/* Solar Radiation & UV */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-            <span className="font-medium">Solar & UV Load</span>
-            <Sun className="w-4 h-4 text-amber-400" />
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+              <span className="font-medium">{isHindi ? 'सौर एवं यूवी विकिरण' : 'Solar & UV Load'}</span>
+              <Sun className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
+              {weather.solarRadiation}<span className="text-xs font-sans font-normal text-slate-400 ml-1">W/m²</span>
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
-            {weather.solarRadiation} <span className="text-xs font-sans font-normal text-slate-400">W/m²</span>
+          <div className="mt-3">
+            <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300">
+              {weather.solarRadiation >= 800 ? (isHindi ? 'यूवी 10+ (अति तीव्र)' : 'UV 10+ (Extreme)') :
+               weather.solarRadiation >= 500 ? (isHindi ? 'यूवी 6-8 (उच्च)' : 'UV 6-8 (High)') :
+               (isHindi ? 'यूवी 3-5 (मध्यम)' : 'UV 3-5 (Moderate)')}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-1.5 line-clamp-1">
+              {weather.solarRadiation >= 800 ? (isHindi ? '15 मिनट में सनबर्न का खतरा' : 'Sunburn risk within 15m') : (isHindi ? 'मानक धूप सुरक्षा की आवश्यकता' : 'Standard sun protection')}
+            </p>
           </div>
-          <div className="text-xs text-amber-400 font-medium mt-1">
-            {weather.solarRadiation >= 800 ? 'UV Index 10+ (Very High)' :
-             weather.solarRadiation >= 500 ? 'UV Index 6-8 (High)' :
-             'UV Index 3-5 (Moderate)'}
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            {weather.solarRadiation >= 800 ? 'Sunburn risk within 15 mins' : 'Standard sun protection needed'}
-          </p>
         </div>
 
         {/* Wind Speed & Loo Winds */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-            <span className="font-medium">Wind Velocity</span>
-            <Wind className="w-4 h-4 text-emerald-400" />
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+              <span className="font-medium">{isHindi ? 'पवन गति' : 'Wind Velocity'}</span>
+              <Wind className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
+              {weather.windSpeed}<span className="text-xs font-sans font-normal text-slate-400 ml-1">km/h</span>
+            </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
-            {weather.windSpeed} <span className="text-xs font-sans font-normal text-slate-400">km/h</span>
+          <div className="mt-3">
+            <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300">
+              {weather.dryBulbTemp >= 40 && weather.windSpeed >= 12 ? (isHindi ? 'लू की गर्म हवाएं सक्रिय' : 'Loo Winds Active') : (isHindi ? 'सामान्य वायु प्रवाह' : 'Normal Air Movement')}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-1.5 line-clamp-1">
+              {weather.dryBulbTemp >= 40 ? (isHindi ? 'धूप में तीव्र तरल हानि' : 'Rapid fluid loss in sun') : (isHindi ? 'वायु संचलन में सहायक' : 'Assists ventilation')}
+            </p>
           </div>
-          <div className="text-xs text-emerald-400 font-medium mt-1">
-            {weather.dryBulbTemp >= 40 && weather.windSpeed >= 12 ? 'Dry Desiccating Loo Winds' : 'Moderate Air Movement'}
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            {weather.dryBulbTemp >= 40 ? 'Accelerates fluid loss in sun' : 'Assists ambient air ventilation'}
-          </p>
         </div>
 
       </section>
@@ -560,103 +583,17 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         </div>
 
         {/* Right (5 cols): Personal Health & Hydration Engine */}
-        <div className="lg:col-span-5 p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400">
-                  <HeartPulse className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-base font-headline font-bold text-white">
-                    Personal Health & Hydration
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    {userProfile.fullName} ({userProfile.age} yrs)
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => onSwitchTab('profile')}
-                className="text-xs text-orange-400 hover:text-orange-300 font-medium"
-              >
-                Edit
-              </button>
-            </div>
-
-            {/* Hydration Progress */}
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 mb-3.5 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Daily Water Intake</span>
-                <span className="font-mono text-cyan-400 font-bold">
-                  {userProfile.hydrationTodayMl} / {userProfile.targetWaterMl} ml
-                </span>
-              </div>
-
-              {/* Progress bar */}
-              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                <div 
-                  className="h-full bg-cyan-400 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min(100, Math.round((userProfile.hydrationTodayMl / userProfile.targetWaterMl) * 100))}%` }}
-                />
-              </div>
-
-              {/* Quick Log Buttons */}
-              <div className="flex items-center gap-2 pt-1">
-                <button
-                  onClick={() => handleQuickWaterLog(250)}
-                  className="flex-1 py-1.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-medium border border-cyan-800/40 transition-colors flex items-center justify-center gap-1"
-                >
-                  <Droplet className="w-3.5 h-3.5" />
-                  <span>+250ml ORS</span>
-                </button>
-                <button
-                  onClick={() => handleQuickWaterLog(500)}
-                  className="flex-1 py-1.5 rounded-lg bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-medium border border-cyan-800/40 transition-colors flex items-center justify-center gap-1"
-                >
-                  <Droplet className="w-3.5 h-3.5" />
-                  <span>+500ml Water</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Thermal Strain & Medication Vulnerability */}
-            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 mb-3">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-slate-400">Cumulative Thermal Strain</span>
-                <span className={`font-mono font-bold ${
-                  weather.wbgt >= 32 ? 'text-red-400' : 'text-emerald-400'
-                }`}>
-                  {weather.wbgt >= 32 ? 'Elevated Strain (Rest Advised)' : 'Stable Baseline'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                ⚠️ <strong>Clinical Guidance:</strong> Maintain electrolyte balance with sodium/potassium ORS solutions when engaging in physical activities under outdoor heat.
-              </p>
-            </div>
-          </div>
-
-          {/* Clinical Dossier Shortcut */}
-          <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-            {onOpenHealthReport ? (
-              <button
-                onClick={onOpenHealthReport}
-                className="text-xs text-slate-300 hover:text-white flex items-center gap-1.5 font-medium"
-              >
-                <FileText className="w-3.5 h-3.5 text-orange-400" />
-                <span>View Clinical Health Dossier</span>
-              </button>
-            ) : <span />}
-
-            <button
-              onClick={onOpenTriage}
-              className="text-xs text-orange-400 hover:text-orange-300 font-medium flex items-center gap-1"
-            >
-              <span>AI Triage</span>
-              <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-
+        <div className="lg:col-span-5">
+          <HydrationTracker
+            weather={weather}
+            userProfile={userProfile}
+            onLogWater={onLogWater}
+            language={language}
+            onOpenTriage={onOpenTriage}
+            onSimulateInactivity={onSimulateInactivity}
+            onOpenHealthReport={onOpenHealthReport}
+            onOpenPushSettings={onOpenPushSettings}
+          />
         </div>
 
       </div>
@@ -671,11 +608,11 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 <h3 className="font-headline font-bold text-white text-sm">
-                  Nearest Designated Cooling Shelter
+                  {isHindi ? 'निकटतम अधिकृत शीतलन आश्रय स्थल' : 'Nearest Designated Cooling Shelter'}
                 </h3>
               </div>
               <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                {nearestShelter.walkTimeMins} min walk
+                {nearestShelter.walkTimeMins} {isHindi ? 'मिनट पैदल' : 'min walk'}
               </span>
             </div>
 
@@ -684,21 +621,21 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                 {nearestShelter.name}
               </div>
               <p className="text-xs text-slate-400">
-                Chilled indoor temperature: <strong className="text-emerald-400">{nearestShelter.indoorTemp}°C</strong> • Misting fans, cold WHO-ORS & hydration beds available
+                {isHindi ? 'वातानुकूलित आंतरिक तापमान:' : 'Chilled indoor temperature:'} <strong className="text-emerald-400">{nearestShelter.indoorTemp}°C</strong> • {isHindi ? 'मिस्टिंग पंखे, ठंडा WHO-ओआरएस एवं रीहाइड्रेशन बेड उपलब्ध' : 'Misting fans, cold WHO-ORS & hydration beds available'}
               </p>
             </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-800">
             <span className="text-xs text-slate-400">
-              {nearestShelter.capacity - nearestShelter.currentOccupancy} beds currently open
+              {nearestShelter.capacity - nearestShelter.currentOccupancy} {isHindi ? 'बेड वर्तमान में खाली' : 'beds currently open'}
             </span>
             <button
               onClick={() => onNavigateToFacility(nearestShelter as CoolingFacility)}
-              className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Compass className="w-3.5 h-3.5" />
-              <span>Get Directions</span>
+              <span>{isHindi ? 'दिशा-निर्देश प्राप्त करें' : 'Get Directions'}</span>
             </button>
           </div>
         </div>
@@ -710,11 +647,11 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               <div className="flex items-center gap-2 text-orange-400">
                 <ShieldAlert className="w-4 h-4" />
                 <h3 className="font-headline font-bold text-white text-sm">
-                  NDMA Heat Action Protocol
+                  {isHindi ? 'NDMA हीट एक्शन प्रोटोकॉल आदेश' : 'NDMA Heat Action Protocol'}
                 </h3>
               </div>
               <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
-                Order #419-B
+                {isHindi ? 'आदेश संख्या #419-B' : 'Order #419-B'}
               </span>
             </div>
 
@@ -722,24 +659,24 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0" />
                 <span>
-                  <strong>{statusInfo.hasCurfew ? 'Outdoor Labor Curfew:' : 'Standard Work Window:'}</strong> {statusInfo.hasCurfew ? 'Physical work strictly suspended during peak heat hours.' : 'Normal shifts permitted with mandatory drinking water facilities.'}
+                  <strong>{statusInfo.hasCurfew ? (isHindi ? 'बाहरी श्रम कर्फ्यू:' : 'Outdoor Labor Curfew:') : (isHindi ? 'मानक कार्य खिड़की:' : 'Standard Work Window:')}</strong> {statusInfo.hasCurfew ? (isHindi ? 'चरम गर्मी के दौरान शारीरिक कार्य पूरी तरह से निलंबित।' : 'Physical work strictly suspended during peak heat hours.') : (isHindi ? 'पेयजल की अनिवार्य सुविधा के साथ सामान्य शिफ्ट अनुमत।' : 'Normal shifts permitted with mandatory drinking water facilities.')}
                 </span>
               </div>
               <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
-                <span><strong>Hydration Stations:</strong> Free chilled ORS is available at transit hubs, metro concourses, and bus stops across the district.</span>
+                <span><strong>{isHindi ? 'जलयोजन केंद्र:' : 'Hydration Stations:'}</strong> {isHindi ? 'जिले भर में ट्रांजिट हब, मेट्रो स्टेशन और बस स्टॉप पर मुफ्त ठंडा ओआरएस उपलब्ध है।' : 'Free chilled ORS is available at transit hubs, metro concourses, and bus stops across the district.'}</span>
               </div>
             </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-800">
-            <span className="text-xs text-slate-400">Section 51 DMA 2005</span>
+            <span className="text-xs text-slate-400">{isHindi ? 'धारा 51 आपदा प्रबंधन अधिनियम 2005' : 'Section 51 DMA 2005'}</span>
             <button
               onClick={() => setShowOrderModal(true)}
-              className="text-xs text-orange-400 hover:text-orange-300 font-medium flex items-center gap-1"
+              className="text-xs text-orange-400 hover:text-orange-300 font-medium flex items-center gap-1 cursor-pointer"
             >
               <Info className="w-3.5 h-3.5" />
-              <span>Read Full Executive Order</span>
+              <span>{isHindi ? 'पूर्ण कार्यकारी आदेश पढ़ें' : 'Read Full Executive Order'}</span>
             </button>
           </div>
         </div>
@@ -753,11 +690,11 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
               <div className="flex items-center gap-2 text-red-400 font-headline font-bold text-base">
                 <AlertTriangle className="w-5 h-5" />
-                <span>National Disaster Management Act Order #419-B</span>
+                <span>{isHindi ? 'राष्ट्रीय आपदा प्रबंधन प्राधिकरण आदेश संख्या #419-B' : 'National Disaster Management Act Order #419-B'}</span>
               </div>
               <button
                 onClick={() => setShowOrderModal(false)}
-                className="text-slate-400 hover:text-white text-lg"
+                className="text-slate-400 hover:text-white text-lg cursor-pointer"
               >
                 ✕
               </button>
@@ -765,25 +702,29 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
 
             <div className="text-xs text-slate-300 space-y-3 font-sans max-h-96 overflow-y-auto pr-1">
               <p className="font-mono text-[11px] text-amber-300">
-                ISSUED UNDER SECTION 30(2)(v) & 51 OF DISASTER MANAGEMENT ACT, 2005
+                {isHindi 
+                  ? 'आपदा प्रबंधन अधिनियम, 2005 की धारा 30(2)(v) और 51 के तहत जारी'
+                  : 'ISSUED UNDER SECTION 30(2)(v) & 51 OF DISASTER MANAGEMENT ACT, 2005'}
               </p>
               <p>
-                In view of IMD Heatwave Warning Guidelines and AWS WBGT monitoring thresholds, the following statutory directives govern municipal heat action:
+                {isHindi 
+                  ? 'आईएमडी हीटवेव चेतावनी दिशानिर्देशों और एडब्ल्यूएस डब्लूसीजीटी निगरानी सीमा को देखते हुए, निम्नलिखित वैधानिक निर्देश नगर निगम हीट एक्शन को नियंत्रित करते हैं:'
+                  : 'In view of IMD Heatwave Warning Guidelines and AWS WBGT monitoring thresholds, the following statutory directives govern municipal heat action:'}
               </p>
               <ol className="list-decimal list-inside space-y-2 text-slate-200">
-                <li><strong>Curfew on Outdoor Unshaded Labor:</strong> Enforced whenever WBGT breaches 33.5°C or ambient temp breaches 42°C.</li>
-                <li><strong>Free ORS & Water Stations:</strong> Obligatory for all commercial employers and municipal bus/metro junctions.</li>
-                <li><strong>Designated Cooling Refuges:</strong> Municipal community halls and transit hubs open with 24/7 air-cooling.</li>
-                <li><strong>Hospital Heat Wings:</strong> Mass casualty emergency departments activated under Code Orange heat protocols.</li>
+                <li><strong>{isHindi ? 'बिना छाया वाले बाहरी श्रम पर कर्फ्यू:' : 'Curfew on Outdoor Unshaded Labor:'}</strong> {isHindi ? 'जब भी WBGT 33.5°C या परिवेशी तापमान 42°C से अधिक हो, अनिवार्य रूप से लागू।' : 'Enforced whenever WBGT breaches 33.5°C or ambient temp breaches 42°C.'}</li>
+                <li><strong>{isHindi ? 'मुफ्त ओआरएस और पानी स्टेशन:' : 'Free ORS & Water Stations:'}</strong> {isHindi ? 'सभी वाणिज्यिक नियोक्ताओं और बस/मेट्रो जंक्शनों के लिए अनिवार्य।' : 'Obligatory for all commercial employers and municipal bus/metro junctions.'}</li>
+                <li><strong>{isHindi ? 'नामित शीतलन आश्रय:' : 'Designated Cooling Refuges:'}</strong> {isHindi ? 'सामुदायिक भवन और ट्रांजिट हब 24/7 एयर-कूलिंग के साथ खुले हैं।' : 'Municipal community halls and transit hubs open with 24/7 air-cooling.'}</li>
+                <li><strong>{isHindi ? 'अस्पताल हीट विंग्स:' : 'Hospital Heat Wings:'}</strong> {isHindi ? 'कोड ऑरेंज हीट प्रोटोकॉल के तहत सक्रिय मास कैजुअल्टी आपातकालीन विभाग।' : 'Mass casualty emergency departments activated under Code Orange heat protocols.'}</li>
               </ol>
             </div>
 
             <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
               <button
                 onClick={() => setShowOrderModal(false)}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-lg"
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-lg cursor-pointer"
               >
-                Understood
+                {isHindi ? 'स्वीकार किया' : 'Understood'}
               </button>
             </div>
           </div>

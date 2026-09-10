@@ -181,7 +181,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Ward G/North (Dharavi / Sion)', 'Ward L (Kurla)', 'Ward M/East (Govandi)', 'Ward F/North (Matunga)'],
       messageEn: 'CRITICAL HEALTH ALERT: Wet Bulb Globe Temp (WBGT) has breached 34.2°C in Dharavi/Sion. Immediate curfew on outdoor physical work. Hydrate with ORS every 20 mins. Move to nearest designated cooling center.',
       messageHi: 'आपातकालीन चेतावनी: धारावी/सायन क्षेत्र में हीट स्ट्रेस 34.2°C पार कर चुका है। खुले में भारी शारीरिक कार्य तुरंत बंद करें। हर 20 मिनट में ओआरएस या पानी पिएं। निकटतम वातानुकूलित राहत शिविर में जाएं।',
-      messageMr: 'तातडीचा इशारा: धारावी/शीव परिसरात उष्णतेची लाट 34.2°C च्या वर गेली आहे. उघड्यावरील अंगमेहनतीची कामे त्वरित थांबवा. दर २० मिनिटांनी ओआरएसयुक्त पाणी प्या. जवळच्या शीतकरण केंद्राचा आश्रय घ्या.',
       directives: [
         'Complete suspension of all outdoor construction, road resurfacing, and loading operations from 11:30 to 16:30 IST.',
         'Employers must supply free chilled drinking water and WHO-ORS packets at all site gates.',
@@ -332,7 +331,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Shahdara', 'Kashmere Gate', 'Karol Bagh', 'Okhla Industrial Area', 'Dwarka Sub-City'],
       messageEn: 'SEVERE RED HEAT ALERT: Temperature at Safdarjung has reached 45.6°C with intense Loo winds. Complete ban on outdoor labor between 11:00 and 17:00 IST. Ensure immediate hydration and access cooling shelters.',
       messageHi: 'भीषण लाल चेतावनी: दिल्ली में तापमान 45.6°C पहुंच चुका है और तीव्र लू चल रही है। सुबह 11:00 से शाम 5:00 बजे तक बाहरी मजदूरी पर पूर्ण प्रतिबंध।',
-      messageMr: 'अत्यंत गंभीर उष्णतेचा इशारा: दिल्लीत तापमान 45.6°C वर पोहोचले असून उष्ण वारे वाहत आहेत. सकाळी 11:00 ते संध्याकाळी 5:00 दरम्यान कामास बंदी.',
       directives: [
         'Total ban on road construction, roof tiling, and delivery gig rides between 11:00 and 17:00 IST.',
         'Delhi Jal Board deploying 150 supplemental water tankers to unauthorized colonies and labor mandis.',
@@ -448,7 +446,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Asarwa', 'Naroda', 'Maninagar', 'Bapunagar', 'Odhav'],
       messageEn: 'AMC RED HEAT ALERT: Temperature 44.9°C. Mandatory work rest cycle (15 min per hour) and suspension of heavy outdoor labor between 12:00-16:30.',
       messageHi: 'अहमदाबाद नगर निगम रेड अलर्ट: तापमान 44.9°C। दोपहर 12 से 4:30 तक खुले में काम पर रोक।',
-      messageMr: 'अहमदाबाद महानगरपालिका रेड अलर्ट: तापमान 44.9°C. कामाच्या वेळा नियंत्रित करा.',
       directives: [
         'Mandatory distribution of chilled potable water and oral rehydration salts across all construction sites.',
         'BRTS and AMTS bus stands activated with mist fans and water kiosks.',
@@ -563,7 +560,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Sitabuldi', 'Dharampeth', 'Itwari', 'Lakadganj', 'Sakkardara'],
       messageEn: 'CODE RED: Nagpur temperature reaches 46.2°C. Outdoor physical labor strictly prohibited between 11:30 to 17:00 IST. Stay in shaded or air-cooled buildings.',
       messageHi: 'नागपुर कोड रेड: तापमान 46.2°C। 11:30 से 17:00 बजे तक खुले में शारीरिक श्रम पर पूर्ण रोक।',
-      messageMr: 'नागपूर रेड अलर्ट: तापमान 46.2°C वर गेले आहे. दुपारच्या वेळेत उन्हात फिरणे टाळा.',
       directives: [
         'Mandatory closure of open-air brick kilns, stone crushing, and road tarring sites.',
         'NMC sprinkling 40,000 liters of treated water on major asphalt junctions.',
@@ -678,7 +674,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Walled City', 'Mansarovar', 'Sanganer', 'Jhotwara', 'Malviya Nagar'],
       messageEn: 'CODE RED: Jaipur maximum temperature reaches 45.1°C with severe desiccating Loo winds. Mandatory rest break and hydration required.',
       messageHi: 'जयपुर रेड अलर्ट: तापमान 45.1°C। भीषण लू के प्रकोप के कारण दोपहर में अनावश्यक घर से बाहर न निकलें।',
-      messageMr: 'जयपूर रेड अलर्ट: तापमान 45.1°C वर गेले आहे. तीव्र उष्णतेपासून संरक्षण करा.',
       directives: [
         'Mandatory provision of pyaaus (water huts) and ORS at all market squares.',
         'Construction and quarrying work suspended between 12:00 and 16:30 IST.',
@@ -793,7 +788,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Charminar', 'Secunderabad', 'Khairatabad', 'Kukatpally', 'Serilingampally'],
       messageEn: 'GHMC HEAT ADVISORY: Temperature 43.4°C in Old City and Industrial zones. Outdoor workers must take 15 min rest every hour in shade.',
       messageHi: 'जीएचएमसी हीट चेतावनी: तापमान 43.4°C। बाहर काम करने वाले मजदूर छाया में विश्राम करें।',
-      messageMr: 'हैदराबाद उष्णता इशारा: तापमान 43.4°C वर पोहोचले आहे. भरपूर पाणी प्या.',
       directives: [
         'Water kiosks (Chalivendram) set up across all bus stops and traffic junctions.',
         'Emergency 108 heat ambulances alerted for rapid response.',
@@ -956,7 +950,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Chowk', 'Hazratganj', 'Alambagh', 'Indira Nagar', 'Gomti Nagar'],
       messageEn: 'RED HEAT ALERT: Lucknow temperature touches 44.5°C with oppressive humidity. Work pause mandatory between 12:00-16:00.',
       messageHi: 'लखनऊ रेड अलर्ट: तापमान 44.5°C। दोपहर 12 से 4 बजे तक खुले में शारीरिक श्रम बंद रखें।',
-      messageMr: 'लखनौ तीव्र उष्णता अलर्ट: भरपूर द्रव पदार्थांचे सेवन करा.',
       directives: [
         'Water bowsers deployed along major intersections including Charbagh and Chowk.',
         'Health departments instructed to maintain continuous ice pack stock at all CHCs.',
@@ -1071,7 +1064,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Esplanade', 'Bhowanipore', 'Burrabazar', 'Sealdah', 'Howrah Bridge corridor'],
       messageEn: 'CRITICAL HUMID HEAT: WBGT 35.1°C with 74% humidity in Kolkata. Extreme physiological stress. Immediate work cessation in unshaded areas.',
       messageHi: 'कोलकाता रेड अलर्ट: अत्यधिक उमस और 41.2°C तापमान। धूप में भारी काम तुरंत बंद करें।',
-      messageMr: 'कोलकाता उष्णता इशारा: आर्द्रता जास्त असल्याने उष्णतेचा तीव्र त्रास होण्याची शक्यता.',
       directives: [
         'KMC distributing packaged ORS and lemon water at all tram depots and auto stands.',
         'Schools and colleges shifted to early morning shifts.',
@@ -1186,7 +1178,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Royapuram', 'T. Nagar', 'George Town', 'Adyar', 'Anna Nagar'],
       messageEn: 'GCC HEAT ADVISORY: High humidity combined with 41°C heat index. Construction workers must be given resting breaks and tender coconut / ORS.',
       messageHi: 'चेन्नई नगर निगम चेतावनी: उमस और गर्मी से बचें। ओआरएस और पानी लगातार पिएं।',
-      messageMr: 'चेन्नई उष्णता इशारा: पुरेसे पाणी प्या आणि सावलीत विश्रांती घ्या.',
       directives: [
         'Aavin milk booths and GCC health centers serving free ORS and buttermilk.',
         'Misting fans deployed at central transit hubs.',
@@ -1301,7 +1292,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Old City', 'MP Nagar', 'Berasia Road', 'Kolar Road', 'Govindpura'],
       messageEn: 'RED ALERT: 44.2°C recorded in Bhopal. Direct sunlight exposure between 12:00 to 16:30 poses severe risk of sunstroke.',
       messageHi: 'भोपाल रेड अलर्ट: तापमान 44.2°C। दोपहर में तेज धूप से बचें और पर्याप्त पानी पिएं।',
-      messageMr: 'भोपाळ रेड अलर्ट: दुपारच्या कडक उन्हात बाहेर पडणे टाळा.',
       directives: [
         'Water tankers sent to vulnerable urban slums in Berasia and Karond.',
         'Primary health centers equipped with cold saline infusion packs.',
@@ -1416,7 +1406,6 @@ export const INDIAN_CITIES: CityData[] = [
       targetWards: ['Kankarbagh', 'Danapur', 'Patna City', 'Boring Road', 'Rajendra Nagar'],
       messageEn: 'RED ALERT: 43.8°C with high heat stress in Patna. Mandatory suspension of manual labor between 11:30 and 16:30.',
       messageHi: 'पटना रेड अलर्ट: तापमान 43.8°C। भीषण लू और उमस के कारण दोपहर 11:30 से 4:30 बजे तक धूप में काम करने पर प्रतिबंध।',
-      messageMr: 'पाटणा उष्णता इशारा: कडक उन्हापासून बचाव करा.',
       directives: [
         'Public health centers supplied with oral rehydration solution (ORS) and cooling sheets.',
         'District administration deploying water bowsers at agricultural mandis.',
@@ -1627,7 +1616,6 @@ export function generateDynamicCityData(
       targetWards: [`${cityName} Central`, `${cityName} Industrial Zone`, `${cityName} Outer Suburbs`],
       messageEn: `HEAT ALERT for ${cityName}: Maximum temperature ${baseTemp}°C with WBGT ${wbgt}°C. Suspend strenuous outdoor labor during peak afternoon hours and drink plenty of fluids with electrolytes.`,
       messageHi: `${cityName} में हीट अलर्ट: अधिकतम तापमान ${baseTemp}°C। दोपहर के समय धूप में भारी काम से बचें और ओआरएस पिएं।`,
-      messageMr: `${cityName} उष्णता इशारा: तापमान ${baseTemp}°C. काळजी घ्या आणि सावलीत विश्रांती घ्या.`,
       directives: [
         `Designated public cooling centers in ${cityName} activated with free drinking water and ORS.`,
         `Emergency 108 medical units on high alert across ${cityName}.`,

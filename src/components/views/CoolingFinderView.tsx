@@ -176,7 +176,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
     <div id="cooling-finder-screen" className="space-y-4 sm:space-y-6 pb-12">
       
       {/* Top Header & Category Switcher */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[#0b1326] p-4 sm:p-5 rounded-2xl border border-[#2d3449] shadow-lg">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-900/90 p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-sm">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -186,22 +186,22 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
             {selectedCity && (
               <button
                 onClick={onOpenCitySelector}
-                className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-orange-500/20 text-orange-300 border border-orange-500/40 hover:bg-orange-500/30 flex items-center gap-1 transition-colors"
+                className="text-xs font-mono px-2.5 py-1 rounded-lg bg-orange-500/15 text-orange-300 border border-orange-500/30 hover:bg-orange-500/25 flex items-center gap-1 transition-colors"
                 title="Change city"
               >
                 <MapPin className="w-3.5 h-3.5 text-orange-400" />
                 <span className="font-bold">{selectedCity.name}</span>
-                <span className="text-[10px] text-slate-400 font-normal hidden sm:inline">
+                <span className="text-xs text-slate-400 font-normal hidden sm:inline">
                   ({selectedCity.state})
                 </span>
                 <ChevronRight className="w-3 h-3 text-orange-400" />
               </button>
             )}
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
               {facilities.length} ACTIVE SITES
             </span>
           </div>
-          <p className="text-xs text-slate-300 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Real-time occupancy, air conditioning status, chilled ORS supply, and hospital hyperthermia resuscitation beds
           </p>
         </div>
@@ -212,17 +212,17 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           {/* Quick Find Nearest Button */}
           <button
             onClick={handleFindNearest}
-            className="px-3 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-orange-950/40 transition-all cursor-pointer"
+            className="px-3.5 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
             title="Scan and navigate to closest AC cooling refuge"
           >
-            <Compass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '6s' }} />
+            <Compass className="w-3.5 h-3.5" />
             <span>Find Nearest</span>
           </button>
 
           {/* Request Water Tanker Button */}
           <button
             onClick={() => setIsTankerModalOpen(true)}
-            className="px-3 py-1.5 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 border border-cyan-800/40 text-xs font-semibold flex items-center gap-1.5 transition-colors"
             title="Request emergency drinking water tanker to your sector"
           >
             <Truck className="w-3.5 h-3.5 text-cyan-400" />
@@ -230,13 +230,13 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           </button>
 
           {/* Category Tabs */}
-          <div className="flex items-center gap-1 bg-[#060e20] p-1 rounded-xl border border-[#2d3449]">
+          <div className="flex items-center gap-1 bg-slate-950/70 p-1 rounded-xl border border-slate-800">
             <button
               id="tab-shelters-water-btn"
               onClick={() => setActiveCategory('shelter')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 activeCategory === 'shelter'
-                  ? 'bg-orange-600 text-white shadow-md shadow-orange-900/30'
+                  ? 'bg-orange-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -248,7 +248,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               onClick={() => setActiveCategory('triage_hospital')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 activeCategory === 'triage_hospital'
-                  ? 'bg-red-600 text-white shadow-md shadow-red-900/30'
+                  ? 'bg-red-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -262,7 +262,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
 
       {/* Water Tanker Dispatch Notification Banner */}
       {tankerDispatchedNotice && (
-        <div className="p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-500/60 flex items-center justify-between gap-3 text-xs text-cyan-200 animate-in fade-in">
+        <div className="p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-500/40 flex items-center justify-between gap-3 text-xs text-cyan-200 animate-in fade-in">
           <div className="flex items-center gap-2.5">
             <Truck className="w-5 h-5 text-cyan-400 shrink-0 animate-bounce" />
             <span className="font-semibold">{tankerDispatchedNotice}</span>
@@ -278,7 +278,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
 
       {/* Hospital Surge Status Alert Banner if Triage Tab is active */}
       {activeCategory === 'triage_hospital' && (
-        <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 flex items-start gap-3">
+        <div className="p-3.5 rounded-xl bg-red-950/30 border border-red-500/30 flex items-start gap-3">
           <HeartPulse className="w-5 h-5 text-red-400 shrink-0 mt-0.5 animate-pulse" />
           <div className="text-xs text-slate-200">
             <strong className="text-red-400 block font-headline uppercase">
@@ -290,13 +290,13 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
       )}
 
       {/* Mobile Map / List View Segmented Switcher */}
-      <div className="lg:hidden flex rounded-xl bg-[#0b1326] p-1 border border-[#2d3449] shadow-sm">
+      <div className="lg:hidden flex rounded-xl bg-slate-900/90 p-1 border border-slate-800 shadow-sm">
         <button
           id="mobile-cooling-toggle-map-btn"
           onClick={() => setMobileViewMode('map')}
           className={`flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
             mobileViewMode === 'map'
-              ? 'bg-orange-600 text-white shadow-md'
+              ? 'bg-orange-600 text-white shadow-xs'
               : 'text-slate-400 hover:text-white'
           }`}
         >
@@ -308,7 +308,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           onClick={() => setMobileViewMode('list')}
           className={`flex-1 py-2 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
             mobileViewMode === 'list'
-              ? 'bg-orange-600 text-white shadow-md'
+              ? 'bg-orange-600 text-white shadow-xs'
               : 'text-slate-400 hover:text-white'
           }`}
         >
@@ -348,7 +348,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               </div>
               <button
                 onClick={handleFindNearest}
-                className="px-2.5 py-2.5 bg-[#0b1326] hover:bg-[#171f33] border border-[#2d3449] rounded-xl text-[11px] font-mono text-orange-400 flex items-center gap-1 transition-colors shrink-0 shadow-sm"
+                className="px-2.5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-mono text-orange-400 flex items-center gap-1 transition-colors shrink-0 shadow-xs"
                 title="Locate closest to GPS"
               >
                 <Crosshair className="w-3.5 h-3.5" />
@@ -358,7 +358,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
 
             {/* Active Landmark Anchor Notice */}
             {searchedLandmark && (
-              <div className="p-2.5 bg-[#060e20] rounded-xl border border-amber-500/50 flex items-center justify-between gap-2 text-xs animate-in fade-in">
+              <div className="p-2.5 bg-slate-950/60 rounded-xl border border-amber-500/40 flex items-center justify-between gap-2 text-xs animate-in fade-in">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="p-1 rounded bg-amber-500/20 text-amber-400 shrink-0">
                     <Compass className="w-3.5 h-3.5" />
@@ -374,7 +374,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                 </div>
                 <button
                   onClick={() => setSearchedLandmark(null)}
-                  className="px-2 py-1 bg-[#171f33] hover:bg-[#202b45] text-slate-300 rounded text-[10px] font-mono shrink-0 border border-[#2d3449] flex items-center gap-1"
+                  className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-mono shrink-0 border border-slate-700 flex items-center gap-1"
                 >
                   <X className="w-3 h-3" />
                   <span>Reset GPS</span>
@@ -397,10 +397,10 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   onClick={() => setSelectedFacility(fac)}
                   className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-left ${
                     isNavigating
-                      ? 'bg-[#1a2238] border-amber-400 shadow-xl ring-2 ring-amber-400/40'
+                      ? 'bg-amber-500/10 border-amber-400 shadow-md ring-1 ring-amber-400/40'
                       : isSelected
-                      ? 'bg-[#171f33] border-orange-500 shadow-lg shadow-orange-950/30'
-                      : 'bg-[#0b1326] border-[#2d3449] hover:border-slate-500 hover:bg-[#131b2e]'
+                      ? 'bg-slate-800/90 border-orange-500/80 shadow-xs'
+                      : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -441,7 +441,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   </div>
 
                   {/* Occupancy Progress Bar */}
-                  <div className="mt-3 pt-2.5 border-t border-[#2d3449]/70">
+                  <div className="mt-3 pt-2.5 border-t border-slate-800">
                     <div className="flex items-center justify-between text-[11px] font-mono mb-1">
                       <span className="text-slate-400">
                         Capacity: {fac.currentOccupancy} / {fac.totalCapacity}
@@ -450,7 +450,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                         {occupancyPct}% Full
                       </span>
                     </div>
-                    <div className="w-full bg-[#060e20] h-1.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           occupancyPct > 85 ? 'bg-red-500' : 'bg-emerald-500'
@@ -465,7 +465,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                     {fac.amenities.slice(0, 3).map((amenity, i) => (
                       <span
                         key={i}
-                        className="text-[10px] font-mono px-2 py-0.5 bg-[#060e20] text-slate-300 rounded border border-[#2d3449]"
+                        className="text-[10px] font-mono px-2 py-0.5 bg-slate-950/60 text-slate-300 rounded border border-slate-800"
                       >
                         {amenity}
                       </span>
@@ -478,13 +478,13 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   </div>
 
                   {/* Actions Buttons: Call + Directions */}
-                  <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-[#2d3449]/50">
+                  <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-slate-800">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setCallModalFacility(fac);
                       }}
-                      className="px-2.5 py-1 bg-[#060e20] hover:bg-[#131b2e] text-slate-300 border border-[#2d3449] rounded-lg text-xs font-mono flex items-center gap-1 transition-colors"
+                      className="px-2.5 py-1 bg-slate-950/60 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-xs font-mono flex items-center gap-1 transition-colors"
                     >
                       <PhoneCall className="w-3 h-3 text-orange-400" />
                       <span>{fac.contactPhone}</span>
@@ -496,7 +496,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                         e.stopPropagation();
                         handleStartNav(fac);
                       }}
-                      className={`px-3.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all ${
+                      className={`px-3.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all ${
                         isNavigating
                           ? 'bg-amber-500 hover:bg-amber-400 text-black font-bold'
                           : 'bg-orange-600 hover:bg-orange-500 text-white'
@@ -516,7 +516,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
         {/* Right Column (7 Cols): Interactive GIS Leaflet Map & Facility Inspector */}
         <div className={`lg:col-span-7 space-y-4 ${mobileViewMode === 'map' ? 'block' : 'hidden lg:block'}`}>
           
-          <div className="bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5 shadow-lg">
+          <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-sm">
             
             {/* Map Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
@@ -531,7 +531,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               </div>
 
               {/* Thermal Relief Pill */}
-              <div className="flex items-center gap-2 bg-[#060e20] px-3 py-1 rounded-xl border border-[#2d3449] text-xs font-mono self-start sm:self-auto">
+              <div className="flex items-center gap-2 bg-slate-950/70 px-3 py-1 rounded-xl border border-slate-800 text-xs font-mono self-start sm:self-auto">
                 <span className="text-slate-400">Thermal Relief:</span>
                 <span className="text-emerald-400 font-bold">-{tempDelta}°C Drop</span>
               </div>
@@ -555,7 +555,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
 
             {/* Selected Facility Spotlight Bar below Map */}
             {selectedFacility && (
-              <div className="mt-3 p-3.5 bg-[#060e20] rounded-xl border border-orange-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="mt-3 p-3.5 bg-slate-950/70 rounded-xl border border-orange-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[10px] font-mono font-bold text-orange-400 bg-orange-500/20 px-2 py-0.5 rounded">
@@ -579,14 +579,14 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => setCallModalFacility(selectedFacility)}
-                    className="px-3 py-1.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-[#2d3449] text-xs font-mono text-slate-300 flex items-center gap-1"
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-slate-300 flex items-center gap-1"
                   >
                     <PhoneCall className="w-3.5 h-3.5 text-orange-400" />
                     <span>Call</span>
                   </button>
                   <button
                     onClick={() => handleStartNav(selectedFacility)}
-                    className="px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-orange-950/30 transition-all cursor-pointer"
+                    className="px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                   >
                     <Compass className="w-3.5 h-3.5" />
                     <span>Start GPS Route</span>
@@ -598,7 +598,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           </div>
 
           {/* Offline & Resilient Storage Notice */}
-          <div className="p-3 bg-[#0b1326] rounded-xl border border-[#2d3449] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono text-slate-400">
+          <div className="p-3 bg-slate-900/90 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono text-slate-400">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>Pan-India Shelter Database Cached: Works Offline Without Cellular Data</span>
@@ -625,9 +625,9 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
 
       {/* Request Water Tanker Modal */}
       {isTankerModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0b1326] border border-cyan-500/60 rounded-3xl max-w-md w-full p-6 shadow-2xl animate-in fade-in">
-            <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 mx-auto flex items-center justify-center text-cyan-400 mb-3">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-md w-full p-6 shadow-xl animate-in fade-in">
+            <div className="w-12 h-12 rounded-xl bg-cyan-500/15 border border-cyan-500/30 mx-auto flex items-center justify-center text-cyan-400 mb-3">
               <Truck className="w-6 h-6" />
             </div>
             <h3 className="font-headline font-bold text-white text-lg text-center">
@@ -647,7 +647,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   placeholder="e.g. Chowk Crossing, Hazratganj Metro Gate 2, Bus Stand..."
                   value={tankerSector}
                   onChange={(e) => setTankerSector(e.target.value)}
-                  className="w-full bg-[#060e20] border border-[#2d3449] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                   required
                 />
               </div>
@@ -661,13 +661,13 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsTankerModalOpen(false)}
-                  className="px-4 py-2 bg-[#171f33] hover:bg-[#222a3d] text-slate-300 text-xs font-semibold rounded-xl"
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-md shadow-cyan-950/40"
+                  className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <Truck className="w-4 h-4" />
                   <span>Dispatch Bowser</span>
@@ -680,10 +680,10 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
 
       {/* Facility Phone Call Simulation Modal */}
       {callModalFacility && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0b1326] border border-orange-500/50 rounded-2xl max-w-sm w-full p-5 text-center shadow-2xl animate-in fade-in">
-            <div className="w-14 h-14 rounded-full bg-orange-500/20 border border-orange-500/40 mx-auto flex items-center justify-center text-orange-400 mb-3 animate-pulse">
-              <PhoneCall className="w-7 h-7" />
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-sm w-full p-5 text-center shadow-xl animate-in fade-in">
+            <div className="w-12 h-12 rounded-xl bg-orange-500/15 border border-orange-500/30 mx-auto flex items-center justify-center text-orange-400 mb-3">
+              <PhoneCall className="w-6 h-6" />
             </div>
             <h3 className="font-headline font-bold text-white text-base">
               Calling Facility Reception
@@ -697,13 +697,13 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
             <div className="mt-5 flex gap-2 justify-center">
               <button
                 onClick={() => setCallModalFacility(null)}
-                className="px-4 py-1.5 bg-[#171f33] hover:bg-[#222a3d] text-slate-300 text-xs font-semibold rounded-lg"
+                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg cursor-pointer"
               >
                 Close Dial
               </button>
               <a
                 href={`tel:${callModalFacility.contactPhone}`}
-                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5"
+                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer"
               >
                 <PhoneCall className="w-3.5 h-3.5" />
                 <span>Call Now</span>

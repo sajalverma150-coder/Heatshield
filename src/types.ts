@@ -5,11 +5,12 @@ export type NavigationTab =
   | 'forecast' 
   | 'alerts' 
   | 'profile'
-  | 'health-report';
+  | 'health-report'
+  | 'ai-chat';
 
 export type UserRole = 'citizen' | 'civic_authority' | 'hospital_triage' | 'system_admin';
 
-export type LanguageCode = 'en' | 'hi' | 'mr';
+export type LanguageCode = 'en' | 'hi';
 
 export interface WeatherTelemetry {
   stationId: string;
@@ -110,8 +111,8 @@ export interface EmergencyBroadcast {
   targetWards: string[];
   messageEn: string;
   messageHi: string;
-  messageMr: string;
   directives: string[];
+  targetDevices?: number;
   smsDelivered: number;
   whatsappDelivered: number;
   audioObdDialed: number;

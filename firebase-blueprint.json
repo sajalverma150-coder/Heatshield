@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with heat vulnerability and medical conditions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "ward": { "type": "string" },
+        "age": { "type": "number" },
+        "phone": { "type": "string" },
+        "sunExposureHours": { "type": "number" },
+        "conditions": { "type": "object" },
+        "iceContact": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "email"]
+    },
+    "HydrationLog": {
+      "title": "HydrationLog",
+      "description": "Daily hydration intake log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "amountMl": { "type": "number" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "date", "amountMl", "timestamp"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Gemini AI chat message",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "role": { "type": "string" },
+        "text": { "type": "string" },
+        "model": { "type": "string" },
+        "sources": { "type": "array" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "role", "text", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile document"
+    },
+    "/users/{userId}/hydrationLogs/{logId}": {
+      "schema": "HydrationLog",
+      "description": "Hydration intake entry"
+    },
+    "/users/{userId}/chatMessages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Saved Gemini chat thread message"
+    }
+  }
+}

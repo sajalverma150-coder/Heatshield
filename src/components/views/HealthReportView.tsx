@@ -21,7 +21,7 @@ import {
   Zap,
   Copy
 } from 'lucide-react';
-import { WeatherTelemetry, UserHealthProfile, CoolingFacility } from '../../types';
+import { WeatherTelemetry, UserHealthProfile, CoolingFacility, LanguageCode } from '../../types';
 import { calculateDehydrationRisk } from '../../services/hydrationRisk';
 import { CityData } from '../../data/indiaCities';
 
@@ -33,6 +33,7 @@ interface HealthReportViewProps {
   onOpenTriage?: () => void;
   onTriggerSOS?: () => void;
   onLogWater?: (amountMl: number) => void;
+  language?: LanguageCode;
 }
 
 export const HealthReportView: React.FC<HealthReportViewProps> = ({
@@ -43,7 +44,9 @@ export const HealthReportView: React.FC<HealthReportViewProps> = ({
   onOpenTriage,
   onTriggerSOS,
   onLogWater,
+  language = 'en',
 }) => {
+  const isHindi = language === 'hi';
   const [copyToast, setCopyToast] = useState<boolean>(false);
   const [downloadToast, setDownloadToast] = useState<boolean>(false);
 
@@ -207,14 +210,16 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
     <div id="health-report-dossier" className="space-y-5 pb-16 max-w-5xl mx-auto">
       
       {/* Action Toolbar (Hidden during Print) */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#0b1326] border border-[#2d3449] print:hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm print:hidden">
         <div>
           <h2 className="text-base sm:text-lg font-headline font-bold text-white flex items-center gap-2">
             <FileText className="w-5 h-5 text-orange-400" />
-            <span>Physiological Heat Health & Clinical Risk Dossier</span>
+            <span>{isHindi ? 'शारीरिक ताप स्वास्थ्य एवं नैदानिक जोखिम रिपोर्ट' : 'Physiological Heat Health & Clinical Risk Dossier'}</span>
           </h2>
           <p className="text-xs text-slate-400 font-mono mt-0.5">
-            Automated medical biometeorological assessment grounded in IMD, NDMA & WHO guidelines
+            {isHindi 
+              ? 'आईएमडी, एनडीएमए और डब्ल्यूएचओ दिशानिर्देशों पर आधारित स्वचालित चिकित्सा बायो-मौसम संबंधी मूल्यांकन'
+              : 'Automated medical biometeorological assessment grounded in IMD, NDMA & WHO guidelines'}
           </p>
         </div>
 
@@ -222,34 +227,34 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           <button
             id="print-health-report-btn"
             onClick={handlePrint}
-            className="px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold flex items-center gap-1.5 transition-colors shadow-sm shadow-orange-500/20"
+            className="px-3 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            <span>Print / PDF</span>
+            <span>{isHindi ? 'प्रिंट / PDF' : 'Print / PDF'}</span>
           </button>
 
           <button
             id="download-health-report-btn"
             onClick={handleDownloadDossier}
-            className="px-3 py-1.5 rounded-xl bg-[#171f33] hover:bg-[#202b44] text-slate-200 border border-[#2d3449] flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             {downloadToast ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Download className="w-4 h-4 text-cyan-400" />}
-            <span>{downloadToast ? 'Downloaded!' : 'Export JSON'}</span>
+            <span>{downloadToast ? (isHindi ? 'डाउनलोड हुआ!' : 'Downloaded!') : (isHindi ? 'JSON निर्यात' : 'Export JSON')}</span>
           </button>
 
           <button
             id="copy-health-report-btn"
             onClick={handleCopySummary}
-            className="px-3 py-1.5 rounded-xl bg-[#171f33] hover:bg-[#202b44] text-slate-200 border border-[#2d3449] flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             {copyToast ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-            <span>{copyToast ? 'Copied!' : 'Copy Summary'}</span>
+            <span>{copyToast ? (isHindi ? 'कॉपी हुआ!' : 'Copied!') : (isHindi ? 'सारांश कॉपी करें' : 'Copy Summary')}</span>
           </button>
         </div>
       </div>
 
       {/* Interactive Clinical Interventions Strip */}
-      <div className="p-3.5 rounded-2xl bg-[#0b1326] border border-orange-500/30 flex flex-wrap items-center justify-between gap-3 text-xs font-mono print:hidden">
+      <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-orange-500/30 flex flex-wrap items-center justify-between gap-3 text-xs font-mono shadow-sm print:hidden">
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-orange-400" />
           <span className="text-white font-bold">Recommended Immediate Clinical Actions:</span>
@@ -259,7 +264,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
             <button
               id="report-log-water-btn"
               onClick={() => onLogWater(250)}
-              className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold flex items-center gap-1.5 transition-all shadow-sm"
+              className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
               <Droplet className="w-3.5 h-3.5" />
               <span>Log +250ml WHO-ORS</span>
@@ -269,7 +274,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
             <button
               id="report-open-triage-btn"
               onClick={onOpenTriage}
-              className="px-3 py-1.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] border border-orange-500/40 text-orange-300 font-bold flex items-center gap-1.5 transition-all"
+              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-orange-500/40 text-orange-300 font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Launch First-Aid Triage</span>
@@ -279,7 +284,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
             <button
               id="report-trigger-sos-btn"
               onClick={onTriggerSOS}
-              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-1.5 transition-all shadow-sm"
+              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
               <PhoneCall className="w-3.5 h-3.5" />
               <span>Emergency 108</span>
@@ -289,12 +294,12 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
       </div>
 
       {/* Printable Clinical Dossier Container */}
-      <div className="bg-[#0b1326] border border-[#2d3449] rounded-2xl p-5 sm:p-8 space-y-6 print:bg-white print:text-black print:border-none print:p-0">
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-8 space-y-6 shadow-sm print:bg-white print:text-black print:border-none print:p-0">
         
         {/* Document Header */}
-        <div className="border-b border-[#2d3449] pb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="border-b border-slate-800 pb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 font-headline font-bold text-xl">
+            <div className="w-12 h-12 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 font-headline font-bold text-xl">
               HS
             </div>
             <div>
@@ -323,20 +328,20 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
           
           {/* Patient Card */}
-          <div className="p-4 rounded-xl bg-[#060e20] border border-[#2d3449] print:bg-gray-50 print:border-gray-300 space-y-2">
+          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 print:bg-gray-50 print:border-gray-300 space-y-2">
             <h4 className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
               <UserCheck className="w-4 h-4" />
               Patient Profile & Vulnerability Cohort
             </h4>
-            <div className="flex justify-between border-b border-white/5 pb-1">
+            <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">Full Name:</span>
               <strong className="text-white print:text-black">{safeProfile.name} ({safeProfile.age} Yrs)</strong>
             </div>
-            <div className="flex justify-between border-b border-white/5 pb-1">
+            <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">Occupation / Exposure:</span>
               <span className="text-slate-200 print:text-black">{safeProfile.occupation} ({safeProfile.sunExposureHours} hrs)</span>
             </div>
-            <div className="flex justify-between border-b border-white/5 pb-1">
+            <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">Ward / Location:</span>
               <span className="text-slate-200 print:text-black">{safeProfile.ward}, {cityName}</span>
             </div>
@@ -347,20 +352,20 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           </div>
 
           {/* Environmental Telemetry Card */}
-          <div className="p-4 rounded-xl bg-[#060e20] border border-[#2d3449] print:bg-gray-50 print:border-gray-300 space-y-2">
+          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 print:bg-gray-50 print:border-gray-300 space-y-2">
             <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
               <Flame className="w-4 h-4" />
               Ambient Thermal Telemetry ({cityName})
             </h4>
-            <div className="flex justify-between border-b border-white/5 pb-1">
+            <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">NOAA Heat Index:</span>
               <strong className="text-red-400 print:text-red-600 font-bold">{assessment.heatIndex.toFixed(1)}°C (Extreme Danger)</strong>
             </div>
-            <div className="flex justify-between border-b border-white/5 pb-1">
+            <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">Wet Bulb Globe Temp (WBGT):</span>
               <strong className="text-amber-400 print:text-amber-700">{weather.wbgt.toFixed(1)}°C (Curfew Threshold)</strong>
             </div>
-            <div className="flex justify-between border-b border-white/5 pb-1">
+            <div className="flex justify-between border-b border-slate-800/80 pb-1">
               <span className="text-slate-400">Ambient Temp / Humidity:</span>
               <span className="text-slate-200 print:text-black">{weather.dryBulbTemp}°C / {weather.humidity}% RH</span>
             </div>
@@ -373,7 +378,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
         </div>
 
         {/* Primary Health Score & Strain Breakdown */}
-        <div className="p-5 rounded-xl bg-[#060e20] border border-orange-500/40 print:border-gray-300 space-y-4">
+        <div className="p-5 rounded-xl bg-slate-950/60 border border-orange-500/30 print:border-gray-300 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-headline font-bold text-white print:text-black flex items-center gap-2">
@@ -391,7 +396,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           </div>
 
           {/* Visual Progress Bar */}
-          <div className="w-full bg-[#171f33] h-3 rounded-full overflow-hidden relative">
+          <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden relative">
             <div 
               className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-500 rounded-full transition-all duration-700"
               style={{ width: `${phsiScore}%` }}
@@ -400,22 +405,22 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
 
           {/* Detailed Diagnostic Breakdown Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-mono pt-1">
-            <div className="p-2.5 rounded-lg bg-[#0b1326] border border-[#2d3449] print:bg-white">
+            <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 print:bg-white">
               <span className="text-[10px] text-slate-400 block">Core Temp Elevation</span>
               <strong className="text-sm text-red-400 print:text-black">38.6°C (High)</strong>
               <span className="text-[9px] text-slate-500 block">Threshold: 38.0°C</span>
             </div>
-            <div className="p-2.5 rounded-lg bg-[#0b1326] border border-[#2d3449] print:bg-white">
+            <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 print:bg-white">
               <span className="text-[10px] text-slate-400 block">Vasodilation Impedance</span>
               <strong className="text-sm text-amber-400 print:text-black">+42% Resistance</strong>
               <span className="text-[9px] text-slate-500 block">Due to Amlodipine</span>
             </div>
-            <div className="p-2.5 rounded-lg bg-[#0b1326] border border-[#2d3449] print:bg-white">
+            <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 print:bg-white">
               <span className="text-[10px] text-slate-400 block">Cardiac Shunt Load</span>
               <strong className="text-sm text-orange-400 print:text-black">+2.8 L / min</strong>
               <span className="text-[9px] text-slate-500 block">Cutaneous bloodflow</span>
             </div>
-            <div className="p-2.5 rounded-lg bg-[#0b1326] border border-[#2d3449] print:bg-white">
+            <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 print:bg-white">
               <span className="text-[10px] text-slate-400 block">Net Fluid Deficit</span>
               <strong className="text-sm text-red-400 print:text-black">-{assessment.netFluidDeficitMl} ml</strong>
               <span className="text-[9px] text-slate-500 block">{assessment.riskTier}</span>
@@ -424,7 +429,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
         </div>
 
         {/* Armstrong 8-Level Urine Hydration Assessment Chart */}
-        <div className="p-5 rounded-xl bg-[#060e20] border border-[#2d3449] print:bg-white print:border-gray-300 space-y-3">
+        <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 print:bg-white print:border-gray-300 space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold text-white print:text-black font-headline tracking-wider uppercase flex items-center gap-2">
               <Droplet className="w-4 h-4 text-cyan-400" />
@@ -441,49 +446,49 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
 
           <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 font-mono text-[10px] text-center">
             
-            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 1 ? 'ring-2 ring-cyan-400 scale-105' : 'border-[#2d3449]'}`}>
+            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 1 ? 'ring-2 ring-cyan-400 scale-105 border-cyan-400/50' : 'border-slate-800'}`}>
               <div className="w-full h-8 rounded mb-1.5 bg-[#fefce8] border border-yellow-200" />
               <strong className="text-white print:text-black block">Level 1</strong>
               <span className="text-emerald-400">Optimal</span>
             </div>
 
-            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 2 ? 'ring-2 ring-cyan-400 scale-105' : 'border-[#2d3449]'}`}>
+            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 2 ? 'ring-2 ring-cyan-400 scale-105 border-cyan-400/50' : 'border-slate-800'}`}>
               <div className="w-full h-8 rounded mb-1.5 bg-[#fef08a] border border-yellow-300" />
               <strong className="text-white print:text-black block">Level 2</strong>
               <span className="text-emerald-400">Hydrated</span>
             </div>
 
-            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 3 ? 'ring-2 ring-cyan-400 scale-105' : 'border-[#2d3449]'}`}>
+            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 3 ? 'ring-2 ring-cyan-400 scale-105 border-cyan-400/50' : 'border-slate-800'}`}>
               <div className="w-full h-8 rounded mb-1.5 bg-[#fde047] border border-yellow-400" />
               <strong className="text-white print:text-black block">Level 3</strong>
               <span className="text-slate-300">Normal</span>
             </div>
 
-            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 4 ? 'ring-2 ring-cyan-400 scale-105' : 'border-[#2d3449]'}`}>
+            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 4 ? 'ring-2 ring-cyan-400 scale-105 border-cyan-400/50' : 'border-slate-800'}`}>
               <div className="w-full h-8 rounded mb-1.5 bg-[#eab308] border border-yellow-500" />
               <strong className="text-white print:text-black block">Level 4</strong>
               <span className="text-amber-400">Mild Deficit</span>
             </div>
 
-            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 5 ? 'ring-2 ring-cyan-400 scale-105' : 'border-[#2d3449]'}`}>
+            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 5 ? 'ring-2 ring-cyan-400 scale-105 border-cyan-400/50' : 'border-slate-800'}`}>
               <div className="w-full h-8 rounded mb-1.5 bg-[#ca8a04] border border-yellow-600" />
               <strong className="text-white print:text-black block">Level 5</strong>
               <span className="text-amber-400 font-bold">Moderate</span>
             </div>
 
-            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 6 ? 'ring-2 ring-orange-400 scale-105' : 'border-[#2d3449]'}`}>
+            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 6 ? 'ring-2 ring-orange-400 scale-105 border-orange-400/50' : 'border-slate-800'}`}>
               <div className="w-full h-8 rounded mb-1.5 bg-[#a16207] border border-yellow-700" />
               <strong className="text-white print:text-black block">Level 6</strong>
               <span className="text-orange-400 font-bold">High Deficit</span>
             </div>
 
-            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 7 ? 'ring-2 ring-red-500 scale-105 bg-red-950/20' : 'border-[#2d3449]'}`}>
+            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 7 ? 'ring-2 ring-red-500 scale-105 bg-red-950/20 border-red-500/50' : 'border-slate-800'}`}>
               <div className="w-full h-8 rounded mb-1.5 bg-[#854d0e] border border-amber-900" />
               <strong className="text-white print:text-black block">Level 7</strong>
               <span className="text-red-400 font-bold">Severe</span>
             </div>
 
-            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 8 ? 'ring-2 ring-red-500 scale-105' : 'border-[#2d3449]'}`}>
+            <div className={`p-2 rounded-lg border transition-all ${urineLevel === 8 ? 'ring-2 ring-red-500 scale-105 border-red-500/50' : 'border-slate-800'}`}>
               <div className="w-full h-8 rounded mb-1.5 bg-[#713f12] border border-amber-950" />
               <strong className="text-white print:text-black block">Level 8</strong>
               <span className="text-red-500 font-bold">Critical</span>
@@ -491,13 +496,13 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
 
           </div>
 
-          <div className="p-3 rounded-lg bg-amber-950/30 border border-amber-500/40 text-xs text-amber-200">
+          <div className="p-3 rounded-lg bg-amber-950/25 border border-amber-500/30 text-xs text-amber-200">
             ⚠️ <strong>Clinical Interpretation:</strong> Current net deficit (-{assessment.netFluidDeficitMl}ml) places the patient in the <strong>Level {urineLevel}</strong> zone. Requires urgent intake of 500ml chilled WHO-ORS solution to replenish both cellular volume and electrolyte balance.
           </div>
         </div>
 
         {/* Pharmacological Interaction Matrix */}
-        <div className="p-5 rounded-xl bg-[#060e20] border border-[#2d3449] print:bg-white print:border-gray-300 space-y-3">
+        <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 print:bg-white print:border-gray-300 space-y-3">
           <h4 className="text-xs font-bold text-white print:text-black font-headline tracking-wider uppercase flex items-center gap-2">
             <Pill className="w-4 h-4 text-red-400" />
             Active Medications & Heat-Illness Pharmacokinetics
@@ -506,11 +511,11 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           <div className="space-y-2 text-xs font-mono">
             {safeProfile.medications.length > 0 ? (
               safeProfile.medications.map((med, idx) => (
-                <div key={idx} className="p-3 rounded-lg bg-[#0b1326] border border-[#2d3449] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div key={idx} className="p-3 rounded-lg bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">
                       <strong className="text-white print:text-black">{med.name}</strong>
-                      <span className="text-[10px] text-cyan-300 px-1.5 py-0.2 bg-cyan-950/40 rounded border border-cyan-800">
+                      <span className="text-[10px] text-cyan-300 px-1.5 py-0.2 bg-slate-800 rounded border border-slate-700">
                         {med.dosage}
                       </span>
                       <span className="text-[10px] text-slate-400">{med.type}</span>
@@ -522,7 +527,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
                 </div>
               ))
             ) : (
-              <div className="p-3 rounded-lg bg-[#0b1326] border border-[#2d3449] text-slate-400">
+              <div className="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-slate-400">
                 ✓ No high-risk thermal anticholinergic, diuretic, or beta-blocker medications active.
               </div>
             )}
@@ -530,14 +535,14 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
         </div>
 
         {/* Clinical Rehydration Protocol */}
-        <div className="p-5 rounded-xl bg-[#060e20] border border-[#2d3449] print:bg-white print:border-gray-300 space-y-3">
+        <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 print:bg-white print:border-gray-300 space-y-3">
           <h4 className="text-xs font-bold text-white print:text-black font-headline tracking-wider uppercase flex items-center gap-2">
             <Clock className="w-4 h-4 text-emerald-400" />
             Customized 24-Hour Clinical Fluid & Shelter Schedule
           </h4>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
-            <div className="p-3 rounded-lg bg-[#0b1326] border border-[#2d3449]">
+            <div className="p-3 rounded-lg bg-slate-900/90 border border-slate-800">
               <span className="text-emerald-400 font-bold block mb-1">Morning Pre-Hydration</span>
               <div className="text-slate-300">06:00 – 10:00 IST</div>
               <p className="text-[11px] text-slate-400 mt-1.5">
@@ -545,7 +550,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
               </p>
             </div>
 
-            <div className="p-3 rounded-lg bg-red-950/20 border border-red-500/40">
+            <div className="p-3 rounded-lg bg-red-950/20 border border-red-500/30">
               <span className="text-red-400 font-bold block mb-1">Peak Curfew (Mandatory)</span>
               <div className="text-slate-300">12:30 – 16:30 IST</div>
               <p className="text-[11px] text-slate-300 mt-1.5">
@@ -553,7 +558,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
               </p>
             </div>
 
-            <div className="p-3 rounded-lg bg-[#0b1326] border border-[#2d3449]">
+            <div className="p-3 rounded-lg bg-slate-900/90 border border-slate-800">
               <span className="text-cyan-400 font-bold block mb-1">Evening Cellular Recovery</span>
               <div className="text-slate-300">16:30 – 21:00 IST</div>
               <p className="text-[11px] text-slate-400 mt-1.5">
@@ -564,7 +569,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
         </div>
 
         {/* Emergency Resuscitation Facility Coordinates */}
-        <div className="p-4 rounded-xl bg-[#060e20] border border-emerald-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-mono">
+        <div className="p-4 rounded-xl bg-slate-950/60 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-mono">
           <div>
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-emerald-400" />
@@ -577,7 +582,7 @@ Emergency ICE Contact: ${safeProfile.iceContact.name} (${safeProfile.iceContact.
           <div className="flex items-center gap-2 shrink-0">
             <a 
               href="tel:108"
-              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-1.5 shadow-sm"
+              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <PhoneCall className="w-3.5 h-3.5" />
               <span>Call 108 Emergency</span>

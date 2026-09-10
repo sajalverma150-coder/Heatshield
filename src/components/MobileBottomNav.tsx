@@ -20,8 +20,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { NavigationTab, LanguageCode } from '../types';
-import { TRANSLATIONS } from '../data/mockData';
 import { CityData } from '../data/indiaCities';
+import { useAppTranslation } from '../i18n/translations';
 
 export interface MobileBottomNavProps {
   currentTab: NavigationTab;
@@ -75,14 +75,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     }
   };
 
-  const t = TRANSLATIONS[language];
+  const t = useAppTranslation(language);
 
   // Check if active tab is one of the secondary views handled inside the drawer
   const isSecondaryActive = currentTab === 'alerts' || currentTab === 'protocols' || currentTab === 'profile';
   const secondaryLabel = 
-    currentTab === 'alerts' ? 'Alerts' :
-    currentTab === 'protocols' ? 'Protocols' :
-    currentTab === 'profile' ? 'Profile' : 'More';
+    currentTab === 'alerts' ? t.alerts :
+    currentTab === 'protocols' ? t.protocols :
+    currentTab === 'profile' ? t.profile : t.more;
 
   // Primary 5 mobile tabs
   const primaryTabs: Array<{
@@ -92,17 +92,17 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     badge?: string;
     isEmergency?: boolean;
   }> = [
-    { id: 'overview', label: 'Live', icon: <Activity className="w-5 h-5" /> },
-    { id: 'cooling-finder', label: 'Shelters', icon: <Home className="w-5 h-5" /> },
-    { id: 'forecast', label: 'Forecast', icon: <TrendingUp className="w-5 h-5" /> },
+    { id: 'overview', label: t.live, icon: <Activity className="w-5 h-5" /> },
+    { id: 'cooling-finder', label: t.shelters, icon: <Home className="w-5 h-5" /> },
+    { id: 'forecast', label: t.forecast, icon: <TrendingUp className="w-5 h-5" /> },
     { 
       id: 'health-report', 
-      label: 'Dossier', 
+      label: t.dossier, 
       icon: <FileText className="w-5 h-5" />,
     },
     { 
       id: 'more', 
-      label: isSecondaryActive ? secondaryLabel : 'Menu', 
+      label: isSecondaryActive ? secondaryLabel : t.menu, 
       icon: isSecondaryActive ? (
         currentTab === 'alerts' ? <BellRing className="w-5 h-5 text-red-400" /> :
         currentTab === 'protocols' ? <ShieldCheck className="w-5 h-5 text-emerald-400" /> :
@@ -123,58 +123,66 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   }> = [
     {
       id: 'overview',
-      title: 'Biometeorology & Telemetry',
-      description: 'Live dry-bulb, WBGT, heat index, and vital signs',
+      title: t.overview,
+      description: language === 'hi' ? 'लाइव तापमान, WBGT, हीट इंडेक्स व वाइटल्स' : 'Live dry-bulb, WBGT, heat index, and vital signs',
       icon: <Activity className="w-5 h-5 text-orange-400" />,
       badge: selectedCity?.weather ? `${selectedCity.weather.dryBulbTemp}°C` : undefined,
       badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
     },
     {
+      id: 'ai-chat',
+      title: language === 'hi' ? 'जेमिनी एआई बॉट' : 'Gemini AI Chat',
+      description: language === 'hi' ? 'मल्टी-टर्न चैट, गूगल सर्च ग्राउंडिंग व क्लिनिकल सलाह' : 'Multi-turn chat, Google Search Grounding & biometeorology',
+      icon: <Sparkles className="w-5 h-5 text-orange-400" />,
+      badge: 'Gemini 3.5',
+      badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+    },
+    {
       id: 'cooling-finder',
-      title: 'Cooling Shelters & Map',
-      description: 'GIS map, hydration points, and emergency surge beds',
+      title: t.coolingFinder,
+      description: language === 'hi' ? 'मानचित्र, पेयजल कियोस्क व आपातकालीन बेड' : 'GIS map, hydration points, and emergency surge beds',
       icon: <Home className="w-5 h-5 text-emerald-400" />,
-      badge: selectedCity ? `${selectedCity.coolingFacilities?.length || 0} Open` : 'Active',
+      badge: selectedCity ? `${selectedCity.coolingFacilities?.length || 0} ${t.open}` : t.open,
       badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
     },
     {
       id: 'forecast',
-      title: '7-Day Heatwave Horizon',
-      description: 'XGBoost ML neural forecast, diurnal WBGT curves & SHAP',
+      title: t.forecast,
+      description: language === 'hi' ? 'एआई पूर्वानुमान, प्रति घंटा वक्र व प्रभाव' : 'XGBoost ML neural forecast, diurnal WBGT curves & SHAP',
       icon: <TrendingUp className="w-5 h-5 text-cyan-400" />,
-      badge: 'ML v2.4',
+      badge: 'ML AI',
       badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
     },
     {
       id: 'health-report',
-      title: 'Clinical Heat Health Dossier',
-      description: 'Physiological Strain Index (PHSI), vitals & official PDF export',
+      title: t.clinicalReport,
+      description: language === 'hi' ? 'फिजियोलॉजिकल स्ट्रेन इंडेक्स (PHSI) व रिपोर्ट' : 'Physiological Strain Index (PHSI), vitals & official PDF export',
       icon: <FileText className="w-5 h-5 text-purple-400" />,
-      badge: 'Clinical',
+      badge: 'PHSI',
       badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
     },
     {
       id: 'protocols',
-      title: 'Curfew Protocols & First-Aid',
-      description: 'NDMA Stage IV guidelines, stroke matrix & labor curfew',
+      title: t.protocols,
+      description: language === 'hi' ? 'एनडीएमए दिशा-निर्देश, प्राथमिक उपचार व नियम' : 'NDMA Stage IV guidelines, stroke matrix & labor curfew',
       icon: <ShieldCheck className="w-5 h-5 text-amber-400" />,
       badge: 'NDMA',
       badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
     },
     {
       id: 'alerts',
-      title: 'Emergency Broadcasts & Sirens',
-      description: 'Multi-ward acoustic siren OBD & civil warning dispatch',
+      title: t.alerts,
+      description: language === 'hi' ? 'ध्वनि सायरन व आपातकालीन चेतावनी प्रसारण' : 'Multi-ward acoustic siren OBD & civil warning dispatch',
       icon: <BellRing className="w-5 h-5 text-red-400" />,
-      badge: 'CODE RED',
+      badge: language === 'hi' ? 'कोड रेड' : 'CODE RED',
       badgeColor: 'bg-red-500/20 text-red-300 border-red-500/30 animate-pulse',
     },
     {
       id: 'profile',
-      title: 'Personal Health & ICE Memory',
-      description: 'Bio-multipliers, chronic conditions, and QR triage card',
+      title: t.profile,
+      description: language === 'hi' ? 'स्वास्थ्य विवरण, दवाएं व पैरामेडिक क्यूआर कार्ड' : 'Bio-multipliers, chronic conditions, and QR triage card',
       icon: <UserCheck className="w-5 h-5 text-blue-400" />,
-      badge: '94/100',
+      badge: 'PHSI Multiplier',
       badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     },
   ];
@@ -250,17 +258,17 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   </div>
                   <div>
                     <h3 className="font-headline font-bold text-sm sm:text-base text-white">
-                      HeatShield Command Center
+                      {t.appName} {language === 'hi' ? 'कमान केंद्र' : 'Command Center'}
                     </h3>
                     <p className="text-[11px] text-slate-400 font-mono">
-                      {selectedCity ? `${selectedCity.name} (${selectedCity.weather?.dryBulbTemp}°C)` : 'Emergency Tools'}
+                      {selectedCity ? `${selectedCity.name} (${selectedCity.weather?.dryBulbTemp}°C)` : (language === 'hi' ? 'आपातकालीन सेवाएं' : 'Emergency Tools')}
                     </p>
                   </div>
                 </div>
                 <button
                   id="mobile-drawer-close-btn"
                   onClick={() => setDrawerOpen(false)}
-                  className="p-1.5 rounded-full bg-[#171f33] text-slate-400 hover:text-white border border-[#2d3449]"
+                  className="p-1.5 rounded-full bg-[#171f33] text-slate-400 hover:text-white border border-[#2d3449] cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -270,7 +278,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             {/* Quick Emergency & Clinical Action Grid */}
             <div>
               <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2 font-bold">
-                Instant Emergency & Medical Actions
+                {language === 'hi' ? 'तत्काल आपातकालीन व चिकित्सा सेवाएं' : 'Instant Emergency & Medical Actions'}
               </h4>
               <div className="grid grid-cols-2 gap-2">
                 {/* AI Triage Button */}
@@ -281,14 +289,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                       setDrawerOpen(false);
                       onOpenTriage();
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-orange-500/40 hover:border-orange-400 flex items-center gap-2 text-left group"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-orange-500/40 hover:border-orange-400 flex items-center gap-2 text-left group cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
                       <Brain className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-orange-300">AI Triage</div>
-                      <div className="text-[10px] text-slate-400">Symptom check</div>
+                      <div className="text-xs font-bold text-orange-300">{t.aiTriage}</div>
+                      <div className="text-[10px] text-slate-400">{language === 'hi' ? 'लक्षण जांच' : 'Symptom check'}</div>
                     </div>
                   </button>
                 )}
@@ -301,14 +309,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                       setDrawerOpen(false);
                       onTriggerSOS();
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-red-950/60 to-red-900/40 border border-red-500/60 hover:border-red-400 flex items-center gap-2 text-left group animate-pulse"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-red-950/60 to-red-900/40 border border-red-500/60 hover:border-red-400 flex items-center gap-2 text-left group animate-pulse cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center text-white shrink-0 shadow">
                       <PhoneCall className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-red-300">SOS 108</div>
-                      <div className="text-[10px] text-red-400">Ambulance dispatch</div>
+                      <div className="text-xs font-bold text-red-300">{t.sos108}</div>
+                      <div className="text-[10px] text-red-400">{language === 'hi' ? 'एम्बुलेंस डिस्पैच' : 'Ambulance dispatch'}</div>
                     </div>
                   </button>
                 )}
@@ -320,14 +328,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                     onClick={() => {
                       onLogWater(250);
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-cyan-500/40 hover:border-cyan-400 flex items-center gap-2 text-left group"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-cyan-500/40 hover:border-cyan-400 flex items-center gap-2 text-left group cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
                       <Droplet className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-cyan-300">+250ml WHO-ORS</div>
-                      <div className="text-[10px] text-slate-400">Log hydration</div>
+                      <div className="text-xs font-bold text-cyan-300">{t.quickLog250}</div>
+                      <div className="text-[10px] text-slate-400">{language === 'hi' ? 'जल सेवन दर्ज करें' : 'Log hydration'}</div>
                     </div>
                   </button>
                 )}
@@ -340,14 +348,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                       setDrawerOpen(false);
                       onOpenPushSettings();
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-amber-500/40 hover:border-amber-400 flex items-center gap-2 text-left group"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-amber-500/40 hover:border-amber-400 flex items-center gap-2 text-left group cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
                       <BellRing className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-amber-300">Push & Sirens</div>
-                      <div className="text-[10px] text-slate-400">Alert settings</div>
+                      <div className="text-xs font-bold text-amber-300">{t.pushAlerts}</div>
+                      <div className="text-[10px] text-slate-400">{language === 'hi' ? 'सायरन अलर्ट' : 'Alert settings'}</div>
                     </div>
                   </button>
                 )}
@@ -360,14 +368,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                       setDrawerOpen(false);
                       onOpenCitySelector();
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-[#2d3449] hover:border-orange-500/50 flex items-center gap-2 text-left group"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-[#2d3449] hover:border-orange-500/50 flex items-center gap-2 text-left group cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-[#060e20] flex items-center justify-center text-orange-400 shrink-0">
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white truncate max-w-[90px]">
-                        {selectedCity ? selectedCity.name : 'Switch City'}
+                        {selectedCity ? selectedCity.name : (language === 'hi' ? 'शहर बदलें' : 'Switch City')}
                       </div>
                       <div className="text-[10px] text-orange-400 font-mono">India GPS</div>
                     </div>
@@ -381,13 +389,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                     onClick={() => {
                       onRefreshTelemetry();
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-[#2d3449] hover:border-emerald-500/50 flex items-center gap-2 text-left group"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-[#2d3449] hover:border-emerald-500/50 flex items-center gap-2 text-left group cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-[#060e20] flex items-center justify-center text-emerald-400 shrink-0">
                       <RefreshCw className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-emerald-300">Sync Data</div>
+                      <div className="text-xs font-bold text-emerald-300">{language === 'hi' ? 'रीफ्रेश करें' : 'Sync Data'}</div>
                       <div className="text-[10px] text-slate-400">AWS Station Poll</div>
                     </div>
                   </button>
@@ -398,7 +406,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             {/* All 7 Views List */}
             <div>
               <h4 className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2 font-bold">
-                All Core Navigation Views
+                {language === 'hi' ? 'सभी मुख्य नेविगेशन अनुभाग' : 'All Core Navigation Views'}
               </h4>
               <div className="space-y-1.5">
                 {allViews.map((item) => {
@@ -450,27 +458,21 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-400 flex items-center gap-1.5">
                   <Globe className="w-3.5 h-3.5 text-slate-400" />
-                  Language
+                  {t.language}
                 </span>
                 {onChangeLanguage && (
                   <div className="flex rounded-lg bg-[#060e20] p-0.5 border border-[#2d3449]">
                     <button
                       onClick={() => onChangeLanguage('en')}
-                      className={`px-2.5 py-1 text-[11px] font-medium rounded-md ${language === 'en' ? 'bg-orange-600 text-white font-bold' : 'text-slate-400'}`}
+                      className={`px-3 py-1 text-[11px] font-medium rounded-md transition-all cursor-pointer ${language === 'en' ? 'bg-orange-600 text-white font-bold' : 'text-slate-400'}`}
                     >
-                      EN
+                      English
                     </button>
                     <button
                       onClick={() => onChangeLanguage('hi')}
-                      className={`px-2.5 py-1 text-[11px] font-medium rounded-md ${language === 'hi' ? 'bg-orange-600 text-white font-bold' : 'text-slate-400'}`}
+                      className={`px-3 py-1 text-[11px] font-medium rounded-md transition-all cursor-pointer ${language === 'hi' ? 'bg-orange-600 text-white font-bold' : 'text-slate-400'}`}
                     >
                       हिन्दी
-                    </button>
-                    <button
-                      onClick={() => onChangeLanguage('mr')}
-                      className={`px-2.5 py-1 text-[11px] font-medium rounded-md ${language === 'mr' ? 'bg-orange-600 text-white font-bold' : 'text-slate-400'}`}
-                    >
-                      मराठी
                     </button>
                   </div>
                 )}
@@ -480,20 +482,20 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-slate-400 flex items-center gap-1.5">
                     <Radio className="w-3.5 h-3.5 text-orange-400" />
-                    Data Stream
+                    {t.dataStream}
                   </span>
                   <div className="flex rounded-lg bg-[#060e20] p-0.5 border border-[#2d3449]">
                     <button
                       onClick={() => onToggleDataSourceMode('live_api')}
-                      className={`px-2 py-0.5 text-[10px] font-mono rounded ${dataSourceMode === 'live_api' ? 'bg-emerald-600 text-white font-bold' : 'text-slate-400'}`}
+                      className={`px-2 py-0.5 text-[10px] font-mono rounded cursor-pointer ${dataSourceMode === 'live_api' ? 'bg-emerald-600 text-white font-bold' : 'text-slate-400'}`}
                     >
-                      Satellite API
+                      {t.liveApi}
                     </button>
                     <button
                       onClick={() => onToggleDataSourceMode('imd_heatwave')}
-                      className={`px-2 py-0.5 text-[10px] font-mono rounded ${dataSourceMode === 'imd_heatwave' ? 'bg-red-600 text-white font-bold' : 'text-slate-400'}`}
+                      className={`px-2 py-0.5 text-[10px] font-mono rounded cursor-pointer ${dataSourceMode === 'imd_heatwave' ? 'bg-red-600 text-white font-bold' : 'text-slate-400'}`}
                     >
-                      Severe Heatwave
+                      {t.imdHeatwave}
                     </button>
                   </div>
                 </div>

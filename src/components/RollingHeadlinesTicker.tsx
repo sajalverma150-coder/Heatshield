@@ -196,46 +196,43 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
     <aside 
       id="permanent-rolling-headlines-ticker"
       aria-label="National Heatwave Alerts Banner"
-      className="bg-slate-900/90 border-b border-slate-800/80 px-3 sm:px-6 py-2 text-xs select-none transition-all"
+      className="bg-slate-900/95 border-b border-slate-800/80 px-3 sm:px-6 py-1.5 text-xs select-none transition-all"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         
-        {/* Left: IMD Live Badge */}
+        {/* Left: Indicator Badge */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border font-mono text-[10px] font-bold ${
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold border ${
             isCurrentActiveCity 
               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
               : 'bg-red-500/10 border-red-500/30 text-red-400'
           }`}>
             <span className={`w-1.5 h-1.5 rounded-full ${isCurrentActiveCity ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'}`} />
-            <span>{isCurrentActiveCity ? 'CURRENT LIVE' : 'IMD ALERT'}</span>
+            <span>{isCurrentActiveCity ? 'LIVE' : 'ALERT'}</span>
           </div>
-          <span className="text-slate-400 hidden md:inline text-[11px]">
-            {currentIndex + 1} of {activeHeadlines.length}
+          <span className="text-slate-500 hidden sm:inline text-[10px] font-mono">
+            {currentIndex + 1}/{activeHeadlines.length}
           </span>
         </div>
 
         {/* Center: Current Headline (Clickable) */}
         <div 
           onClick={handleCityClick}
-          className="flex-1 min-w-0 flex items-center gap-1.5 sm:gap-2 cursor-pointer group justify-start text-left overflow-hidden"
-          title={`Click to view data for ${currentItem.cityName}`}
+          className="flex-1 min-w-0 flex items-center gap-2 cursor-pointer group justify-start text-left overflow-hidden"
+          title={`Click to switch to ${currentItem.cityName}`}
         >
-          <strong className="text-white font-semibold text-[11px] sm:text-xs group-hover:text-orange-400 transition-colors shrink-0">
+          <span className="text-white font-medium text-xs group-hover:text-orange-400 transition-colors shrink-0">
             <span className="sm:hidden">{currentItem.cityName.split(' ')[0]}</span>
             <span className="hidden sm:inline">{currentItem.cityName}</span>
-            <span className="ml-1 text-orange-400 font-mono">({currentItem.temp}°C)</span>:
-          </strong>
-          <span className="text-slate-300 text-[11px] sm:text-xs truncate max-w-xl group-hover:text-slate-100 transition-colors">
-            {currentItem.headline}
+            <span className="ml-1 text-orange-400 font-mono">({currentItem.temp}°C)</span>
           </span>
-          <span className="hidden lg:inline text-[10px] font-mono text-orange-400/80 group-hover:underline shrink-0">
-            {isCurrentActiveCity ? 'Active Station ✓' : 'Switch to City →'}
+          <span className="text-slate-400 text-xs truncate max-w-2xl group-hover:text-slate-200 transition-colors">
+            — {currentItem.headline}
           </span>
         </div>
 
         {/* Right: Controls & Dismiss */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={handlePrev}
             className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
@@ -246,7 +243,7 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
           <button
             onClick={() => setIsAutoPlay(!isAutoPlay)}
             className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            title={isAutoPlay ? 'Pause auto-cycle' : 'Play auto-cycle'}
+            title={isAutoPlay ? 'Pause' : 'Play'}
           >
             {isAutoPlay ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 text-emerald-400" />}
           </button>
@@ -259,7 +256,7 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
           </button>
           <button
             onClick={() => setIsDismissed(true)}
-            className="p-1 rounded text-slate-500 hover:text-slate-300 transition-colors ml-1"
+            className="p-1 rounded text-slate-500 hover:text-slate-300 transition-colors ml-0.5"
             title="Dismiss banner"
           >
             <X className="w-3.5 h-3.5" />

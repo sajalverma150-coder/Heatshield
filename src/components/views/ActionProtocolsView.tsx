@@ -19,15 +19,21 @@ import {
   Info
 } from 'lucide-react';
 import { ASSET_IMAGES } from '../../data/mockData';
+import { SearchGroundingAdvisories } from '../SearchGroundingAdvisories';
+import { LanguageCode } from '../../types';
 
 interface ActionProtocolsViewProps {
   onTriggerSOS: () => void;
   onOpenTriage: () => void;
+  cityName?: string;
+  language?: LanguageCode;
 }
 
 export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
   onTriggerSOS,
   onOpenTriage,
+  cityName = 'Mumbai',
+  language = 'en',
 }) => {
   const [activeScenarioTab, setActiveScenarioTab] = useState<'labor' | 'elderly' | 'children'>('labor');
   const [highlightCondition, setHighlightCondition] = useState<'none' | 'exhaustion' | 'stroke'>('none');
@@ -51,19 +57,19 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
     <div id="action-protocols-screen" className="space-y-4 sm:space-y-6 pb-12">
       
       {/* Top Emergency Hotlines Strip */}
-      <div className="bg-[#0b1326] p-3 sm:p-4 rounded-2xl border border-red-500/40 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-slate-900/90 p-3.5 sm:p-4 rounded-2xl border border-red-500/30 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
             <PhoneCall className="w-5 h-5 animate-pulse" />
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-headline font-bold text-white flex items-center gap-2">
               Civic Emergency Response Hotlines
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/30">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/30">
                 24/7 TOLL-FREE
               </span>
             </h2>
-            <p className="text-xs text-[#e0c0b1]/70">
+            <p className="text-xs text-slate-400">
               Immediate medical evacuation, disaster management coordination, and potable tanker requisition
             </p>
           </div>
@@ -72,25 +78,28 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
         <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
           <a
             href="tel:108"
-            className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-1.5 shadow-md shadow-red-950/40"
+            className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold flex items-center gap-1.5 shadow-xs transition-colors"
           >
             <PhoneCall className="w-3.5 h-3.5" />
             <span>108 (Ambulance)</span>
           </a>
           <a
             href="tel:1916"
-            className="px-3 py-1.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-slate-200 border border-[#2d3449] flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-colors"
           >
             <span>1916 (BMC Disaster Cell)</span>
           </a>
           <a
             href="tel:1800222026"
-            className="px-3 py-1.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5 transition-colors"
           >
             <span>1800-22-2026 (Water Bowsers)</span>
           </a>
         </div>
       </div>
+
+      {/* Verified Real-Time Google Search Grounding for Heat Advisories */}
+      <SearchGroundingAdvisories cityName={cityName} language={language} />
 
       {/* Interactive Heat Exhaustion vs Heat Stroke Matrix */}
       <section id="first-aid-triage-matrix" className="space-y-3">
@@ -106,11 +115,11 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
           </div>
 
           {/* Quick symptom test triggers */}
-          <div className="flex items-center gap-1.5 bg-[#060e20] p-1 rounded-xl border border-[#2d3449] text-xs font-mono">
+          <div className="flex items-center gap-1.5 bg-slate-950/70 p-1 rounded-xl border border-slate-800 text-xs font-mono">
             <span className="text-[11px] text-slate-400 px-1 hidden md:inline">Test Symptoms:</span>
             <button
               onClick={() => setHighlightCondition('stroke')}
-              className={`px-2.5 py-1 rounded text-[11px] transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] transition-colors cursor-pointer ${
                 highlightCondition === 'stroke' ? 'bg-red-600 text-white font-bold' : 'text-slate-300 hover:text-white'
               }`}
             >
@@ -118,7 +127,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </button>
             <button
               onClick={() => setHighlightCondition('exhaustion')}
-              className={`px-2.5 py-1 rounded text-[11px] transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] transition-colors cursor-pointer ${
                 highlightCondition === 'exhaustion' ? 'bg-amber-600 text-white font-bold' : 'text-slate-300 hover:text-white'
               }`}
             >
@@ -126,7 +135,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </button>
             <button
               onClick={() => setHighlightCondition('none')}
-              className="p-1 text-slate-400 hover:text-white"
+              className="p-1 text-slate-400 hover:text-white cursor-pointer"
               title="Reset"
             >
               <RefreshCw className="w-3 h-3" />
@@ -140,17 +149,17 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
           {/* Card 1: Heat Exhaustion */}
           <div className={`p-4 sm:p-5 rounded-2xl border transition-all ${
             highlightCondition === 'exhaustion'
-              ? 'bg-amber-950/40 border-amber-500 ring-2 ring-amber-500/50 shadow-xl'
-              : 'bg-[#0b1326] border-[#2d3449]'
+              ? 'bg-amber-950/30 border-amber-500 ring-1 ring-amber-500/50 shadow-md'
+              : 'bg-slate-900/90 border-slate-800'
           }`}>
-            <div className="flex items-center justify-between pb-3 border-b border-[#2d3449]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-amber-400" />
                 <h4 className="text-base font-headline font-bold text-amber-300">
                   Heat Exhaustion (Urgent Care)
                 </h4>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
                 Core Temp &lt; 40°C
               </span>
             </div>
@@ -169,7 +178,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
                 </ul>
               </div>
 
-              <div className="pt-2 border-t border-[#2d3449]">
+              <div className="pt-2 border-t border-slate-800">
                 <strong className="text-amber-400 block font-mono uppercase text-[11px] mb-1">
                   Immediate First-Aid Protocol:
                 </strong>
@@ -187,8 +196,8 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
           {/* Card 2: Heat Stroke (CODE RED) */}
           <div className={`p-4 sm:p-5 rounded-2xl border transition-all ${
             highlightCondition === 'stroke'
-              ? 'bg-red-950/60 border-red-500 ring-2 ring-red-500/70 shadow-2xl animate-pulse'
-              : 'bg-[#0b1326] border-red-500/40'
+              ? 'bg-red-950/40 border-red-500 ring-1 ring-red-500/60 shadow-lg'
+              : 'bg-slate-900/90 border-red-500/30'
           }`}>
             <div className="flex items-center justify-between pb-3 border-b border-red-500/30">
               <div className="flex items-center gap-2">
@@ -232,7 +241,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
               <div className="pt-2">
                 <button
                   onClick={onTriggerSOS}
-                  className="w-full py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg text-xs tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-red-950/60"
+                  className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-xs tracking-wider flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"
                 >
                   <PhoneCall className="w-4 h-4" />
                   <span>DISPATCH EMERGENCY 108 AMBULANCE NOW</span>
@@ -245,8 +254,8 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
       </section>
 
       {/* Scenario-Based Vulnerability Action Protocols (Tabs) */}
-      <section id="scenario-vulnerability-protocols" className="bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2d3449] pb-3 mb-4">
+      <section id="scenario-vulnerability-protocols" className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
           <div>
             <h3 className="text-base font-headline font-bold text-white flex items-center gap-2">
               <Users className="w-4 h-4 text-orange-400" />
@@ -257,11 +266,11 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#060e20] p-1 rounded-xl border border-[#2d3449] text-xs font-mono">
+          <div className="flex items-center gap-1.5 bg-slate-950/70 p-1 rounded-xl border border-slate-800 text-xs font-mono">
             <button
               onClick={() => setActiveScenarioTab('labor')}
-              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold transition-all ${
-                activeScenarioTab === 'labor' ? 'bg-orange-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold transition-all cursor-pointer ${
+                activeScenarioTab === 'labor' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
             >
               <HardHat className="w-3.5 h-3.5" />
@@ -269,8 +278,8 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </button>
             <button
               onClick={() => setActiveScenarioTab('elderly')}
-              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold transition-all ${
-                activeScenarioTab === 'elderly' ? 'bg-orange-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold transition-all cursor-pointer ${
+                activeScenarioTab === 'elderly' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
             >
               <Activity className="w-3.5 h-3.5" />
@@ -278,8 +287,8 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </button>
             <button
               onClick={() => setActiveScenarioTab('children')}
-              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold transition-all ${
-                activeScenarioTab === 'children' ? 'bg-orange-600 text-white shadow' : 'text-slate-400 hover:text-white'
+              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold transition-all cursor-pointer ${
+                activeScenarioTab === 'children' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
             >
               <Baby className="w-3.5 h-3.5" />
@@ -291,7 +300,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
         {/* Tab Content: Labor */}
         {activeScenarioTab === 'labor' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-            <div className="lg:col-span-4 rounded-xl overflow-hidden border border-[#2d3449] aspect-video sm:aspect-square bg-[#060e20]">
+            <div className="lg:col-span-4 rounded-xl overflow-hidden border border-slate-800 aspect-video sm:aspect-square bg-slate-950">
               <img
                 src={ASSET_IMAGES.laborWorker}
                 alt="Construction Laborer Hydrating"
@@ -301,15 +310,15 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </div>
             <div className="lg:col-span-8 space-y-3 text-xs text-slate-300">
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 font-mono text-[11px]">
-                <div className="p-2.5 rounded-lg bg-[#060e20] border border-[#2d3449]">
+                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
                   <span className="text-slate-400 block">Rest-to-Work Ratio:</span>
                   <span className="text-orange-400 font-bold text-sm">15m Rest / 45m Work</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#060e20] border border-[#2d3449]">
+                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
                   <span className="text-slate-400 block">Hydration Interval:</span>
                   <span className="text-cyan-400 font-bold text-sm">250ml every 20 mins</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#060e20] border border-[#2d3449] col-span-2 sm:col-span-1">
+                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 col-span-2 sm:col-span-1">
                   <span className="text-slate-400 block">Peak Sun Curfew:</span>
                   <span className="text-red-400 font-bold text-sm">11:30 – 16:30 IST</span>
                 </div>
@@ -328,7 +337,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
         {/* Tab Content: Elderly */}
         {activeScenarioTab === 'elderly' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-            <div className="lg:col-span-4 rounded-xl overflow-hidden border border-[#2d3449] aspect-video sm:aspect-square bg-[#060e20]">
+            <div className="lg:col-span-4 rounded-xl overflow-hidden border border-slate-800 aspect-video sm:aspect-square bg-slate-950">
               <img
                 src={ASSET_IMAGES.elderlyCooling}
                 alt="Elderly Individual in Cooling Refuge"
@@ -337,7 +346,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
               />
             </div>
             <div className="lg:col-span-8 space-y-3 text-xs text-slate-300">
-              <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/40 text-red-300">
+              <div className="p-3 rounded-xl bg-red-950/20 border border-red-500/30 text-red-300">
                 <strong className="block text-sm font-headline">CRITICAL PHYSIOLOGICAL WARNING: ELECTRIC FANS ABOVE 35°C</strong>
                 When room ambient temperature exceeds 35°C (95°F), standard ceiling or table fans blow heated air across the body faster than sweat can evaporate, creating a convective oven effect that actually elevates core body temperature!
               </div>
@@ -354,7 +363,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
         {/* Tab Content: Children */}
         {activeScenarioTab === 'children' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-            <div className="lg:col-span-4 rounded-xl overflow-hidden border border-[#2d3449] aspect-video sm:aspect-square bg-[#060e20]">
+            <div className="lg:col-span-4 rounded-xl overflow-hidden border border-slate-800 aspect-video sm:aspect-square bg-slate-950">
               <img
                 src={ASSET_IMAGES.familyChild}
                 alt="Mother and Child Heat Protection"
@@ -364,11 +373,11 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </div>
             <div className="lg:col-span-8 space-y-3 text-xs text-slate-300">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px]">
-                <div className="p-2.5 rounded-lg bg-[#060e20] border border-[#2d3449]">
+                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
                   <span className="text-slate-400 block">Vehicle Heat-Trap Warning:</span>
                   <span className="text-red-400 font-bold">Never leave child in locked auto/car</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#060e20] border border-[#2d3449]">
+                <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
                   <span className="text-slate-400 block">School Closure Mandate:</span>
                   <span className="text-orange-400 font-bold">WBGT &gt; 32°C Suspends Sports</span>
                 </div>
@@ -389,7 +398,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
       <section id="hydration-science-calculator" className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         
         {/* Left (7 Cols): Dynamic Fluid Loss Calculator */}
-        <div className="lg:col-span-7 bg-[#0b1326] rounded-2xl border border-[#2d3449] p-4 sm:p-5">
+        <div className="lg:col-span-7 bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-base font-headline font-bold text-white flex items-center gap-2">
               <Calculator className="w-4 h-4 text-cyan-400" />
@@ -431,10 +440,10 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => setExertionLevel('light')}
-                  className={`p-2 rounded-xl text-center border transition-all text-xs font-mono ${
+                  className={`p-2 rounded-xl text-center border transition-all text-xs font-mono cursor-pointer ${
                     exertionLevel === 'light'
                       ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 font-bold'
-                      : 'bg-[#060e20] border-[#2d3449] text-slate-400 hover:text-white'
+                      : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
                   Light / Shaded
@@ -442,10 +451,10 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
                 </button>
                 <button
                   onClick={() => setExertionLevel('moderate')}
-                  className={`p-2 rounded-xl text-center border transition-all text-xs font-mono ${
+                  className={`p-2 rounded-xl text-center border transition-all text-xs font-mono cursor-pointer ${
                     exertionLevel === 'moderate'
                       ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 font-bold'
-                      : 'bg-[#060e20] border-[#2d3449] text-slate-400 hover:text-white'
+                      : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
                   Moderate Walk
@@ -453,10 +462,10 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
                 </button>
                 <button
                   onClick={() => setExertionLevel('heavy')}
-                  className={`p-2 rounded-xl text-center border transition-all text-xs font-mono ${
+                  className={`p-2 rounded-xl text-center border transition-all text-xs font-mono cursor-pointer ${
                     exertionLevel === 'heavy'
                       ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 font-bold'
-                      : 'bg-[#060e20] border-[#2d3449] text-slate-400 hover:text-white'
+                      : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
                   Heavy Masonry
@@ -466,7 +475,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </div>
 
             {/* Calculated Output Box */}
-            <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#060e20] to-[#171f33] border border-cyan-500/30 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-slate-950/70 border border-cyan-500/30 flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-mono text-slate-400 uppercase">
                   Required Hourly Fluid Intake:
@@ -485,7 +494,7 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
         </div>
 
         {/* Right (5 Cols): WHO-ORS Field Emergency Recipe */}
-        <div className="lg:col-span-5 bg-[#0b1326] rounded-2xl border border-emerald-500/30 p-4 sm:p-5 flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-base font-headline font-bold text-white flex items-center gap-2">
@@ -502,15 +511,15 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </p>
 
             <div className="space-y-2 text-xs font-mono">
-              <div className="p-2.5 rounded-lg bg-[#060e20] border border-[#2d3449] flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
                 <span className="text-slate-300">1. Clean Boiled/Filtered Water</span>
                 <span className="text-emerald-400 font-bold">1.0 Liter</span>
               </div>
-              <div className="p-2.5 rounded-lg bg-[#060e20] border border-[#2d3449] flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
                 <span className="text-slate-300">2. Clean Sugar / Jaggery</span>
                 <span className="text-emerald-400 font-bold">6 Level Teaspoons</span>
               </div>
-              <div className="p-2.5 rounded-lg bg-[#060e20] border border-[#2d3449] flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between">
                 <span className="text-slate-300">3. Common Salt (Sodium Chloride)</span>
                 <span className="text-emerald-400 font-bold">1/2 Level Teaspoon</span>
               </div>
@@ -521,11 +530,11 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#2d3449] mt-3 flex items-center justify-between">
+          <div className="pt-3 border-t border-slate-800 mt-3 flex items-center justify-between">
             <span className="text-xs text-slate-400">Need immediate clinical check?</span>
             <button
               onClick={onOpenTriage}
-              className="text-xs font-mono font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1"
+              className="text-xs font-mono font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 cursor-pointer"
             >
               <span>Run AI Triage Check</span>
               <ChevronRight className="w-3.5 h-3.5" />

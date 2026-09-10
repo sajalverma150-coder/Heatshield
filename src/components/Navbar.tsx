@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { NavigationTab, UserRole, LanguageCode, WeatherTelemetry } from '../types';
 import { CityData } from '../data/indiaCities';
+import { useAppTranslation } from '../i18n/translations';
 
 interface NavbarProps {
   currentTab: NavigationTab;
@@ -57,6 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const settingsRef = useRef<HTMLDivElement>(null);
+  const t = useAppTranslation(language);
 
   // Close settings dropdown on click outside
   useEffect(() => {
@@ -70,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   return (
-    <header id="main-tactical-navbar" className="bg-[#0b1326] border-b border-slate-800/80 sticky top-0 z-40 px-3 sm:px-6 py-2.5">
+    <header id="main-tactical-navbar" className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 px-3 sm:px-6 py-2.5">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         
         {/* Left: Brand Identity */}
@@ -86,14 +88,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-headline font-bold text-base tracking-tight text-white">
-                  HeatShield
+                  {t.appName}
                 </span>
                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-semibold">
                   AI
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-sans hidden sm:block">
-                National Heat Early Warning
+                {t.nationalWarning}
               </p>
             </div>
           </button>
@@ -105,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             id="navbar-city-selector-btn"
             onClick={onOpenCitySelector}
             className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 text-white text-xs transition-all shadow-sm group min-w-0"
-            title="Search Indian cities or use GPS"
+            title={t.searchCityPrompt}
           >
             <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
             <span className="font-semibold text-slate-200 group-hover:text-white truncate max-w-[90px] sm:max-w-none">
@@ -124,26 +126,54 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Right: Actions (SOS 108 is priority, Triage & Settings on desktop, Hamburger on mobile) */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           
+          {/* Quick Language Toggle (EN / हिन्दी) */}
+          <div className="flex items-center rounded-xl bg-slate-900 border border-slate-700/80 p-0.5 shadow-sm">
+            <button
+              id="navbar-lang-en-btn"
+              onClick={() => onChangeLanguage('en')}
+              className={`px-2 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${
+                language === 'en'
+                  ? 'bg-orange-600 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Switch to English"
+            >
+              EN
+            </button>
+            <button
+              id="navbar-lang-hi-btn"
+              onClick={() => onChangeLanguage('hi')}
+              className={`px-2 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${
+                language === 'hi'
+                  ? 'bg-orange-600 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="हिन्दी में बदलें"
+            >
+              हिन्दी
+            </button>
+          </div>
+
           {/* AI Triage Button (desktop only, available via drawer & hero on mobile) */}
           <button
             id="navbar-triage-button"
             onClick={onOpenTriage}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-orange-500/50 text-slate-200 hover:text-white text-xs font-medium transition-all shadow-sm"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-orange-500/50 text-slate-200 hover:text-white text-xs font-medium transition-all shadow-sm cursor-pointer"
             title="AI Heat Triage & Symptom Assessment"
           >
             <Brain className="w-3.5 h-3.5 text-orange-400" />
-            <span>AI Triage</span>
+            <span>{t.aiTriage}</span>
           </button>
 
           {/* Emergency 108 Button */}
           <button
             id="navbar-sos-button"
             onClick={onTriggerSOS}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-950/40 transition-all active:scale-95 shrink-0"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-950/40 transition-all active:scale-95 shrink-0 cursor-pointer"
             title="Emergency Medical Hotline (Dial 108)"
           >
             <PhoneCall className="w-3.5 h-3.5" />
-            <span className="font-headline tracking-wide">108</span>
+            <span className="font-headline tracking-wide">{t.sos108}</span>
           </button>
 
           {/* Settings & Tools Popover Button (Desktop only) */}
@@ -151,7 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="navbar-settings-dropdown-btn"
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white text-xs transition-colors"
+              className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white text-xs transition-colors cursor-pointer"
               title="Preferences & Tools"
             >
               <Settings2 className="w-4 h-4 text-slate-400 hover:text-white" />
@@ -165,7 +195,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div>
                   <label className="text-[11px] font-semibold text-slate-400 block mb-1 flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-orange-400" />
-                    <span>Language / भाषा</span>
+                    <span>{t.language}</span>
                   </label>
                   <select
                     id="navbar-settings-language-select"
@@ -173,9 +203,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                     onChange={(e) => onChangeLanguage(e.target.value as LanguageCode)}
                     className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs focus:outline-none focus:border-orange-500 cursor-pointer"
                   >
-                    <option value="en">English (Default)</option>
-                    <option value="hi">हिन्दी (Hindi)</option>
-                    <option value="mr">मराठी (Marathi)</option>
+                    <option value="en">{t.english}</option>
+                    <option value="hi">{t.hindi}</option>
                   </select>
                 </div>
 
@@ -186,11 +215,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setIsSettingsOpen(false);
                       onOpenPushSettings();
                     }}
-                    className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-200 hover:text-white transition-colors"
+                    className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-200 hover:text-white transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <BellRing className="w-4 h-4 text-orange-400" />
-                      <span>Push & Siren Alerts</span>
+                      <span>{t.pushAlerts}</span>
                     </div>
                     <span className="text-[10px] text-emerald-400 font-mono">Config</span>
                   </button>
@@ -202,11 +231,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setIsSettingsOpen(false);
                     onToggleMobileFrame();
                   }}
-                  className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-200 hover:text-white transition-colors"
+                  className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-200 hover:text-white transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
                     {isMobileFrame ? <Monitor className="w-4 h-4 text-orange-400" /> : <Smartphone className="w-4 h-4 text-orange-400" />}
-                    <span>{isMobileFrame ? 'Desktop Canvas' : 'Phone Simulator'}</span>
+                    <span>{isMobileFrame ? t.desktopCanvas : t.phoneSimulator}</span>
                   </div>
                   <span className="text-[10px] text-slate-400 font-mono">
                     {isMobileFrame ? 'Active' : 'Toggle'}
