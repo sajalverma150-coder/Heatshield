@@ -305,7 +305,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
           </div>
 
           {/* Primary Action Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-col gap-2.5 shrink-0 pt-2 lg:pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-2.5 shrink-0 pt-2 lg:pt-0">
             {/* Find Shelter */}
             <button
               id="hero-find-shelter-btn"
@@ -324,17 +324,6 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
             >
               <Sparkles className="w-4 h-4 text-orange-400" />
               <span>{isHindi ? 'लक्षण ट्राइएज' : 'Symptom Triage'}</span>
-            </button>
-
-            {/* Quick Water Log */}
-            <button
-              id="hero-quick-water-btn"
-              onClick={() => handleQuickWaterLog(250)}
-              className="px-4 py-2.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-medium border border-cyan-700/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              title="Log +250ml water intake immediately"
-            >
-              <Droplet className="w-4 h-4 text-cyan-400" />
-              <span>+250{isHindi ? 'मिली जल' : 'ml Water'}</span>
             </button>
           </div>
 
