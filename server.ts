@@ -99,63 +99,6 @@ app.post('/api/map-grounding', async (req, res) => {
   }
 });
 
-// Dedicated Google Search Grounding endpoint for real-time heat advisories
-app.post('/api/search-advisories', async (req, res) => {
-  try {
-    const { query, city = 'India' } = req.body;
-    const ai = getAIClient();
-
-    const searchQuery = query || `latest IMD heatwave warnings NDMA heat action plan advisories for ${city} today`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
-      contents: `You are searching for verified, official real-time meteorological and civic heatwave information for ${city}, India.
-Query: ${searchQuery}
-
-Summarize:
-1. Current IMD heat alert status (Normal, Yellow, Orange, Red)
-2. Highest recorded or forecast temperatures today
-3. Municipal orders, school closures, or outdoor labor hour restrictions
-4. Key NDMA public health advisories
-
-Provide factual citations.`,
-      config: {
-        tools: [{ googleSearch: {} }],
-      },
-    });
-
-    const candidate = response.candidates?.[0];
-    const summary = response.text || '';
-    const grounding = candidate?.groundingMetadata;
-    const sources = grounding?.groundingChunks?.map((chunk: any) => ({
-      title: chunk.web?.title || 'Verified Web Source',
-      url: chunk.web?.uri || '',
-    })).filter((s: { url: string }) => !!s.url) || [];
-
-    res.json({
-      summary,
-      sources,
-      searchQueries: grounding?.webSearchQueries || [],
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error: any) {
-    console.error('Error in /api/search-advisories:', error);
-    const isQuota = error.message?.includes('RESOURCE_EXHAUSTED') || error.message?.includes('quota') || error.status === 'RESOURCE_EXHAUSTED';
-    if (isQuota) {
-      return res.json({
-        summary: `⚠️ **IMD & NDMA Advisory Bulletin (Cached Fallback)**: High heatwave alert currently active across urban sectors. Maintain strict hydration with ORS, avoid direct mid-day sun exposure between 12:00 PM and 4:00 PM, and monitor vulnerable elders and outdoor workers.`,
-        sources: [{ title: 'NDMA Heat Guidelines', url: 'https://ndma.gov.in' }],
-        searchQueries: [],
-        timestamp: new Date().toISOString(),
-        quotaExceeded: true,
-      });
-    }
-    res.status(500).json({
-      error: error.message || 'Failed to fetch search-grounded heat advisories',
-    });
-  }
-});
-
 // Explicit JSON 404 for any unregistered /api routes so they do not return HTML
 app.all('/api/*', (req, res) => {
   res.status(404).json({ error: `API endpoint ${req.method} ${req.originalUrl} not found` });

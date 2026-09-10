@@ -19,7 +19,6 @@ import {
   Info
 } from 'lucide-react';
 import { ASSET_IMAGES } from '../../data/mockData';
-import { SearchGroundingAdvisories } from '../SearchGroundingAdvisories';
 import { LanguageCode } from '../../types';
 
 interface ActionProtocolsViewProps {
@@ -97,9 +96,6 @@ export const ActionProtocolsView: React.FC<ActionProtocolsViewProps> = ({
           </a>
         </div>
       </div>
-
-      {/* Verified Real-Time Google Search Grounding for Heat Advisories */}
-      <SearchGroundingAdvisories cityName={cityName} language={language} />
 
       {/* Interactive Heat Exhaustion vs Heat Stroke Matrix */}
       <section id="first-aid-triage-matrix" className="space-y-3">
