@@ -64,59 +64,59 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   return (
-    <header id="main-tactical-navbar" className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 px-3 sm:px-6 py-2.5">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+    <header id="main-tactical-navbar" className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 px-2 sm:px-6 py-2 sm:py-2.5">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
         
         {/* Left: Brand Identity */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <button 
             id="brand-home-button"
             onClick={() => onSelectTab('overview')}
-            className="flex items-center gap-2.5 text-left group"
+            className="flex items-center gap-1.5 sm:gap-2.5 text-left group"
           >
-            <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 group-hover:border-orange-400 group-hover:scale-105 transition-all shadow-sm">
-              <Flame className="w-5 h-5 text-orange-400" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 group-hover:border-orange-400 group-hover:scale-105 transition-all shadow-sm shrink-0">
+              <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-headline font-bold text-base tracking-tight text-white">
+              <div className="flex items-center gap-1">
+                <span className="font-headline font-bold text-xs sm:text-base tracking-tight text-white whitespace-nowrap">
                   {t.appName}
                 </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-semibold">
+                <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-semibold">
                   AI
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-sans hidden sm:block">
+              <p className="text-[11px] text-slate-400 font-sans hidden md:block">
                 {t.nationalWarning}
               </p>
             </div>
           </button>
         </div>
 
-        {/* Center: Clean Clickable Location & Weather Pill */}
-        <div className="flex items-center justify-center min-w-0">
+        {/* Center: Clean Clickable Location & Weather Pill (Responsive & Truncated without overlapping) */}
+        <div className="flex items-center justify-center min-w-0 shrink max-w-[140px] sm:max-w-[220px] md:max-w-none">
           <button
             id="navbar-city-selector-btn"
             onClick={onOpenCitySelector}
-            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 text-white text-xs transition-all shadow-sm group min-w-0"
+            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 text-white text-xs transition-all shadow-sm group min-w-0"
             title={t.searchCityPrompt}
           >
-            <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-            <span className="font-semibold text-slate-200 group-hover:text-white truncate max-w-[90px] sm:max-w-none">
+            <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-orange-400 shrink-0" />
+            <span className="font-semibold text-slate-200 group-hover:text-white truncate max-w-[50px] xs:max-w-[80px] sm:max-w-none text-[11px] sm:text-xs">
               {selectedCity.name}
             </span>
-            <span className="text-orange-400 font-mono font-bold text-xs bg-orange-500/10 px-1.5 sm:px-2 py-0.5 rounded-full border border-orange-500/20 shrink-0">
+            <span className="text-orange-400 font-mono font-bold text-[10px] sm:text-xs bg-orange-500/10 px-1 sm:px-2 py-0.5 rounded-full border border-orange-500/20 shrink-0">
               {weather.dryBulbTemp}°C
             </span>
             <span className="hidden md:inline-flex text-[11px] text-slate-400 font-mono">
               WBGT {weather.wbgt}°C
             </span>
-            <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-white transition-colors shrink-0" />
+            <ChevronDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-400 group-hover:text-white transition-colors shrink-0" />
           </button>
         </div>
 
         {/* Right: Actions (SOS 108 is priority, Triage & Settings on desktop, Hamburger on mobile) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
 
           {/* AI Triage Button (desktop only, available via drawer & hero on mobile) */}
           <button
@@ -133,11 +133,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="navbar-sos-button"
             onClick={onTriggerSOS}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-950/40 transition-all active:scale-95 shrink-0 cursor-pointer"
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-950/40 transition-all active:scale-95 shrink-0 cursor-pointer"
             title="Emergency Medical Hotline (Dial 108)"
           >
-            <PhoneCall className="w-3.5 h-3.5" />
-            <span className="font-headline tracking-wide">{t.sos108}</span>
+            <PhoneCall className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+            <span className="font-headline tracking-wide whitespace-nowrap text-[11px] sm:text-xs">{t.sos108}</span>
           </button>
 
           {/* Settings & Tools Popover Button (Desktop only) */}
