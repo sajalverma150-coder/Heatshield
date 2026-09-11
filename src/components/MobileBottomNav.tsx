@@ -17,7 +17,9 @@ import {
   Globe,
   Radio,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Lock,
+  Key
 } from 'lucide-react';
 import { NavigationTab, LanguageCode } from '../types';
 import { CityData } from '../data/indiaCities';
@@ -41,6 +43,9 @@ export interface MobileBottomNavProps {
   onToggleDataSourceMode?: (mode: 'live_api' | 'imd_heatwave') => void;
   onChangeLanguage?: (lang: LanguageCode) => void;
   onRefreshTelemetry?: () => void;
+  isAdminAuthenticated?: boolean;
+  onOpenAdminAuthModal?: () => void;
+  onLockAdminSession?: () => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
@@ -61,6 +66,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onToggleDataSourceMode,
   onChangeLanguage,
   onRefreshTelemetry,
+  isAdminAuthenticated = false,
+  onOpenAdminAuthModal,
+  onLockAdminSession,
 }) => {
   const [internalDrawerOpen, setInternalDrawerOpen] = useState<boolean>(false);
   const isDrawerOpen = isOpen !== undefined ? isOpen : internalDrawerOpen;
@@ -352,21 +360,39 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   </button>
                 )}
 
-                {/* Resync Live Telemetry */}
-                {onRefreshTelemetry && (
+                {/* Admin Auth / Officer Login Button */}
+                {isAdminAuthenticated ? (
                   <button
-                    id="mobile-drawer-resync-btn"
+                    id="mobile-drawer-admin-lock-btn"
                     onClick={() => {
-                      onRefreshTelemetry();
+                      if (onLockAdminSession) onLockAdminSession();
+                      setDrawerOpen(false);
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-[#2d3449] hover:border-emerald-500/50 flex items-center gap-2 text-left group cursor-pointer"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-950/60 to-emerald-900/40 border border-emerald-500/50 hover:border-emerald-400 flex items-center gap-2 text-left group cursor-pointer"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-[#060e20] flex items-center justify-center text-emerald-400 shrink-0">
-                      <RefreshCw className="w-4 h-4" />
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                      <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-emerald-300">{language === 'hi' ? 'रीफ्रेश करें' : 'Sync Data'}</div>
-                      <div className="text-[10px] text-slate-400">AWS Station Poll</div>
+                      <div className="text-xs font-bold text-emerald-300">Admin Active</div>
+                      <div className="text-[10px] text-amber-400 font-mono">Lock Session</div>
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    id="mobile-drawer-admin-auth-btn"
+                    onClick={() => {
+                      if (onOpenAdminAuthModal) onOpenAdminAuthModal();
+                      setDrawerOpen(false);
+                    }}
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-orange-500/40 hover:border-orange-400 flex items-center gap-2 text-left group cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-orange-300">Admin Login</div>
+                      <div className="text-[10px] text-slate-400">ID & Password</div>
                     </div>
                   </button>
                 )}

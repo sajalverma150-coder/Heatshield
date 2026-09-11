@@ -15,9 +15,12 @@ import {
   Copy,
   Sparkles,
   Thermometer,
-  ShieldCheck
+  ShieldCheck,
+  Lock,
+  Key,
+  UserCheck
 } from 'lucide-react';
-import { EmergencyBroadcast, LanguageCode, WeatherTelemetry } from '../../types';
+import { UserRole, EmergencyBroadcast, LanguageCode, WeatherTelemetry } from '../../types';
 import { ACTIVE_EMERGENCY_BROADCAST } from '../../data/mockData';
 import { CityData } from '../../data/indiaCities';
 import { useAppTranslation } from '../../i18n/translations';
@@ -26,6 +29,10 @@ interface EmergencyAlertsViewProps {
   language: LanguageCode;
   selectedCity?: CityData;
   weather?: WeatherTelemetry;
+  userRole?: UserRole;
+  isAdminAuthenticated?: boolean;
+  onOpenAdminAuthModal?: () => void;
+  onLockAdminSession?: () => void;
   onOpenCitySelector?: () => void;
   onTriggerSOS: () => void;
 }
@@ -34,6 +41,10 @@ export const EmergencyAlertsView: React.FC<EmergencyAlertsViewProps> = ({
   language,
   selectedCity,
   weather,
+  userRole = 'citizen',
+  isAdminAuthenticated = false,
+  onOpenAdminAuthModal,
+  onLockAdminSession,
   onOpenCitySelector,
   onTriggerSOS,
 }) => {
@@ -529,10 +540,18 @@ export const EmergencyAlertsView: React.FC<EmergencyAlertsViewProps> = ({
       <section id="municipal-dispatch-console" className="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 sm:p-5 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
           <div>
-            <h3 className="text-base sm:text-lg font-headline font-bold text-white flex items-center gap-2">
-              <Send className="w-5 h-5 text-orange-400" />
-              {isHindi ? 'नगरपालिका नियंत्रण कक्ष • मास नोटिफिकेशन डिस्पैच' : 'Municipal Dispatch Console • Mass Notification Dispatch'}
-            </h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-base sm:text-lg font-headline font-bold text-white flex items-center gap-2">
+                <Send className="w-5 h-5 text-orange-400" />
+                {isHindi ? 'नगरपालिका नियंत्रण कक्ष • मास नोटिफिकेशन डिस्पैच' : 'Municipal Dispatch Console • Mass Notification Dispatch'}
+              </h3>
+              {isAdminAuthenticated && (
+                <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                  Authorized
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-400">
               {isHindi 
                 ? 'सेल्युलर टावर, एसएमएस और व्हाट्सएप के जरिए आपातकालीन निर्देश तुरंत प्रसारित करें'
@@ -541,6 +560,17 @@ export const EmergencyAlertsView: React.FC<EmergencyAlertsViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {isAdminAuthenticated && onLockAdminSession && (
+              <button
+                type="button"
+                onClick={onLockAdminSession}
+                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-mono border border-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+                title="Lock Admin Session"
+              >
+                <Lock className="w-3 h-3 text-amber-400" />
+                <span>Lock Session</span>
+              </button>
+            )}
             <span className="text-[11px] font-mono text-slate-400">{isHindi ? 'लक्षित वार्ड:' : 'Target Ward:'}</span>
             <select
               value={selectedWard}
@@ -555,6 +585,38 @@ export const EmergencyAlertsView: React.FC<EmergencyAlertsViewProps> = ({
           </div>
         </div>
 
+        {(!isAdminAuthenticated && userRole === 'citizen') ? (
+          <div className="p-6 rounded-xl bg-slate-950/80 border border-slate-800 text-center space-y-4 my-2">
+            <div className="w-12 h-12 rounded-2xl bg-orange-500/15 border border-orange-500/30 text-orange-400 flex items-center justify-center mx-auto">
+              <Lock className="w-6 h-6" />
+            </div>
+            <div className="max-w-md mx-auto space-y-1">
+              <h4 className="font-headline font-bold text-white text-base">
+                {isHindi ? 'नगरपालिका नियंत्रण कक्ष हेतु प्रशासनिक प्रमाणीकरण आवश्यक' : 'Municipal Dispatch Console Requires Admin Login'}
+              </h4>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                {isHindi 
+                  ? 'मास सेलुलर टॉवर अलर्ट, एसएमएस और व्हाट्सएप प्रसारण केवल अधिकृत नगरपालिका अधिकारियों के लिए सुरक्षित हैं।'
+                  : 'Mass cellular tower broadcasts, SMS gateways, and NDMA emergency dispatches are protected. Please authenticate with your Admin ID and Password.'}
+              </p>
+            </div>
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                id="emergency-view-admin-auth-btn"
+                onClick={onOpenAdminAuthModal}
+                className="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition-all cursor-pointer"
+              >
+                <Key className="w-4 h-4" />
+                <span>{isHindi ? 'अधिकारी लॉगिन करें (ID & Password)' : 'Authenticate as Admin / Municipal Officer'}</span>
+              </button>
+              <div className="text-[11px] font-mono text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+                Demo: <strong className="text-white">admin@heatshield.gov.in</strong> / <strong className="text-white">admin123</strong>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Template Selectors */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <span className="text-xs font-mono text-slate-400">{isHindi ? 'प्रसारण निर्देश:' : 'Directives:'}</span>
@@ -723,6 +785,8 @@ export const EmergencyAlertsView: React.FC<EmergencyAlertsViewProps> = ({
             </button>
           </div>
         </div>
+        </>
+        )}
 
       </section>
 

@@ -11,7 +11,11 @@ import {
   Clock, 
   Sparkles,
   Smartphone,
-  Radio
+  Radio,
+  Flame,
+  Droplet,
+  Sun,
+  Layers
 } from 'lucide-react';
 import { 
   getNotificationPermission, 
@@ -43,6 +47,35 @@ export const PushNotificationSettingsModal: React.FC<PushNotificationSettingsMod
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [alertIntervalHours, setAlertIntervalHours] = useState<number>(2);
   const [isChimeEnabled, setIsChimeEnabled] = useState<boolean>(true);
+
+  // Individual Alert Type Preferences
+  const [alertChannels, setAlertChannels] = useState<{
+    heatAdvisory: boolean;
+    hydrationReminder: boolean;
+    emergencyBroadcast: boolean;
+    uvSunstroke: boolean;
+  }>(() => {
+    try {
+      return {
+        heatAdvisory: localStorage.getItem('heatshield_alert_type_heat_advisory') !== 'false',
+        hydrationReminder: localStorage.getItem('heatshield_alert_type_hydration') !== 'false',
+        emergencyBroadcast: localStorage.getItem('heatshield_alert_type_emergency') !== 'false',
+        uvSunstroke: localStorage.getItem('heatshield_alert_type_uv') !== 'false',
+      };
+    } catch {
+      return { heatAdvisory: true, hydrationReminder: true, emergencyBroadcast: true, uvSunstroke: true };
+    }
+  });
+
+  const toggleChannel = (key: keyof typeof alertChannels) => {
+    setAlertChannels((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem(`heatshield_alert_type_${String(key)}`, String(next[key]));
+      } catch {}
+      return next;
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -140,6 +173,120 @@ export const PushNotificationSettingsModal: React.FC<PushNotificationSettingsMod
             >
               {isPushEnabled ? 'Enabled ✓' : 'Enable Push'}
             </button>
+          </div>
+
+          {/* Individual Alert Type Channels */}
+          <div className="p-4 rounded-xl bg-[#060e20] border border-[#2d3449] space-y-3">
+            <div className="flex items-center justify-between border-b border-[#2d3449] pb-2">
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-orange-400" />
+                <span className="text-xs font-bold text-white font-mono">Alert Type Channels</span>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400">Custom Toggles</span>
+            </div>
+
+            <div className="space-y-2.5">
+              {/* Heat Advisory Toggle */}
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-orange-500/15 text-orange-400 shrink-0">
+                    <Flame className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-200">Heat Advisory</div>
+                    <div className="text-[10px] text-slate-400">Extreme thermal strain & WBGT spikes</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  id="toggle-channel-heat-advisory"
+                  onClick={() => toggleChannel('heatAdvisory')}
+                  className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${
+                    alertChannels.heatAdvisory ? 'bg-orange-500' : 'bg-slate-700'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                    alertChannels.heatAdvisory ? 'left-4.5' : 'left-0.5'
+                  }`} />
+                </button>
+              </div>
+
+              {/* Hydration Reminder Toggle */}
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-cyan-500/15 text-cyan-400 shrink-0">
+                    <Droplet className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-200">Hydration Reminder</div>
+                    <div className="text-[10px] text-slate-400">Inactivity prompts for fluid & WHO-ORS intake</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  id="toggle-channel-hydration"
+                  onClick={() => toggleChannel('hydrationReminder')}
+                  className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${
+                    alertChannels.hydrationReminder ? 'bg-cyan-500' : 'bg-slate-700'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                    alertChannels.hydrationReminder ? 'left-4.5' : 'left-0.5'
+                  }`} />
+                </button>
+              </div>
+
+              {/* Emergency Broadcast Toggle */}
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-red-500/15 text-red-400 shrink-0">
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-200">Emergency Broadcast</div>
+                    <div className="text-[10px] text-slate-400">NDMA statutory curfew & disaster bulletins</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  id="toggle-channel-emergency"
+                  onClick={() => toggleChannel('emergencyBroadcast')}
+                  className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${
+                    alertChannels.emergencyBroadcast ? 'bg-red-500' : 'bg-slate-700'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                    alertChannels.emergencyBroadcast ? 'left-4.5' : 'left-0.5'
+                  }`} />
+                </button>
+              </div>
+
+              {/* UV & Solar Hazard Toggle */}
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-400 shrink-0">
+                    <Sun className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-200">UV & Solar Radiation</div>
+                    <div className="text-[10px] text-slate-400">Extreme solar flux & sunstroke warnings</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  id="toggle-channel-uv"
+                  onClick={() => toggleChannel('uvSunstroke')}
+                  className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${
+                    alertChannels.uvSunstroke ? 'bg-amber-500' : 'bg-slate-700'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                    alertChannels.uvSunstroke ? 'left-4.5' : 'left-0.5'
+                  }`} />
+                </button>
+              </div>
+
+            </div>
           </div>
 
           {/* Test Trigger Button */}

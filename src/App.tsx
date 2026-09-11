@@ -15,6 +15,7 @@ import { TriageModal } from './components/modals/TriageModal';
 import { EmergencyCallModal } from './components/modals/EmergencyCallModal';
 import { HealthReportModal } from './components/modals/HealthReportModal';
 import { PushNotificationSettingsModal } from './components/modals/PushNotificationSettingsModal';
+import { AdminAuthModal } from './components/modals/AdminAuthModal';
 import { HydrationAlertToast } from './components/HydrationAlertToast';
 import { PushNotificationBanner } from './components/PushNotificationBanner';
 import { RollingHeadlinesTicker } from './components/RollingHeadlinesTicker';
@@ -47,8 +48,44 @@ import {
 
 export function App() {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
-  const [userRole, setUserRole] = useState<UserRole>('citizen');
   const [language, setLanguage] = useState<LanguageCode>('en');
+  
+  // Admin authentication state
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('heatshield_admin_auth') === 'true';
+  });
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    const isAuth = localStorage.getItem('heatshield_admin_auth') === 'true';
+    if (isAuth) {
+      const savedRole = localStorage.getItem('heatshield_admin_role') as UserRole;
+      return savedRole || 'civic_authority';
+    }
+    return 'citizen';
+  });
+  const [isAdminAuthOpen, setIsAdminAuthOpen] = useState<boolean>(false);
+
+  const handleAdminSuccess = (role: UserRole) => {
+    setIsAdminAuthenticated(true);
+    setUserRole(role);
+    localStorage.setItem('heatshield_admin_auth', 'true');
+    localStorage.setItem('heatshield_admin_role', role);
+    setIsAdminAuthOpen(false);
+  };
+
+  const handleLockAdminSession = () => {
+    setIsAdminAuthenticated(false);
+    setUserRole('citizen');
+    localStorage.removeItem('heatshield_admin_auth');
+    localStorage.removeItem('heatshield_admin_role');
+  };
+
+  const handleChangeRole = (newRole: UserRole) => {
+    if (newRole !== 'citizen' && !isAdminAuthenticated) {
+      setIsAdminAuthOpen(true);
+    } else {
+      setUserRole(newRole);
+    }
+  };
   
   // Active city & GPS selection state
   const [selectedCity, setSelectedCity] = useState<CityData>(INDIAN_CITIES[0]);
@@ -288,6 +325,10 @@ export function App() {
             language={language}
             selectedCity={selectedCity}
             weather={weather}
+            userRole={userRole}
+            isAdminAuthenticated={isAdminAuthenticated}
+            onOpenAdminAuthModal={() => setIsAdminAuthOpen(true)}
+            onLockAdminSession={handleLockAdminSession}
             onOpenCitySelector={() => setIsCitySelectorOpen(true)}
             onTriggerSOS={() => setIsSOSOpen(true)}
           />
@@ -328,7 +369,10 @@ export function App() {
           currentTab={currentTab}
           onSelectTab={setCurrentTab}
           userRole={userRole}
-          onChangeRole={setUserRole}
+          onChangeRole={handleChangeRole}
+          isAdminAuthenticated={isAdminAuthenticated}
+          onOpenAdminAuthModal={() => setIsAdminAuthOpen(true)}
+          onLockAdminSession={handleLockAdminSession}
           language={language}
           onChangeLanguage={setLanguage}
           weather={weather}
@@ -394,7 +438,17 @@ export function App() {
           onToggleDataSourceMode={handleToggleDataSourceMode}
           onChangeLanguage={setLanguage}
           onRefreshTelemetry={handleRefreshTelemetry}
+          isAdminAuthenticated={isAdminAuthenticated}
+          onOpenAdminAuthModal={() => setIsAdminAuthOpen(true)}
+          onLockAdminSession={handleLockAdminSession}
         />
+
+      {/* Admin Authentication & Municipal ID/Password Modal */}
+      <AdminAuthModal
+        isOpen={isAdminAuthOpen}
+        onClose={() => setIsAdminAuthOpen(false)}
+        onAuthSuccess={handleAdminSuccess}
+      />
 
       {/* Indian Cities Search & Automatic GPS Location Modal */}
       <CitySearchSelector
