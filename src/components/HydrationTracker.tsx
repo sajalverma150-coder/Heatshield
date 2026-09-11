@@ -32,6 +32,7 @@ interface HydrationTrackerProps {
 export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
   weather,
   userProfile,
+  onLogWater,
   language = 'en',
   className = '',
 }) => {
@@ -55,10 +56,15 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
     return calculateWeatherBasedORS(weather, userProfile, langCode);
   }, [weather, userProfile, langCode]);
 
+  // Liquid Fill calculation
+  const currentLoggedMl = userProfile.hydrationTodayMl || 1200;
+  const targetMl = userProfile.targetHydrationMl || conditionIntake.recommendedTargetMl || 2800;
+  const fillPercentage = Math.min(100, Math.max(8, Math.round((currentLoggedMl / targetMl) * 100)));
+
   return (
     <div 
       id="hydration-tracking-section" 
-      className={`p-3.5 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 relative transition-all duration-300 shadow-sm ${className}`}
+      className={`p-3.5 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 relative transition-all duration-300 shadow-sm telemetry-card-hover-cyan ${className}`}
     >
       {/* Header: Title, Guidelines Badge & Risk Tier */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4">
@@ -100,6 +106,100 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
               assessment.tier === 'MODERATE' ? 'मध्यम जलयोजन स्तर' : 'सुरक्षित जलयोजन'
             ) : assessment.label}
           </span>
+        </div>
+      </div>
+
+      {/* Interactive Liquid Fill Gauge Vessel */}
+      <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 mb-4 relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          
+          {/* Animated Fluid Vessel Container */}
+          <div className="relative w-28 h-36 sm:w-32 sm:h-40 rounded-2xl bg-slate-900 border-2 border-slate-700/80 shadow-inner overflow-hidden shrink-0 flex flex-col justify-end">
+            
+            {/* Glass Glare Reflection */}
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none z-20" />
+            
+            {/* Fluid Level Fill Box */}
+            <div 
+              className="w-full relative transition-all duration-700 ease-out bg-gradient-to-t from-cyan-600 via-cyan-500 to-sky-400"
+              style={{ height: `${fillPercentage}%` }}
+            >
+              {/* Overlapping Wave SVG animations at fluid surface */}
+              <div className="absolute -top-3 left-0 w-[200%] h-4 overflow-hidden pointer-events-none z-10">
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full opacity-80 animate-liquid-wave">
+                  <path d="M0,0 C150,90 350,-40 500,40 C650,120 900,10 1200,40 L1200,120 L0,120 Z" fill="#38bdf8" />
+                </svg>
+              </div>
+              <div className="absolute -top-2.5 left-0 w-[200%] h-4 overflow-hidden pointer-events-none z-10">
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full opacity-60 animate-liquid-wave-slow">
+                  <path d="M0,40 C200,-20 400,80 600,20 C800,-40 1000,60 1200,10 L1200,120 L0,120 Z" fill="#06b6d4" />
+                </svg>
+              </div>
+
+              {/* Rising Fluid Bubbles */}
+              <div className="absolute left-1/4 bottom-2 w-2 h-2 rounded-full bg-white/40 animate-bubble-1 pointer-events-none" />
+              <div className="absolute left-1/2 bottom-4 w-1.5 h-1.5 rounded-full bg-white/50 animate-bubble-2 pointer-events-none" />
+              <div className="absolute left-3/4 bottom-1 w-2.5 h-2.5 rounded-full bg-white/30 animate-bubble-3 pointer-events-none" />
+            </div>
+
+            {/* Inner Percentage Readout Overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-30">
+              <span className="text-2xl font-headline font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                {fillPercentage}%
+              </span>
+              <span className="text-[10px] font-mono font-semibold text-cyan-200 bg-slate-950/80 px-2 py-0.5 rounded-md border border-cyan-500/40">
+                {currentLoggedMl} ml
+              </span>
+            </div>
+          </div>
+
+          {/* Fluid Metrics & Quick Log Actions */}
+          <div className="flex-1 w-full space-y-2.5">
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-slate-400">{isHindi ? 'दैनिक लक्ष्य मात्रा:' : 'Daily Hydration Target:'}</span>
+              <span className="text-cyan-400 font-bold">{targetMl} ml</span>
+            </div>
+
+            <div className="w-full bg-slate-900 rounded-full h-2 border border-slate-800 overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-cyan-500 to-sky-400 h-full rounded-full transition-all duration-500"
+                style={{ width: `${fillPercentage}%` }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-1">
+              <span>{isHindi ? 'शेष आवश्यकता:' : 'Remaining:'} <strong className="text-slate-200">{Math.max(0, targetMl - currentLoggedMl)} ml</strong></span>
+              <span>{isHindi ? 'ओआरएस पैकेट:' : 'ORS Packets:'} <strong className="text-orange-400">{orsRecommendation.packetsPerDay} {isHindi ? 'सचेत' : 'sachets'}</strong></span>
+            </div>
+
+            {/* Quick Fluid Log Buttons */}
+            {onLogWater && (
+              <div className="pt-2 flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => onLogWater(250)}
+                  className="px-2.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-xs font-semibold border border-cyan-500/40 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                >
+                  <Droplet className="w-3.5 h-3.5" />
+                  <span>+ 250ml Water</span>
+                </button>
+                <button
+                  onClick={() => onLogWater(300)}
+                  className="px-2.5 py-1.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 text-xs font-semibold border border-orange-500/40 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>+ 300ml WHO-ORS</span>
+                </button>
+                <button
+                  onClick={() => onLogWater(500)}
+                  className="px-2.5 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-xs font-semibold border border-sky-500/40 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                >
+                  <Droplet className="w-3.5 h-3.5" />
+                  <span>+ 500ml Water</span>
+                </button>
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
 

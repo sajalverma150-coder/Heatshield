@@ -228,7 +228,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
       {/* 1. Master Hero Weather & Curfew Anchor Card */}
       <section 
         id="hero-heat-overview-card"
-        className="p-5 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 relative overflow-hidden shadow-sm"
+        className="p-5 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 relative overflow-hidden shadow-sm telemetry-card-hover"
       >
         {/* Top bar inside Hero: Station identity & Data Stream Switcher */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/80">
@@ -376,19 +376,27 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
       {/* 2. Essential Vitals Grid (4 Clean Bento Cards) */}
       <section id="biometeorology-vitals-grid" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
-        {/* WBGT Card */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
+        {/* WBGT Card with Glowing Radial Status Ring */}
+        <div className={`p-4 rounded-2xl bg-slate-900/90 border transition-all shadow-sm flex flex-col justify-between telemetry-card-hover ${
+          weather.wbgt >= 33.5 ? 'glow-ring-red border-red-500/80' :
+          weather.wbgt >= 31.5 ? 'glow-ring-amber border-orange-500/80' :
+          weather.wbgt >= 29.0 ? 'glow-ring-amber border-amber-500/80' :
+          'glow-ring-green border-emerald-500/80'
+        }`}>
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
               <span className="font-semibold">{isHindi ? 'WBGT ताप तनाव' : 'WBGT Heat Stress'}</span>
               {weather.wbgt >= 32 ? (
-                <AlertTriangle className="w-4 h-4 text-red-400" />
+                <AlertTriangle className="w-4 h-4 text-red-400 animate-pulse" />
               ) : (
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               )}
             </div>
-            <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1">
-              {weather.wbgt}<span className="text-sm font-sans font-normal text-slate-400 ml-1">°C</span>
+            <div className="text-2xl sm:text-3xl font-headline font-bold text-white mt-1 flex items-baseline justify-between">
+              <div>
+                {weather.wbgt}<span className="text-sm font-sans font-normal text-slate-400 ml-1">°C</span>
+              </div>
+              <div className="w-3 h-3 rounded-full animate-ping opacity-75 bg-current text-orange-500" />
             </div>
           </div>
           <div className="mt-3">
@@ -410,7 +418,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         </div>
 
         {/* Heat Index & Humidity */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between telemetry-card-hover">
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
               <span className="font-semibold">{isHindi ? 'हीट इंडेक्स / आर्द्रता' : 'Heat Index / RH'}</span>
@@ -431,7 +439,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         </div>
 
         {/* Solar Radiation & UV */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between telemetry-card-hover">
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
               <span className="font-semibold">{isHindi ? 'सौर एवं यूवी विकिरण' : 'Solar & UV Load'}</span>
@@ -454,7 +462,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         </div>
 
         {/* Wind Speed & Loo Winds */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between">
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between telemetry-card-hover">
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
               <span className="font-semibold">{isHindi ? 'पवन गति' : 'Wind Velocity'}</span>
@@ -480,7 +488,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* Left (7 cols): Diurnal Heat & Curfew Curve */}
-        <div className="lg:col-span-7 p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
+        <div className="lg:col-span-7 p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm telemetry-card-hover">
           <div>
             <div className="flex items-center justify-between mb-2">
               <div>
@@ -502,9 +510,20 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
               </div>
             </div>
 
-            {/* Clean SVG Temperature Graph */}
+            {/* SVG Temperature Graph with Flowing Dash Animations */}
             <div className="w-full h-48 mt-4 bg-slate-950/60 rounded-xl border border-slate-800 p-3 relative">
               <svg viewBox="0 0 600 200" className="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="tempGradientArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ea580c" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="#ea580c" stopOpacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="wbgtGradientArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
                 {/* Reference Grid lines */}
                 <line x1="40" y1="160" x2="560" y2="160" stroke="#1e293b" strokeWidth="1" />
                 <line x1="40" y1="110" x2="560" y2="110" stroke="#1e293b" strokeWidth="1" />
@@ -514,7 +533,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                 <line x1="40" y1="125" x2="560" y2="125" stroke="#38bdf8" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
                 <text x="45" y="120" fill="#38bdf8" fontSize="10" fontFamily="sans-serif">Safe WBGT Limit (29°C)</text>
 
-                {/* Curfew window highlight rectangle - only shown if curfew thresholds reached */}
+                {/* Curfew window highlight rectangle */}
                 {statusInfo.hasCurfew && (
                   <g>
                     <rect x="230" y="20" width="180" height="150" fill="#ef4444" fillOpacity="0.12" rx="8" />
@@ -524,7 +543,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                   </g>
                 )}
 
-                {/* Lines connecting the dynamic points */}
+                {/* Curves with Area Fills and Animated Dash Strokes */}
                 {(() => {
                   const points = hourlyData.map((pt, idx) => ({
                     x: 50 + idx * 83.3,
@@ -540,10 +559,20 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                     return idx === 0 ? `M ${curr.x} ${curr.yWbgt}` : `${acc} L ${curr.x} ${curr.yWbgt}`;
                   }, '');
 
+                  const areaTemp = `${pathTemp} L ${points[points.length - 1].x} 165 L ${points[0].x} 165 Z`;
+
                   return (
                     <>
+                      {/* Area Fill */}
+                      <path d={areaTemp} fill="url(#tempGradientArea)" />
+
+                      {/* Base Solid Curves */}
                       <path d={pathTemp} fill="none" stroke="#ea580c" strokeWidth="2.5" />
-                      <path d={pathWbgt} fill="none" stroke="#dc2626" strokeWidth="2" strokeDasharray="3 2" />
+                      <path d={pathWbgt} fill="none" stroke="#dc2626" strokeWidth="2" opacity="0.7" />
+
+                      {/* Animated Flowing Dash Stroke Overlay */}
+                      <path d={pathTemp} fill="none" stroke="#ffedd5" strokeWidth="2" className="animate-dash-flow" />
+                      <path d={pathWbgt} fill="none" stroke="#fca5a5" strokeWidth="1.5" className="animate-dash-flow-fast" />
                     </>
                   );
                 })()}
@@ -557,7 +586,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
                   return (
                     <g key={pt.time} className="cursor-pointer" onClick={() => setSelectedHourIndex(idx)}>
                       {isSelected && (
-                        <circle cx={cx} cy={cy} r="10" fill="#ea580c" fillOpacity="0.3" />
+                        <circle cx={cx} cy={cy} r="10" fill="#ea580c" fillOpacity="0.3" className="animate-ping" />
                       )}
                       <circle
                         cx={cx}
@@ -626,7 +655,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         
         {/* Designated Shelter Card */}
-        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
+        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm telemetry-card-hover">
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -665,7 +694,7 @@ export const LiveTelemetryView: React.FC<LiveTelemetryViewProps> = ({
         </div>
 
         {/* Official Statutory Directives */}
-        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm">
+        <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between shadow-sm telemetry-card-hover">
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 text-orange-400">

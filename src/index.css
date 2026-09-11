@@ -34,6 +34,136 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* 1. Animated Telemetry Wave Dash Keyframe */
+@keyframes telemetryDashFlow {
+  0% {
+    stroke-dashoffset: 120;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-dash-flow {
+  stroke-dasharray: 6 4;
+  animation: telemetryDashFlow 8s linear infinite;
+}
+
+.animate-dash-flow-fast {
+  stroke-dasharray: 8 4;
+  animation: telemetryDashFlow 4s linear infinite;
+}
+
+/* 2. Liquid Fill Hydration Gauge Wave Keyframe */
+@keyframes waveMotion {
+  0% {
+    transform: translateX(0%) scaleY(1);
+  }
+  50% {
+    transform: translateX(-25%) scaleY(1.2);
+  }
+  100% {
+    transform: translateX(-50%) scaleY(1);
+  }
+}
+
+@keyframes bubbleFloat {
+  0% {
+    transform: translateY(100%) scale(0.6);
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-20%) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.animate-liquid-wave {
+  animation: waveMotion 5s ease-in-out infinite;
+}
+
+.animate-liquid-wave-slow {
+  animation: waveMotion 8s ease-in-out infinite reverse;
+}
+
+.animate-bubble-1 {
+  animation: bubbleFloat 3s ease-in-out infinite;
+}
+
+.animate-bubble-2 {
+  animation: bubbleFloat 4s ease-in-out 1.5s infinite;
+}
+
+.animate-bubble-3 {
+  animation: bubbleFloat 3.5s ease-in-out 0.8s infinite;
+}
+
+/* 3. Glowing Radial Status Rings Keyframes */
+@keyframes neonPulseGreen {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.25), inset 0 0 8px rgba(16, 185, 129, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(16, 185, 129, 0.5), inset 0 0 14px rgba(16, 185, 129, 0.3);
+  }
+}
+
+@keyframes neonPulseAmber {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.3), inset 0 0 10px rgba(245, 158, 11, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(245, 158, 11, 0.6), inset 0 0 16px rgba(245, 158, 11, 0.35);
+  }
+}
+
+@keyframes neonPulseRed {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.4), inset 0 0 12px rgba(239, 68, 68, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(239, 68, 68, 0.75), inset 0 0 20px rgba(239, 68, 68, 0.45);
+  }
+}
+
+.glow-ring-green {
+  animation: neonPulseGreen 3s ease-in-out infinite;
+}
+
+.glow-ring-amber {
+  animation: neonPulseAmber 2.5s ease-in-out infinite;
+}
+
+.glow-ring-red {
+  animation: neonPulseRed 2s ease-in-out infinite;
+}
+
+/* 4. Hover Card Elevation & Depth Utilities */
+.telemetry-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.telemetry-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.5), 0 0 20px rgba(249, 115, 22, 0.18);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
+.telemetry-card-hover-cyan:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.5), 0 0 20px rgba(6, 182, 212, 0.2);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+.telemetry-card-hover-red:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.5), 0 0 22px rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
 /* Tactical Light/Standard Map Tiles */
 .leaflet-tile.dark-tactical-tiles {
   filter: contrast(1.05) saturate(0.9);

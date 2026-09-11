@@ -121,7 +121,7 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
               key={day.dayName + idx}
               id={`forecast-day-card-${idx}`}
               onClick={() => setSelectedDayIndex(idx)}
-              className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-left relative overflow-hidden ${
+              className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-left relative overflow-hidden telemetry-card-hover ${
                 isSelected
                   ? 'bg-slate-800 border-orange-500 shadow-sm ring-1 ring-orange-500/50'
                   : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
@@ -218,31 +218,57 @@ export const PredictiveForecastView: React.FC<PredictiveForecastViewProps> = ({
 
                 {/* Dynamic Temperature Curve */}
                 {hourlyPts.length > 1 && (
-                  <path
-                    d={hourlyPts.map((pt, i) => {
-                      const x = 50 + i * ((470) / (hourlyPts.length - 1));
-                      const y = getYCoord(pt.temp);
-                      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-                    }).join(' ')}
-                    fill="none"
-                    stroke="#ea580c"
-                    strokeWidth="3.5"
-                  />
+                  <>
+                    <path
+                      d={hourlyPts.map((pt, i) => {
+                        const x = 50 + i * ((470) / (hourlyPts.length - 1));
+                        const y = getYCoord(pt.temp);
+                        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                      }).join(' ')}
+                      fill="none"
+                      stroke="#ea580c"
+                      strokeWidth="3.5"
+                    />
+                    <path
+                      d={hourlyPts.map((pt, i) => {
+                        const x = 50 + i * ((470) / (hourlyPts.length - 1));
+                        const y = getYCoord(pt.temp);
+                        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                      }).join(' ')}
+                      fill="none"
+                      stroke="#ffedd5"
+                      strokeWidth="2"
+                      className="animate-dash-flow"
+                    />
+                  </>
                 )}
 
                 {/* Dynamic WBGT line */}
                 {hourlyPts.length > 1 && (
-                  <path
-                    d={hourlyPts.map((pt, i) => {
-                      const x = 50 + i * ((470) / (hourlyPts.length - 1));
-                      const y = getYCoord(pt.wbgt);
-                      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-                    }).join(' ')}
-                    fill="none"
-                    stroke="#f97316"
-                    strokeWidth="2"
-                    strokeDasharray="4 2"
-                  />
+                  <>
+                    <path
+                      d={hourlyPts.map((pt, i) => {
+                        const x = 50 + i * ((470) / (hourlyPts.length - 1));
+                        const y = getYCoord(pt.wbgt);
+                        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                      }).join(' ')}
+                      fill="none"
+                      stroke="#f97316"
+                      strokeWidth="2"
+                      opacity="0.7"
+                    />
+                    <path
+                      d={hourlyPts.map((pt, i) => {
+                        const x = 50 + i * ((470) / (hourlyPts.length - 1));
+                        const y = getYCoord(pt.wbgt);
+                        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                      }).join(' ')}
+                      fill="none"
+                      stroke="#fca5a5"
+                      strokeWidth="1.5"
+                      className="animate-dash-flow-fast"
+                    />
+                  </>
                 )}
 
                 {/* Plot points */}
