@@ -5,15 +5,17 @@ import { UserRole, LanguageCode } from '../../types';
 interface AdminAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccessAuth: (role: UserRole) => void;
-  language: LanguageCode;
+  onSuccessAuth?: (role: UserRole) => void;
+  onAuthSuccess?: (role: UserRole) => void;
+  language?: LanguageCode;
 }
 
 export const AdminAuthModal: React.FC<AdminAuthModalProps> = ({
   isOpen,
   onClose,
   onSuccessAuth,
-  language
+  onAuthSuccess,
+  language = 'en'
 }) => {
   const [adminId, setAdminId] = useState<string>('admin@heatshield.gov.in');
   const [password, setPassword] = useState<string>('admin123');
@@ -34,7 +36,10 @@ export const AdminAuthModal: React.FC<AdminAuthModalProps> = ({
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
-        onSuccessAuth(selectedRole);
+        const authCallback = onAuthSuccess || onSuccessAuth;
+        if (authCallback) {
+          authCallback(selectedRole);
+        }
         onClose();
       }, 800);
     } else {

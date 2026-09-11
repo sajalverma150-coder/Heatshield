@@ -10,7 +10,8 @@ import {
   MapPin,
   ChevronRight,
   PhoneCall,
-  Shield
+  Shield,
+  Sparkles
 } from 'lucide-react';
 import { NavigationTab, LanguageCode } from '../types';
 import { CityData } from '../data/indiaCities';

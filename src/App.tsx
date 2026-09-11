@@ -448,6 +448,8 @@ export function App() {
         isOpen={isAdminAuthOpen}
         onClose={() => setIsAdminAuthOpen(false)}
         onAuthSuccess={handleAdminSuccess}
+        onSuccessAuth={handleAdminSuccess}
+        language={language}
       />
 
       {/* Indian Cities Search & Automatic GPS Location Modal */}
