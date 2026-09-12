@@ -10,21 +10,24 @@ import {
   AlertOctagon,
   Radio
 } from 'lucide-react';
-import { UserHealthProfile } from '../../types';
+import { UserHealthProfile, LanguageCode } from '../../types';
 
 interface EmergencyCallModalProps {
   isOpen: boolean;
   onClose: () => void;
   userProfile: UserHealthProfile;
+  language?: LanguageCode;
 }
 
 export const EmergencyCallModal: React.FC<EmergencyCallModalProps> = ({
   isOpen,
   onClose,
   userProfile,
+  language = 'en',
 }) => {
   const [etaSeconds, setEtaSeconds] = useState<number>(348); // 5 mins 48 secs
   const [isTransmitted, setIsTransmitted] = useState<boolean>(true);
+  const isHindi = language === 'hi';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -43,87 +46,105 @@ export const EmergencyCallModal: React.FC<EmergencyCallModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in">
-      <div className="bg-[#0b1326] border-2 border-red-500 rounded-3xl max-w-md w-full p-5 sm:p-6 text-center shadow-2xl shadow-red-950/60 relative overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-[#12304A]/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white border-2 border-[#A63D40] rounded-2xl max-w-md w-full p-5 sm:p-6 text-center shadow-xl relative overflow-hidden text-[#263746]">
         
-        {/* Siren Radar Animation Ring */}
-        <div className="w-20 h-20 rounded-full bg-red-600/20 border-2 border-red-500 mx-auto flex items-center justify-center text-red-500 mb-4 relative">
-          <div className="absolute inset-0 rounded-full bg-red-600/30 animate-ping" />
-          <PhoneCall className="w-9 h-9 animate-bounce text-red-400" />
+        {/* Siren Badge */}
+        <div className="w-16 h-16 rounded-full bg-[#F8E9E8] border-2 border-[#A63D40] mx-auto flex items-center justify-center text-[#A63D40] mb-3">
+          <PhoneCall className="w-7 h-7" />
         </div>
 
-        <div className="inline-block px-3 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-mono font-bold uppercase tracking-wider mb-1">
-          CODE RED 108 DISPATCHED
+        <div className="inline-block px-3 py-1 rounded bg-[#F8E9E8] border border-[#A63D40] text-[#A63D40] text-xs font-mono font-bold uppercase tracking-wider mb-2">
+          {isHindi ? 'कोड रेड १०८ एम्बुलेंस प्रेषित' : 'CODE RED 108 DISPATCHED'}
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-headline font-black text-white">
-          Heat Stroke Emergency Unit En Route
+        <h2 className="text-xl sm:text-2xl font-headline font-bold text-[#12304A]">
+          {isHindi ? 'हीट स्ट्रोक आपातकालीन इकाई मार्ग में है' : 'Heat Stroke Emergency Unit En Route'}
         </h2>
-        <p className="text-xs text-slate-300 mt-1">
-          Lokmanya Tilak Sion Hospital Hyperthermia Trauma Unit
+        <p className="text-xs text-[#657783] mt-1">
+          {isHindi 
+            ? 'लोकमान्य तिलक सायन अस्पताल हाइपरथर्मिया ट्रॉमा सेंटर'
+            : 'Lokmanya Tilak Sion Hospital Hyperthermia Trauma Unit'}
         </p>
 
         {/* Live ETA Card */}
-        <div className="mt-4 p-4 rounded-2xl bg-[#060e20] border border-[#2d3449] space-y-2">
-          <div className="text-xs font-mono text-slate-400">ESTIMATED ARRIVAL TIME</div>
-          <div className="text-4xl font-headline font-black text-orange-400 tracking-tight">
+        <div className="mt-4 p-4 rounded-xl bg-[#E8F1F5] border border-[#D6E0E5] space-y-1.5">
+          <div className="text-xs font-mono text-[#657783] font-semibold">
+            {isHindi ? 'अनुमानित आगमन समय' : 'ESTIMATED ARRIVAL TIME'}
+          </div>
+          <div className="text-4xl font-headline font-bold text-[#C65D27] tracking-tight">
             {formatEta(etaSeconds)}
           </div>
-          <div className="text-xs font-mono text-emerald-400 flex items-center justify-center gap-1.5">
-            <Radio className="w-3.5 h-3.5 animate-pulse" />
-            <span>Unit #MH-01-4491 (Ice-Bath Equipped)</span>
+          <div className="text-xs font-mono text-[#317A5A] flex items-center justify-center gap-1.5 font-semibold">
+            <Radio className="w-3.5 h-3.5" />
+            <span>{isHindi ? 'यूनिट #MH-01-4491 (बर्फ-स्नान सुसज्जित)' : 'Unit #MH-01-4491 (Ice-Bath Equipped)'}</span>
           </div>
         </div>
 
         {/* Live GPS Coordinates Transmitted */}
-        <div className="mt-3 p-3 rounded-xl bg-[#171f33] border border-[#2d3449] text-left text-xs font-mono space-y-1.5">
-          <div className="flex items-center justify-between text-slate-300">
-            <span className="flex items-center gap-1 text-slate-400">
-              <MapPin className="w-3.5 h-3.5 text-red-400" /> GPS Locked:
+        <div className="mt-3 p-3 rounded-xl bg-[#F4F1EA] border border-[#D6E0E5] text-left text-xs font-mono space-y-1.5">
+          <div className="flex items-center justify-between text-[#263746]">
+            <span className="flex items-center gap-1 text-[#657783]">
+              <MapPin className="w-3.5 h-3.5 text-[#A63D40]" /> {isHindi ? 'जीपीएस लॉक:' : 'GPS Locked:'}
             </span>
-            <span className="text-white font-bold">19.0435° N, 72.8532° E</span>
+            <span className="text-[#12304A] font-bold">19.0435° N, 72.8532° E</span>
           </div>
-          <div className="flex items-center justify-between text-slate-300">
-            <span className="text-slate-400">Location:</span>
-            <span className="text-slate-200 truncate">Dharavi 90ft Rd / Labour Camp</span>
+          <div className="flex items-center justify-between text-[#263746]">
+            <span className="text-[#657783]">{isHindi ? 'स्थान:' : 'Location:'}</span>
+            <span className="text-[#12304A] truncate">
+              {isHindi ? 'धारावी ९० फीट रोड / लेबर कैंप' : 'Dharavi 90ft Rd / Labour Camp'}
+            </span>
           </div>
-          <div className="flex items-center justify-between text-slate-300">
-            <span className="text-slate-400">Patient:</span>
-            <span className="text-white font-bold">{userProfile.name} (Age {userProfile.age})</span>
+          <div className="flex items-center justify-between text-[#263746]">
+            <span className="text-[#657783]">{isHindi ? 'मरीज:' : 'Patient:'}</span>
+            <span className="text-[#12304A] font-bold">
+              {userProfile.name} ({isHindi ? `आयु ${userProfile.age}` : `Age ${userProfile.age}`})
+            </span>
           </div>
-          <div className="flex items-center justify-between text-emerald-400 pt-1 border-t border-[#2d3449]">
+          <div className="flex items-center justify-between text-[#317A5A] pt-1.5 border-t border-[#D6E0E5] font-semibold">
             <span className="flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> ICE SMS Dispatched:
+              <CheckCircle2 className="w-3.5 h-3.5" /> {isHindi ? 'आपातकालीन एसएमएस प्रेषित:' : 'ICE SMS Dispatched:'}
             </span>
             <span>{userProfile.iceContact.name}</span>
           </div>
         </div>
 
         {/* Immediate Survival Instructions */}
-        <div className="mt-4 text-xs text-left bg-red-950/30 border border-red-500/30 p-3 rounded-xl text-red-200 leading-relaxed">
-          <strong className="block font-headline text-red-400 mb-1">
-            CRITICAL FIRST-AID WHILE AMBULANCE TRAVELS:
+        <div className="mt-4 text-xs text-left bg-[#F8E9E8] border border-[#A63D40]/30 p-3 rounded-xl text-[#A63D40] leading-relaxed">
+          <strong className="block font-headline font-bold text-[#A63D40] mb-1">
+            {isHindi ? 'एम्बुलेंस के आने तक महत्वपूर्ण प्राथमिक चिकित्सा:' : 'CRITICAL FIRST-AID WHILE AMBULANCE TRAVELS:'}
           </strong>
-          1. Move patient immediately into shade or AC refuge.<br />
-          2. Douse body with cold water and fan vigorously.<br />
-          3. Do NOT give water if patient is confused or vomiting.<br />
-          4. Place ice packs on neck, underarms, and groin.
+          {isHindi ? (
+            <>
+              १. मरीज को तत्काल छांव या वातानुकूलित स्थान में ले जाएं।<br />
+              २. शरीर पर ठंडा पानी छिड़कें व तेजी से पंखा चलाएं।<br />
+              ३. यदि मरीज बेहोश हो या उल्टी कर रहा हो तो पानी न पिलाएं।<br />
+              ४. गर्दन, बगल और जांघों पर ठंडी बर्फ की थैलियां रखें।
+            </>
+          ) : (
+            <>
+              1. Move patient immediately into shade or AC refuge.<br />
+              2. Douse body with cold water and fan vigorously.<br />
+              3. Do NOT give water if patient is confused or vomiting.<br />
+              4. Place ice packs on neck, underarms, and groin.
+            </>
+          )}
         </div>
 
         {/* Actions */}
         <div className="mt-5 flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 bg-[#171f33] hover:bg-[#222a3d] border border-[#2d3449] text-slate-300 text-xs font-mono font-bold rounded-xl transition-colors"
+            className="flex-1 py-2.5 bg-[#E8F1F5] hover:bg-[#D6E0E5] border border-[#1E5A7A]/30 text-[#12304A] text-xs font-semibold rounded-lg transition-colors cursor-pointer"
           >
-            Minimize Tracking Window
+            {isHindi ? 'खिड़की न्यूनतम करें' : 'Minimize Tracking Window'}
           </button>
           <a
             href="tel:108"
-            className="px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-mono font-bold rounded-xl flex items-center gap-1.5 shadow-lg shadow-red-950/50"
+            className="px-4 py-2.5 bg-[#A63D40] hover:bg-[#8F3437] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors"
           >
             <PhoneCall className="w-3.5 h-3.5" />
-            <span>Redial 108</span>
+            <span>{isHindi ? '१०८ पुनः डायल करें' : 'Redial 108'}</span>
           </a>
         </div>
 

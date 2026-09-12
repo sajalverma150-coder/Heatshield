@@ -578,7 +578,7 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
   };
 
   return (
-    <div className={`relative w-full rounded-2xl overflow-hidden border border-[#2d3449] bg-[#060e20] ${isFullscreen ? 'fixed inset-4 z-50 shadow-2xl h-[calc(100vh-2rem)]' : 'h-[460px] sm:h-[520px]'}`}>
+    <div className={`relative w-full rounded-lg overflow-hidden border border-[#D6E0E5] bg-[#E8F1F5] ${isFullscreen ? 'fixed inset-4 z-50 shadow-2xl h-[calc(100vh-2rem)]' : 'h-[460px] sm:h-[520px]'}`}>
       
       {/* Top Floating Control Bar: Search Omnibar + City Badge + Layers */}
       <div className="absolute top-3 left-3 right-3 z-[400] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pointer-events-none">
@@ -593,23 +593,23 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
         </div>
 
         {/* Map Layers & Toggles */}
-        <div className="pointer-events-auto flex items-center justify-end gap-1.5 bg-[#0b1326]/95 backdrop-blur-md p-1 rounded-xl border border-[#2d3449] shadow-lg text-xs font-mono self-end sm:self-auto">
+        <div className="pointer-events-auto flex items-center justify-end gap-1.5 bg-white/95 backdrop-blur-md p-1 rounded-md border border-[#D6E0E5] shadow-xs text-xs font-mono self-end sm:self-auto text-[#263746]">
           
-          {/* Base Layer Switcher (All 100% Free - Zero API key) */}
-          <div className="flex items-center gap-1 border-r border-[#2d3449] pr-1 mr-0.5">
+          {/* Base Layer Switcher */}
+          <div className="flex items-center gap-1 border-r border-[#D6E0E5] pr-1 mr-0.5">
             <button
               onClick={() => setActiveBaseLayer('tactical')}
-              className={`px-2 py-1 rounded text-[11px] font-semibold transition-all ${
-                activeBaseLayer === 'tactical' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-white'
+              className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors cursor-pointer ${
+                activeBaseLayer === 'tactical' ? 'bg-[#1E5A7A] text-white shadow-xs' : 'text-[#657783] hover:text-[#12304A]'
               }`}
-              title="Tactical Dark Map (OpenStreetMap with GPU Night Filter)"
+              title="Tactical Dark Map"
             >
               Dark
             </button>
             <button
               onClick={() => setActiveBaseLayer('satellite')}
-              className={`px-2 py-1 rounded text-[11px] font-semibold transition-all ${
-                activeBaseLayer === 'satellite' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-white'
+              className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors cursor-pointer ${
+                activeBaseLayer === 'satellite' ? 'bg-[#1E5A7A] text-white shadow-xs' : 'text-[#657783] hover:text-[#12304A]'
               }`}
               title="High-Res Satellite Imagery (Esri World Imagery)"
             >
@@ -617,8 +617,8 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
             </button>
             <button
               onClick={() => setActiveBaseLayer('streets')}
-              className={`px-2 py-1 rounded text-[11px] font-semibold transition-all ${
-                activeBaseLayer === 'streets' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-white'
+              className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors cursor-pointer ${
+                activeBaseLayer === 'streets' ? 'bg-[#1E5A7A] text-white shadow-xs' : 'text-[#657783] hover:text-[#12304A]'
               }`}
               title="OpenStreetMap Standard Basemap"
             >
@@ -626,8 +626,8 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
             </button>
             <button
               onClick={() => setActiveBaseLayer('relief')}
-              className={`px-2 py-1 rounded text-[11px] font-semibold transition-all ${
-                activeBaseLayer === 'relief' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-white'
+              className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors cursor-pointer ${
+                activeBaseLayer === 'relief' ? 'bg-[#1E5A7A] text-white shadow-xs' : 'text-[#657783] hover:text-[#12304A]'
               }`}
               title="Humanitarian Emergency Map (HOT)"
             >
@@ -638,24 +638,24 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
           {/* Thermal Heat Overlay Toggle */}
           <button
             onClick={() => setShowThermalOverlay(!showThermalOverlay)}
-            className={`px-2 py-1 rounded text-[11px] flex items-center gap-1 transition-all ${
-              showThermalOverlay ? 'bg-red-600/30 text-red-300 border border-red-500/50' : 'text-slate-400 hover:text-white'
+            className={`px-2 py-1 rounded text-[11px] flex items-center gap-1 transition-colors cursor-pointer ${
+              showThermalOverlay ? 'bg-[#FFF4D6] text-[#C65D27] border border-[#C65D27]' : 'text-[#657783] hover:text-[#12304A]'
             }`}
             title="Toggle Urban Heat Island Radar"
           >
-            <Flame className="w-3 h-3 text-red-400" />
+            <Flame className="w-3 h-3 text-[#C65D27]" />
             <span className="hidden sm:inline">UHI Heat</span>
           </button>
 
           {/* Water Tanker Toggle */}
           <button
             onClick={() => setShowWaterTankers(!showWaterTankers)}
-            className={`px-2 py-1 rounded text-[11px] flex items-center gap-1 transition-all ${
-              showWaterTankers ? 'bg-cyan-600/30 text-cyan-300 border border-cyan-500/50' : 'text-slate-400 hover:text-white'
+            className={`px-2 py-1 rounded text-[11px] flex items-center gap-1 transition-colors cursor-pointer ${
+              showWaterTankers ? 'bg-[#E8F1F5] text-[#1E5A7A] border border-[#1E5A7A]' : 'text-[#657783] hover:text-[#12304A]'
             }`}
             title="Toggle Emergency Water Bowsers"
           >
-            <Droplet className="w-3 h-3 text-cyan-400" />
+            <Droplet className="w-3 h-3 text-[#1E5A7A]" />
             <span className="hidden sm:inline">Tankers</span>
           </button>
 
@@ -663,15 +663,15 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
           <button
             onClick={handleRecenterCity}
             title="Recenter Map on City"
-            className="p-1 text-slate-400 hover:text-white rounded hover:bg-[#171f33]"
+            className="p-1 text-[#657783] hover:text-[#12304A] rounded hover:bg-[#E8F1F5] cursor-pointer"
           >
-            <Crosshair className="w-3.5 h-3.5 text-orange-400" />
+            <Crosshair className="w-3.5 h-3.5 text-[#1E5A7A]" />
           </button>
 
           {/* Fullscreen Toggle */}
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-1 text-slate-400 hover:text-white rounded hover:bg-[#171f33]"
+            className="p-1 text-[#657783] hover:text-[#12304A] rounded hover:bg-[#E8F1F5] cursor-pointer"
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Map"}
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -682,26 +682,26 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
 
       {/* Searched Location Banner (if active) */}
       {activeSearchedLoc && (
-        <div className="absolute top-16 left-3 right-3 sm:left-3 sm:right-auto sm:max-w-md z-[400] bg-[#0b1326]/95 backdrop-blur-md p-2.5 px-3 rounded-xl border border-amber-500/80 shadow-2xl animate-in fade-in flex items-center justify-between gap-3">
+        <div className="absolute top-16 left-3 right-3 sm:left-3 sm:right-auto sm:max-w-md z-[400] bg-white/95 backdrop-blur-md p-2.5 px-3 rounded-md border border-[#B7791F] shadow-md animate-in fade-in flex items-center justify-between gap-3 text-[#263746]">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-[#B7791F] shrink-0" />
             <div className="truncate">
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold text-amber-400 uppercase">
+                <span className="text-[10px] font-mono font-bold text-[#B7791F] uppercase">
                   {activeSearchedLoc.typeLabel}:
                 </span>
-                <span className="text-xs font-bold text-white truncate">
+                <span className="text-xs font-bold text-[#12304A] truncate">
                   {activeSearchedLoc.name}
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 truncate">
+              <p className="text-[10px] text-[#657783] truncate">
                 {activeSearchedLoc.secondaryText}
               </p>
             </div>
           </div>
           <button
             onClick={handleClearSearched}
-            className="p-1 hover:bg-[#171f33] rounded-lg text-slate-400 hover:text-white transition-colors shrink-0"
+            className="p-1 hover:bg-[#F4F1EA] rounded text-[#657783] hover:text-[#12304A] transition-colors shrink-0 cursor-pointer"
             title="Clear searched location"
           >
             <X className="w-3.5 h-3.5" />
@@ -711,22 +711,22 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
 
       {/* Active Navigation HUD Banner if Route is Active */}
       {activeNavigationFacility && (
-        <div className="absolute top-28 left-3 right-3 sm:left-auto sm:right-3 sm:w-96 z-[400] bg-[#0b1326]/95 backdrop-blur-md p-3 rounded-xl border border-amber-500/70 shadow-2xl animate-in fade-in slide-in-from-top-3">
+        <div className="absolute top-28 left-3 right-3 sm:left-auto sm:right-3 sm:w-96 z-[400] bg-white/95 backdrop-blur-md p-3 rounded-md border border-[#1E5A7A] shadow-md animate-in fade-in slide-in-from-top-3 text-[#263746]">
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                <span className="text-[10px] font-mono font-bold text-amber-400 tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-[#1E5A7A] shrink-0" />
+                <span className="text-[10px] font-mono font-bold text-[#1E5A7A] tracking-wider">
                   ACTIVE GPS ROUTE GUIDANCE
                 </span>
-                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#E8F1F5] text-[#317A5A] border border-[#317A5A]">
                   {navigationRouteMode === 'cool' ? 'SHADED CORRIDOR' : 'SHORTEST'}
                 </span>
               </div>
-              <h4 className="text-xs font-headline font-bold text-white mt-1">
+              <h4 className="text-xs font-headline font-bold text-[#12304A] mt-1">
                 {activeNavigationFacility.name}
               </h4>
-              <p className="text-[11px] text-slate-300 font-mono mt-0.5">
+              <p className="text-[11px] text-[#657783] font-mono mt-0.5">
                 ETA: {activeNavigationFacility.walkTimeMins} mins • {activeNavigationFacility.distanceKm} km • {activeNavigationFacility.indoorTemp}°C Indoor
               </p>
             </div>
@@ -734,7 +734,7 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
               href={`https://www.google.com/maps/dir/?api=1&destination=${activeNavigationFacility.coordinates[0]},${activeNavigationFacility.coordinates[1]}&travelmode=walking`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg flex items-center justify-center text-xs shrink-0 shadow-sm"
+              className="p-1.5 bg-[#1E5A7A] hover:bg-[#164863] text-white rounded flex items-center justify-center text-xs shrink-0 shadow-xs cursor-pointer"
               title="Open in Google Maps App"
             >
               <ExternalLink className="w-3.5 h-3.5" />
@@ -747,28 +747,28 @@ export const InteractiveGisMap: React.FC<InteractiveGisMapProps> = ({
       <div ref={mapContainerRef} className="w-full h-full" style={{ zIndex: 1 }} />
 
       {/* Bottom Floating Legend */}
-      <div className="absolute bottom-3 left-3 z-[400] bg-[#0b1326]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#2d3449] text-[10px] font-mono flex flex-wrap items-center gap-3 shadow-lg">
+      <div className="absolute bottom-3 left-3 z-[400] bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-md border border-[#D6E0E5] text-[10px] font-mono flex flex-wrap items-center gap-3 shadow-xs text-[#263746]">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-          <span className="text-slate-300">AC Shelter</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[#317A5A]" />
+          <span className="text-[#657783]">AC Shelter</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-          <span className="text-slate-300">Hospital Resuscitation</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[#A63D40]" />
+          <span className="text-[#657783]">Hospital Resuscitation</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-          <span className="text-slate-300">Monument / Landmark</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[#B7791F]" />
+          <span className="text-[#657783]">Monument / Landmark</span>
         </div>
         {showWaterTankers && (
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-            <span className="text-slate-300">Water Tanker</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#2F7F82]" />
+            <span className="text-[#657783]">Water Tanker</span>
           </div>
         )}
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-          <span className="text-slate-300">Your GPS</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[#1E5A7A]" />
+          <span className="text-[#657783]">Your GPS</span>
         </div>
       </div>
 

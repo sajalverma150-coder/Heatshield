@@ -35,36 +35,33 @@ export const AdminLogoutModal: React.FC<AdminLogoutModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5 text-slate-100 overflow-hidden"
+        className="relative w-full max-w-md bg-white border border-[#D6E0E5] rounded-lg p-6 shadow-xl space-y-4 text-[#263746]"
         onClick={(e) => e.stopPropagation()}
         id="admin-logout-modal-card"
       >
-        {/* Subtle decorative glow */}
-        <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
-
         {/* Header & Close Button */}
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between border-b border-[#D6E0E5] pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
+            <div className="w-10 h-10 rounded-md bg-[#F8E9E8] border border-[#A63D40] flex items-center justify-center text-[#A63D40] shrink-0">
               <LogOut className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-headline font-bold text-lg text-white">
+              <h3 className="font-headline font-bold text-lg text-[#12304A]">
                 {isHindi ? 'एडमिन लॉगआउट की पुष्टि करें' : 'Confirm Admin Logout'}
               </h3>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
-                {isHindi ? 'नगरपालिका अधिकारी सत्र' : 'NDMA / Municipal Session'}
+              <p className="text-xs text-[#657783] font-mono mt-0.5">
+                {isHindi ? 'नगरपालिका अधिकारी सत्र' : 'NDMA / Municipal Authority Session'}
               </p>
             </div>
           </div>
           <button
             id="admin-logout-modal-close-icon"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-[#657783] hover:text-[#12304A] hover:bg-[#F4F1EA] transition-colors cursor-pointer"
             title="Close"
           >
             <X className="w-5 h-5" />
@@ -72,12 +69,12 @@ export const AdminLogoutModal: React.FC<AdminLogoutModalProps> = ({
         </div>
 
         {/* Description */}
-        <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
-          <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+        <div className="p-3.5 rounded-md bg-[#F4F1EA] border border-[#D6E0E5] text-xs text-[#263746] leading-relaxed flex items-start gap-2.5">
+          <ShieldAlert className="w-4 h-4 text-[#B7791F] shrink-0 mt-0.5" />
           <span>
             {isHindi 
               ? 'क्या आप वाकई अपने एडमिन सत्र से लॉगआउट करना चाहते हैं? आपकी प्रशासनिक पहुंच समाप्त कर दी जाएगी और आप नागरिक मोड में वापस आ जाएंगे।'
-              : 'Are you sure you want to log out of your Admin session? Your administrative permissions will be locked and you will automatically return to Citizen Mode.'}
+              : 'Are you sure you want to log out of your Admin session? Your administrative console access will be locked and you will immediately return to Citizen Mode.'}
           </span>
         </div>
 
@@ -87,7 +84,7 @@ export const AdminLogoutModal: React.FC<AdminLogoutModalProps> = ({
             id="admin-logout-modal-cancel-btn"
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all border border-slate-700 cursor-pointer"
+            className="px-4 py-2 rounded-md bg-white hover:bg-[#F4F1EA] text-[#263746] text-xs font-semibold transition-colors border border-[#D6E0E5] cursor-pointer"
           >
             {isHindi ? 'रद्द करें' : 'Cancel'}
           </button>
@@ -96,7 +93,7 @@ export const AdminLogoutModal: React.FC<AdminLogoutModalProps> = ({
             id="admin-logout-modal-confirm-btn"
             type="button"
             onClick={onConfirmLogout}
-            className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-semibold shadow-md transition-all flex items-center gap-2 active:scale-95 cursor-pointer"
+            className="px-4 py-2 rounded-md bg-[#A63D40] hover:bg-[#8F3437] text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>{isHindi ? 'लॉगआउट करें' : 'Log Out'}</span>

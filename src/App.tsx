@@ -353,6 +353,7 @@ export function App() {
             activeNavigationFacility={activeNavFacility}
             onClearNavigationFacility={() => setActiveNavFacility(null)}
             onSelectCity={handleSelectCity}
+            language={language}
           />
         );
       case 'protocols':
@@ -372,6 +373,7 @@ export function App() {
             weather={weather}
             dataSourceMode={dataSourceMode}
             onOpenCitySelector={() => setIsCitySelectorOpen(true)}
+            language={language}
           />
         );
       case 'alerts':
@@ -417,7 +419,7 @@ export function App() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col selection:bg-orange-500 selection:text-white">
+      <div className="min-h-screen bg-[#F4F1EA] text-[#263746] flex flex-col selection:bg-[#1E5A7A] selection:text-white">
         
         {/* Top Header */}
         <Navbar
@@ -451,6 +453,7 @@ export function App() {
           weather={weather}
           dataSourceMode={dataSourceMode}
           citiesLiveWeather={batchCitiesWeather}
+          language={language}
         />
 
         {/* Main Responsive Container Layout */}
@@ -467,7 +470,7 @@ export function App() {
           />
 
           {/* Dynamic Content Area: seamlessly fluid on Mobile, Tablet & PC */}
-          <main className="flex-1 overflow-y-auto bg-[#090e17] px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 lg:pb-8">
+          <main className="flex-1 overflow-y-auto bg-[#F4F1EA] px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 lg:pb-8">
             <div className="max-w-6xl mx-auto w-full">
               {renderActiveView()}
             </div>
@@ -525,6 +528,7 @@ export function App() {
         citiesLiveWeather={batchCitiesWeather}
         activeWeather={weather}
         onGpsDetected={(coords) => setUserGpsCoords({ lat: coords.lat, lng: coords.lng })}
+        language={language}
       />
 
       {/* AI Triage Diagnostic Tree Modal */}
@@ -539,6 +543,7 @@ export function App() {
           setIsTriageOpen(false);
           setCurrentTab('cooling-finder');
         }}
+        language={language}
       />
 
       {/* Emergency 108 SOS Dispatch Modal */}
@@ -546,6 +551,7 @@ export function App() {
         isOpen={isSOSOpen}
         onClose={() => setIsSOSOpen(false)}
         userProfile={userProfile}
+        language={language}
       />
 
       {/* Comprehensive Clinical Health Report Dossier Modal */}
@@ -557,6 +563,7 @@ export function App() {
         selectedCity={selectedCity}
         coolingFacilities={facilities}
         onLogWater={handleLogWater}
+        language={language}
         onOpenTriage={() => {
           setIsHealthReportOpen(false);
           setIsTriageOpen(true);

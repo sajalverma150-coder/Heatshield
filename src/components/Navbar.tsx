@@ -1,25 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Flame, 
-  MapPin, 
-  ChevronDown, 
-  Brain, 
-  PhoneCall, 
-  Globe, 
-  BellRing, 
-  Settings2, 
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Flame,
+  MapPin,
+  ChevronDown,
+  Globe,
+  BellRing,
+  PhoneCall,
   Menu,
-  Lock,
+  Brain,
   ShieldCheck,
-  UserCheck
+  Lock,
 } from 'lucide-react';
-import { NavigationTab, UserRole, LanguageCode, WeatherTelemetry } from '../types';
+import { WeatherTelemetry, LanguageCode, UserRole } from '../types';
 import { CityData } from '../data/indiaCities';
-import { useAppTranslation } from '../i18n/translations';
+import { TRANSLATIONS } from '../i18n/translations';
 
 interface NavbarProps {
-  currentTab: NavigationTab;
-  onSelectTab: (tab: NavigationTab) => void;
+  currentTab: string;
+  onSelectTab: (tabId: string) => void;
   userRole: UserRole;
   onChangeRole: (role: UserRole) => void;
   isAdminAuthenticated?: boolean;
@@ -39,10 +37,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  currentTab,
   onSelectTab,
-  userRole,
-  onChangeRole,
   isAdminAuthenticated = false,
   onOpenAdminAuthModal,
   onLockAdminSession,
@@ -54,14 +49,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   onTriggerSOS,
   onOpenTriage,
   onOpenPushSettings,
-  onOpenHealthReport,
   onOpenMobileMenu,
 }) => {
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
-  const t = useAppTranslation(language);
+  const t = TRANSLATIONS[language];
 
-  // Close settings dropdown on click outside
+  // Close settings popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
@@ -73,80 +67,80 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   return (
-    <header id="main-tactical-navbar" className="bg-[#0a101d]/95 backdrop-blur-md border-b border-[#1e2d4a] sticky top-0 z-40 px-2 sm:px-6 py-2 sm:py-2.5">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
+    <header id="main-tactical-navbar" className="bg-[#12304A] text-white border-b border-[#1E5A7A] sticky top-0 z-40 px-3 sm:px-6 py-2 sm:py-2.5 shadow-sm">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* Left: Brand Identity */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        {/* Left: Government/Institutional Identity */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button 
             id="brand-home-button"
             onClick={() => onSelectTab('overview')}
-            className="flex items-center gap-1.5 sm:gap-2.5 text-left group cursor-pointer"
+            className="flex items-center gap-2.5 text-left group cursor-pointer"
           >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 group-hover:border-sky-400 group-hover:scale-105 transition-all shadow-sm shrink-0">
-              <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#1E5A7A] border border-[#2F7F82] flex items-center justify-center text-white shrink-0">
+              <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-[#E6B85C]" />
             </div>
             <div>
-              <div className="flex items-center gap-1">
-                <span className="font-headline font-bold text-xs sm:text-base tracking-tight text-white whitespace-nowrap">
+              <div className="flex items-center gap-1.5">
+                <span className="font-headline font-bold text-sm sm:text-base tracking-tight text-white whitespace-nowrap">
                   {t.appName}
                 </span>
-                <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30 font-semibold">
-                  AI
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#1E5A7A] text-[#D6E0E5] font-semibold">
+                  {language === 'hi' ? 'शासकीय' : 'GOV'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-sans hidden md:block">
-                {t.nationalWarning}
+              <p className="text-[11px] text-[#D6E0E5] font-sans hidden md:block">
+                {language === 'hi' ? 'राष्ट्रीय लू पूर्व चेतावनी एवं जैव-मौसम विज्ञान' : 'National Heatwave Early Warning & Biometeorology'}
               </p>
             </div>
           </button>
         </div>
 
-        {/* Center: Clean Clickable Location & Weather Pill (Visible on md+ desktop/tablet where space permits) */}
+        {/* Center: Location & Station Data Badge */}
         <div className="hidden md:flex items-center justify-center">
           <button
             id="navbar-city-selector-btn"
             onClick={onOpenCitySelector}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#10192d] hover:bg-[#162542] border border-[#1e2d4a] hover:border-sky-500/50 text-white text-xs transition-all shadow-sm group cursor-pointer"
+            className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[#183F60] hover:bg-[#1E5A7A] border border-[#2F7F82] text-white text-xs transition-colors cursor-pointer"
             title={t.searchCityPrompt}
           >
-            <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-            <span className="font-semibold text-slate-200 group-hover:text-white">
-              {selectedCity.name}
+            <MapPin className="w-3.5 h-3.5 text-[#E6B85C] shrink-0" />
+            <span className="font-medium text-white">
+              {selectedCity.name}, {selectedCity.state}
             </span>
-            <span className="text-sky-400 font-mono font-bold text-xs bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20 shrink-0">
+            <span className="text-white font-mono font-bold text-xs bg-[#12304A] px-2 py-0.5 rounded border border-[#2F7F82] shrink-0">
               {weather.dryBulbTemp}°C
             </span>
-            <span className="text-[11px] text-slate-400 font-mono">
+            <span className="text-[11px] text-[#D6E0E5] font-mono">
               WBGT {weather.wbgt}°C
             </span>
-            <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-white transition-colors shrink-0" />
+            <ChevronDown className="w-3 h-3 text-[#D6E0E5] shrink-0" />
           </button>
         </div>
 
-        {/* Right: Actions (SOS 108 is priority, Triage & Settings on desktop, Hamburger on mobile) */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        {/* Right: Actions */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
 
-          {/* AI Triage Button (desktop only, available via drawer & hero on mobile) */}
+          {/* AI / Clinical Triage Button */}
           <button
             id="navbar-triage-button"
             onClick={onOpenTriage}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#10192d] hover:bg-[#162542] border border-[#1e2d4a] hover:border-sky-500/50 text-slate-200 hover:text-white text-xs font-medium transition-all shadow-sm cursor-pointer"
-            title="AI Heat Triage & Symptom Assessment"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E5A7A] hover:bg-[#164863] text-white text-xs font-medium transition-colors cursor-pointer border border-[#2F7F82]"
+            title="Heat Symptom Triage Assessment"
           >
-            <Brain className="w-3.5 h-3.5 text-sky-400" />
+            <Brain className="w-3.5 h-3.5 text-[#E6B85C]" />
             <span>{t.aiTriage}</span>
           </button>
 
-          {/* Emergency 108 Button */}
+          {/* Emergency 108 Hotline Button */}
           <button
             id="navbar-sos-button"
             onClick={onTriggerSOS}
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold shadow-md shadow-sky-950/40 border border-sky-400/30 transition-all active:scale-95 shrink-0 cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#A63D40] hover:bg-[#8F3437] text-white text-xs font-bold transition-colors cursor-pointer border border-[#C65D27]"
             title="Emergency Medical Hotline (Dial 108)"
           >
-            <PhoneCall className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-            <span className="font-headline tracking-wide whitespace-nowrap text-[11px] sm:text-xs">{t.sos108}</span>
+            <PhoneCall className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap text-xs">{t.sos108}</span>
           </button>
 
           {/* Admin Auth Status / Login Button (Desktop) */}
@@ -154,49 +148,48 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="navbar-admin-session-active-btn"
               onClick={onLockAdminSession}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold transition-all shadow-xs cursor-pointer shrink-0"
-              title="Click to lock admin session and return to Citizen Mode"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#317A5A] hover:bg-[#286349] text-white text-xs font-mono font-semibold transition-colors cursor-pointer shrink-0"
+              title={language === 'hi' ? 'सत्र लॉक करने हेतु क्लिक करें' : 'Click to lock admin session and return to Citizen Mode'}
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Admin Active</span>
-              <Lock className="w-3 h-3 text-amber-400 ml-0.5" />
+              <ShieldCheck className="w-3.5 h-3.5 text-white" />
+              <span>{language === 'hi' ? 'अधिकारी सत्र सक्रिय' : 'Officer Active'}</span>
+              <Lock className="w-3 h-3 ml-0.5" />
             </button>
           ) : (
             <button
               id="navbar-admin-login-btn"
               onClick={onOpenAdminAuthModal}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-orange-500/50 text-slate-300 hover:text-white text-xs font-mono transition-all shadow-xs cursor-pointer shrink-0"
-              title="Official Municipal & Officer Login"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#183F60] hover:bg-[#1E5A7A] border border-[#2F7F82] text-[#D6E0E5] hover:text-white text-xs font-mono transition-colors cursor-pointer shrink-0"
+              title={language === 'hi' ? 'आधिकारिक नगर निगम एवं स्वास्थ्य अधिकारी लॉगिन' : 'Official Municipal & Health Officer Access'}
             >
-              <Lock className="w-3.5 h-3.5 text-orange-400" />
-              <span>Admin Login</span>
+              <Lock className="w-3.5 h-3.5 text-[#E6B85C]" />
+              <span>{language === 'hi' ? 'अधिकारी पोर्टल' : 'Officer Portal'}</span>
             </button>
           )}
 
-          {/* Settings & Tools Popover Button (Desktop only) */}
+          {/* Settings & Language Menu */}
           <div className="relative hidden md:block" ref={settingsRef}>
             <button
               id="navbar-settings-dropdown-btn"
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white text-xs transition-colors cursor-pointer flex items-center gap-1"
-              title="Preferences & Language"
+              className="px-2.5 py-1.5 rounded-lg bg-[#183F60] hover:bg-[#1E5A7A] border border-[#2F7F82] text-white text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+              title="Language & Preferences"
             >
-              <Globe className="w-4 h-4 text-orange-400" />
-              <span className="text-[11px] font-mono uppercase font-bold text-slate-200">{language}</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
+              <Globe className="w-3.5 h-3.5 text-[#E6B85C]" />
+              <span className="text-xs font-mono uppercase font-semibold text-white">{language}</span>
+              <ChevronDown className="w-3 h-3 text-[#D6E0E5]" />
             </button>
 
             {/* Dropdown Menu */}
             {isSettingsOpen && (
-              <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl p-3.5 z-50 text-xs space-y-3.5 animate-in fade-in zoom-in-95 duration-150">
-                
+              <div className="absolute right-0 mt-2 w-64 rounded-lg bg-white text-[#263746] border border-[#D6E0E5] shadow-lg p-3 z-50 text-xs space-y-3">
                 {/* Language selection */}
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-400 block mb-1.5 flex items-center gap-1.5">
-                    <Globe className="w-3.5 h-3.5 text-orange-400" />
+                  <label className="text-xs font-semibold text-[#12304A] block mb-1.5 flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5 text-[#1E5A7A]" />
                     <span>{t.language}</span>
                   </label>
-                  <div className="grid grid-cols-2 gap-1.5 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
+                  <div className="grid grid-cols-2 gap-1.5 bg-[#E8F1F5] p-1 rounded-md border border-[#D6E0E5]">
                     <button
                       type="button"
                       id="dropdown-lang-en-btn"
@@ -204,10 +197,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                         onChangeLanguage('en');
                         setIsSettingsOpen(false);
                       }}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      className={`px-2.5 py-1.5 rounded text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer ${
                         language === 'en'
-                          ? 'bg-orange-600 text-white shadow-xs'
-                          : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                          ? 'bg-[#1E5A7A] text-white shadow-xs'
+                          : 'text-[#263746] hover:bg-[#D6E0E5]'
                       }`}
                     >
                       <span>English</span>
@@ -219,10 +212,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                         onChangeLanguage('hi');
                         setIsSettingsOpen(false);
                       }}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      className={`px-2.5 py-1.5 rounded text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer ${
                         language === 'hi'
-                          ? 'bg-orange-600 text-white shadow-xs'
-                          : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                          ? 'bg-[#1E5A7A] text-white shadow-xs'
+                          : 'text-[#263746] hover:bg-[#D6E0E5]'
                       }`}
                     >
                       <span>हिन्दी</span>
@@ -237,29 +230,30 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setIsSettingsOpen(false);
                       onOpenPushSettings();
                     }}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-slate-200 hover:text-white transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-between p-2 rounded-md bg-[#E8F1F5] hover:bg-[#D6E0E5] text-[#12304A] transition-colors cursor-pointer border border-[#D6E0E5]"
                   >
                     <div className="flex items-center gap-2">
-                      <BellRing className="w-4 h-4 text-orange-400" />
-                      <span>{t.pushAlerts}</span>
+                      <BellRing className="w-4 h-4 text-[#1E5A7A]" />
+                      <span className="font-medium">{t.pushAlerts}</span>
                     </div>
-                    <span className="text-[10px] text-emerald-400 font-mono">Config</span>
+                    <span className="text-[11px] text-[#317A5A] font-mono font-semibold">
+                      {language === 'hi' ? 'सेट करें' : 'Config'}
+                    </span>
                   </button>
                 )}
-
               </div>
             )}
           </div>
 
-          {/* Mobile Navigation Drawer Toggle */}
+          {/* Mobile Menu Toggle */}
           {onOpenMobileMenu && (
             <button
               id="navbar-mobile-menu-btn"
               onClick={onOpenMobileMenu}
-              className="lg:hidden p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-orange-400 hover:text-white transition-colors flex items-center justify-center shrink-0"
+              className="lg:hidden p-2 rounded-lg bg-[#183F60] hover:bg-[#1E5A7A] border border-[#2F7F82] text-white transition-colors flex items-center justify-center shrink-0"
               title="Open Navigation Menu"
             >
-              <Menu className="w-4 h-4" />
+              <Menu className="w-4 h-4 text-white" />
             </button>
           )}
 

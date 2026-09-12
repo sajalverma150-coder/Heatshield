@@ -25,7 +25,7 @@ import {
   X,
   Building2
 } from 'lucide-react';
-import { CoolingFacility } from '../../types';
+import { CoolingFacility, LanguageCode } from '../../types';
 import { CityData, calculateDistanceKm, formatShelterDistance } from '../../data/indiaCities';
 import { InteractiveGisMap } from '../InteractiveGisMap';
 import { GpsNavigationModal } from '../GpsNavigationModal';
@@ -42,6 +42,7 @@ interface CoolingFinderViewProps {
   activeNavigationFacility?: CoolingFacility | null;
   onClearNavigationFacility?: () => void;
   onSelectCity?: (city: CityData) => void;
+  language?: LanguageCode;
 }
 
 export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
@@ -54,7 +55,9 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
   activeNavigationFacility: initialActiveNav,
   onClearNavigationFacility,
   onSelectCity,
+  language = 'en',
 }) => {
+  const isHindi = language === 'hi';
   const [activeCategory, setActiveCategory] = useState<'shelter' | 'triage_hospital'>('shelter');
   const [selectedFacility, setSelectedFacility] = useState<CoolingFacility>(facilities[0]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -222,13 +225,13 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <h2 className="text-lg sm:text-xl font-headline font-bold text-white">
-              Safe Zones & GIS Thermal Refuges
+              {isHindi ? 'सुरक्षित क्षेत्र एवं जीआईएस थर्मल रिफ्यूज' : 'Safe Zones & GIS Thermal Refuges'}
             </h2>
             {selectedCity && (
               <button
                 onClick={onOpenCitySelector}
                 className="text-xs font-mono px-2.5 py-1 rounded-lg bg-orange-500/15 text-orange-300 border border-orange-500/30 hover:bg-orange-500/25 flex items-center gap-1 transition-colors"
-                title="Change city"
+                title={isHindi ? 'शहर बदलें' : 'Change city'}
               >
                 <MapPin className="w-3.5 h-3.5 text-orange-400" />
                 <span className="font-bold">{selectedCity.name}</span>
@@ -239,11 +242,13 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               </button>
             )}
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
-              {facilities.length} ACTIVE SITES
+              {isHindi ? `${facilities.length} सक्रिय केंद्र` : `${facilities.length} ACTIVE SITES`}
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Real-time occupancy, air conditioning status, chilled ORS supply, and hospital hyperthermia resuscitation beds
+            {isHindi 
+              ? 'वास्तविक समय अधिभोग, वातानुकूलन स्थिति, ठंडा ओआरएस आपूर्ति एवं अस्पताल अतिताप पुनर्जीवन बिस्तर'
+              : 'Real-time occupancy, air conditioning status, chilled ORS supply, and hospital hyperthermia resuscitation beds'}
           </p>
         </div>
 
@@ -254,20 +259,20 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           <button
             onClick={handleFindNearest}
             className="px-3.5 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-            title="Scan and navigate to closest AC cooling refuge"
+            title={isHindi ? 'निकटतम वातानुकूलित शीतलन आश्रय स्थल खोजें' : 'Scan and navigate to closest AC cooling refuge'}
           >
             <Compass className="w-3.5 h-3.5" />
-            <span>Find Nearest</span>
+            <span>{isHindi ? 'निकटतम खोजें' : 'Find Nearest'}</span>
           </button>
 
           {/* Request Water Tanker Button */}
           <button
             onClick={() => setIsTankerModalOpen(true)}
             className="px-3 py-1.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 border border-cyan-800/40 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-            title="Request emergency drinking water tanker to your sector"
+            title={isHindi ? 'अपने क्षेत्र में आपातकालीन पेयजल टैंकर का अनुरोध करें' : 'Request emergency drinking water tanker to your sector'}
           >
             <Truck className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden sm:inline">Request Tanker</span>
+            <span className="hidden sm:inline">{isHindi ? 'टैंकर अनुरोध' : 'Request Tanker'}</span>
           </button>
 
           {/* Category Tabs */}
@@ -282,7 +287,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               }`}
             >
               <Wind className="w-3.5 h-3.5" />
-              <span>Shelters ({facilities.filter((f) => f.category === 'shelter').length})</span>
+              <span>{isHindi ? 'शीतलन आश्रय' : 'Shelters'} ({facilities.filter((f) => f.category === 'shelter').length})</span>
             </button>
             <button
               id="tab-hospital-beds-btn"
@@ -294,7 +299,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               }`}
             >
               <Hospital className="w-3.5 h-3.5" />
-              <span>Hospital Beds ({facilities.filter((f) => f.category === 'triage_hospital').length})</span>
+              <span>{isHindi ? 'अस्पताल बिस्तर' : 'Hospital Beds'} ({facilities.filter((f) => f.category === 'triage_hospital').length})</span>
             </button>
           </div>
 
@@ -312,7 +317,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
             onClick={() => setTankerDispatchedNotice(null)}
             className="text-cyan-400 hover:text-white font-mono text-xs"
           >
-            Dismiss
+            {isHindi ? 'हटाएं' : 'Dismiss'}
           </button>
         </div>
       )}
@@ -323,9 +328,11 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           <HeartPulse className="w-5 h-5 text-red-400 shrink-0 mt-0.5 animate-pulse" />
           <div className="text-xs text-slate-200">
             <strong className="text-red-400 block font-headline uppercase">
-              {selectedCity?.name.toUpperCase()} HOSPITAL SURGE STATUS: CODE RED MASS CASUALTY PROTOCOL
+              {selectedCity?.name.toUpperCase()} {isHindi ? 'अस्पताल आपात स्थिति: कोड रेड मास कैजुअल्टी प्रोटोकॉल' : 'HOSPITAL SURGE STATUS: CODE RED MASS CASUALTY PROTOCOL'}
             </strong>
-            District medical college trauma bays and civil hospitals have converted overflow triage wards into active hyperthermia resuscitation units with continuous core temperature probes, rapid ice immersion baths, and chilled intravenous saline.
+            {isHindi 
+              ? 'जिला मेडिकल कॉलेज ट्रॉमा सेंटर एवं नागरिक अस्पतालों ने ओवरफ्लो ट्राइएज वार्डों को सक्रिय हाइपरथर्मिया पुनर्जीवन इकाइयों में परिवर्तित कर दिया है, जिसमें निरंतर कोर तापमान जांच, रैपिड बर्फ स्नान और ठंडा आईवी सेलाइन उपलब्ध है।'
+              : 'District medical college trauma bays and civil hospitals have converted overflow triage wards into active hyperthermia resuscitation units with continuous core temperature probes, rapid ice immersion baths, and chilled intravenous saline.'}
           </div>
         </div>
       )}
@@ -342,7 +349,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           }`}
         >
           <Compass className="w-4 h-4" />
-          <span>Interactive GIS Map</span>
+          <span>{isHindi ? 'इंटरैक्टिव जीआईएस मानचित्र' : 'Interactive GIS Map'}</span>
         </button>
         <button
           id="mobile-cooling-toggle-list-btn"
@@ -354,7 +361,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           }`}
         >
           <Layers className="w-4 h-4" />
-          <span>Facility Cards ({filteredFacilities.length})</span>
+          <span>{isHindi ? 'केंद्र सूची' : 'Facility Cards'} ({filteredFacilities.length})</span>
         </button>
       </div>
 
@@ -384,16 +391,16 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   }}
                   onClearSearch={() => setSearchedLandmark(null)}
                   currentSearched={searchedLandmark}
-                  placeholder={`Search any building, monument, ward in ${selectedCity?.name || 'India'}...`}
+                  placeholder={isHindi ? `${selectedCity?.name || 'शहर'} में कोई भी इमारत, चौराहा या वार्ड खोजें...` : `Search any building, monument, ward in ${selectedCity?.name || 'India'}...`}
                 />
               </div>
               <button
                 onClick={handleFindNearest}
                 className="px-2.5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-[11px] font-mono text-orange-400 flex items-center gap-1 transition-colors shrink-0 shadow-xs"
-                title="Locate closest to GPS"
+                title={isHindi ? 'जीपीएस के निकटतम खोजें' : 'Locate closest to GPS'}
               >
                 <Crosshair className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Closest</span>
+                <span className="hidden sm:inline">{isHindi ? 'निकटतम' : 'Closest'}</span>
               </button>
             </div>
 
@@ -406,7 +413,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   </div>
                   <div className="truncate">
                     <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider block">
-                      Landmark Anchor Active
+                      {isHindi ? 'लैंडमार्क एंकर सक्रिय' : 'Landmark Anchor Active'}
                     </span>
                     <span className="text-xs text-white font-medium truncate block">
                       {searchedLandmark.name}
@@ -418,7 +425,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-mono shrink-0 border border-slate-700 flex items-center gap-1"
                 >
                   <X className="w-3 h-3" />
-                  <span>Reset GPS</span>
+                  <span>{isHindi ? 'जीपीएस रीसेट' : 'Reset GPS'}</span>
                 </button>
               </div>
             )}
@@ -431,8 +438,12 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <h5 className="text-xs font-headline font-bold text-white">Google Maps Grounding</h5>
-                    <p className="text-[10px] text-slate-400">Live verified places via gemini-3.5-flash</p>
+                    <h5 className="text-xs font-headline font-bold text-white">
+                      {isHindi ? 'गूगल मैप्स लाइव सत्यापन' : 'Google Maps Grounding'}
+                    </h5>
+                    <p className="text-[10px] text-slate-400">
+                      {isHindi ? 'जेमिनी द्वारा लाइव सत्यापित स्थान' : 'Live verified places via gemini-3.5-flash'}
+                    </p>
                   </div>
                 </div>
                 <button
@@ -445,7 +456,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   ) : (
                     <MapPin className="w-3.5 h-3.5" />
                   )}
-                  <span>{isSearchingMaps ? 'Locating...' : 'Scan Nearby'}</span>
+                  <span>{isSearchingMaps ? (isHindi ? 'खोज रहे हैं...' : 'Locating...') : (isHindi ? 'निकटतम स्कैन करें' : 'Scan Nearby')}</span>
                 </button>
               </div>
 
@@ -456,7 +467,9 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   </p>
                   {mapsGroundingResults.places.length > 0 && (
                     <div className="space-y-1 pt-1">
-                      <span className="text-[10px] font-mono text-orange-400 font-bold uppercase tracking-wider block">Verified Locations:</span>
+                      <span className="text-[10px] font-mono text-orange-400 font-bold uppercase tracking-wider block">
+                        {isHindi ? 'सत्यापित स्थान:' : 'Verified Locations:'}
+                      </span>
                       <div className="space-y-1 max-h-36 overflow-y-auto">
                         {mapsGroundingResults.places.map((place, idx) => (
                           <a
@@ -509,14 +522,14 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                               : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                           }`}
                         >
-                          {fac.isHospital ? 'HOSPITAL TRIAGE' : 'AC SHELTER'}
+                          {fac.isHospital ? (isHindi ? 'अस्पताल ट्राइएज' : 'HOSPITAL TRIAGE') : (isHindi ? 'वातानुकूलित आश्रय' : 'AC SHELTER')}
                         </span>
                         <span className="text-xs font-mono text-orange-400 font-semibold">
                           {distDisplay.combinedLabel}
                         </span>
                         {isNavigating && (
                           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse font-bold">
-                            ● ROUTING
+                            {isHindi ? '● मार्ग सक्रिय' : '● ROUTING'}
                           </span>
                         )}
                       </div>
@@ -532,7 +545,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                       <div className="text-xs font-mono font-bold text-emerald-400">
                         {fac.indoorTemp}°C
                       </div>
-                      <span className="text-[10px] text-slate-400">Indoor Temp</span>
+                      <span className="text-[10px] text-slate-400">{isHindi ? 'आंतरिक तापमान' : 'Indoor Temp'}</span>
                     </div>
                   </div>
 
@@ -540,10 +553,10 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   <div className="mt-3 pt-2.5 border-t border-slate-800">
                     <div className="flex items-center justify-between text-[11px] font-mono mb-1">
                       <span className="text-slate-400">
-                        Capacity: {fac.currentOccupancy} / {fac.totalCapacity}
+                        {isHindi ? 'क्षमता:' : 'Capacity:'} {fac.currentOccupancy} / {fac.totalCapacity}
                       </span>
                       <span className={occupancyPct > 85 ? 'text-red-400 font-bold' : 'text-emerald-400'}>
-                        {occupancyPct}% Full
+                        {occupancyPct}% {isHindi ? 'भरा हुआ' : 'Full'}
                       </span>
                     </div>
                     <div className="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden">
@@ -568,7 +581,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                     ))}
                     {fac.amenities.length > 3 && (
                       <span className="text-[10px] font-mono text-orange-400 px-1">
-                        +{fac.amenities.length - 3} more
+                        +{fac.amenities.length - 3} {isHindi ? 'अन्य' : 'more'}
                       </span>
                     )}
                   </div>
@@ -599,7 +612,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                       }`}
                     >
                       <Compass className="w-3.5 h-3.5" />
-                      <span>{isNavigating ? 'In Navigation' : 'Start GPS Route'}</span>
+                      <span>{isNavigating ? (isHindi ? 'मार्गदर्शन जारी' : 'In Navigation') : (isHindi ? 'जीपीएस मार्ग शुरू करें' : 'Start GPS Route')}</span>
                     </button>
                   </div>
                 </div>
@@ -619,17 +632,17 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               <div>
                 <h3 className="text-base font-headline font-bold text-white flex items-center gap-2">
                   <Compass className="w-4 h-4 text-orange-400" />
-                  GIS Real-Time Satellite & Microclimate Ward Map
+                  {isHindi ? 'जीआईएस रीयल-टाइम सैटेलाइट एवं वार्ड माइक्रोक्लाइमेट मैप' : 'GIS Real-Time Satellite & Microclimate Ward Map'}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  {selectedCity?.name} • {selectedCity?.weather.ward || 'Municipal Ward Division'}
+                  {selectedCity?.name} • {selectedCity?.weather.ward || (isHindi ? 'नगर निगम वार्ड संभाग' : 'Municipal Ward Division')}
                 </p>
               </div>
 
               {/* Thermal Relief Pill */}
               <div className="flex items-center gap-2 bg-slate-950/70 px-3 py-1 rounded-xl border border-slate-800 text-xs font-mono self-start sm:self-auto">
-                <span className="text-slate-400">Thermal Relief:</span>
-                <span className="text-emerald-400 font-bold">-{tempDelta}°C Drop</span>
+                <span className="text-slate-400">{isHindi ? 'तापीय राहत:' : 'Thermal Relief:'}</span>
+                <span className="text-emerald-400 font-bold">-{tempDelta}°C {isHindi ? 'कमी' : 'Drop'}</span>
               </div>
             </div>
 
@@ -655,7 +668,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[10px] font-mono font-bold text-orange-400 bg-orange-500/20 px-2 py-0.5 rounded">
-                      SELECTED FACILITY
+                      {isHindi ? 'चयनित केंद्र' : 'SELECTED FACILITY'}
                     </span>
                     <span className="text-xs font-mono text-slate-300">
                       GPS: {selectedFacility.coordinates[0].toFixed(4)}°N, {selectedFacility.coordinates[1].toFixed(4)}°E
@@ -675,17 +688,17 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => setCallModalFacility(selectedFacility)}
-                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-slate-300 flex items-center gap-1"
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-slate-300 flex items-center gap-1 cursor-pointer"
                   >
                     <PhoneCall className="w-3.5 h-3.5 text-orange-400" />
-                    <span>Call</span>
+                    <span>{isHindi ? 'कॉल' : 'Call'}</span>
                   </button>
                   <button
                     onClick={() => handleStartNav(selectedFacility)}
                     className="px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                   >
                     <Compass className="w-3.5 h-3.5" />
-                    <span>Start GPS Route</span>
+                    <span>{isHindi ? 'जीपीएस मार्ग शुरू करें' : 'Start GPS Route'}</span>
                   </button>
                 </div>
               </div>
@@ -697,7 +710,7 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
           <div className="p-3 bg-slate-900/90 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono text-slate-400">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Pan-India Shelter Database Cached: Works Offline Without Cellular Data</span>
+              <span>{isHindi ? 'अखिल भारतीय आश्रय डेटाबेस कैश्ड: बिना मोबाइल डेटा के ऑफलाइन कार्य करता है' : 'Pan-India Shelter Database Cached: Works Offline Without Cellular Data'}</span>
             </div>
             <span className="text-emerald-400 font-bold">IMD AWS Sync v5.2</span>
           </div>
@@ -727,20 +740,22 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               <Truck className="w-6 h-6" />
             </div>
             <h3 className="font-headline font-bold text-white text-lg text-center">
-              Request Emergency Water Bowser
+              {isHindi ? 'आपातकालीन पेयजल बाउज़र का अनुरोध' : 'Request Emergency Water Bowser'}
             </h3>
             <p className="text-xs text-slate-300 text-center mt-1">
-              Dispatch a municipal chilled drinking water tanker (10,000L with WHO-ORS packets) to your neighborhood.
+              {isHindi 
+                ? 'अपने इलाके में नगर निगम का ठंडा पेयजल टैंकर (१०,००० लीटर व डब्ल्यूएचओ-ओआरएस पैकेट सहित) भेजें।'
+                : 'Dispatch a municipal chilled drinking water tanker (10,000L with WHO-ORS packets) to your neighborhood.'}
             </p>
 
             <form onSubmit={handleRequestTankerSubmit} className="mt-4 space-y-3">
               <div>
                 <label className="text-xs font-mono text-slate-400 block mb-1">
-                  Target Sector / Landmark ({selectedCity?.name}):
+                  {isHindi ? `लक्षित क्षेत्र / लैंडमार्क (${selectedCity?.name}):` : `Target Sector / Landmark (${selectedCity?.name}):`}
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Chowk Crossing, Hazratganj Metro Gate 2, Bus Stand..."
+                  placeholder={isHindi ? 'उदा. मुख्य चौराहा, हज़रतगंज मेट्रो गेट २, बस स्टैंड...' : 'e.g. Chowk Crossing, Hazratganj Metro Gate 2, Bus Stand...'}
                   value={tankerSector}
                   onChange={(e) => setTankerSector(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
@@ -749,8 +764,8 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               </div>
 
               <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/30 text-[11px] text-cyan-300 space-y-1">
-                <div>● Standard Municipal Response Time: 12-15 Minutes</div>
-                <div>● Provides free cold water and electrolytes to pedestrians and outdoor workers</div>
+                <div>{isHindi ? '● मानक नगर निगम प्रतिक्रिया समय: १२-१५ मिनट' : '● Standard Municipal Response Time: 12-15 Minutes'}</div>
+                <div>{isHindi ? '● राहगीरों व खुले में काम करने वाले श्रमिकों हेतु निःशुल्क शीतल जल व इलेक्ट्रोलाइट्स' : '● Provides free cold water and electrolytes to pedestrians and outdoor workers'}</div>
               </div>
 
               <div className="flex gap-2 justify-end pt-2">
@@ -759,14 +774,14 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
                   onClick={() => setIsTankerModalOpen(false)}
                   className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl cursor-pointer"
                 >
-                  Cancel
+                  {isHindi ? 'रद्द करें' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <Truck className="w-4 h-4" />
-                  <span>Dispatch Bowser</span>
+                  <span>{isHindi ? 'बाउज़र रवाना करें' : 'Dispatch Bowser'}</span>
                 </button>
               </div>
             </form>
@@ -782,27 +797,27 @@ export const CoolingFinderView: React.FC<CoolingFinderViewProps> = ({
               <PhoneCall className="w-6 h-6" />
             </div>
             <h3 className="font-headline font-bold text-white text-base">
-              Calling Facility Reception
+              {isHindi ? 'केंद्र रिसेप्शन पर कॉल' : 'Calling Facility Reception'}
             </h3>
             <p className="text-sm font-semibold text-orange-400 mt-1">
               {callModalFacility.name}
             </p>
             <p className="text-xs font-mono text-slate-400 mt-2">
-              {callModalFacility.contactPhone} • 24/7 Heatwave Desk
+              {callModalFacility.contactPhone} • {isHindi ? '२४/७ हीटवेव सहायता डेस्क' : '24/7 Heatwave Desk'}
             </p>
             <div className="mt-5 flex gap-2 justify-center">
               <button
                 onClick={() => setCallModalFacility(null)}
                 className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg cursor-pointer"
               >
-                Close Dial
+                {isHindi ? 'बंद करें' : 'Close Dial'}
               </button>
               <a
                 href={`tel:${callModalFacility.contactPhone}`}
                 className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer"
               >
                 <PhoneCall className="w-3.5 h-3.5" />
-                <span>Call Now</span>
+                <span>{isHindi ? 'अभी कॉल करें' : 'Call Now'}</span>
               </a>
             </div>
           </div>

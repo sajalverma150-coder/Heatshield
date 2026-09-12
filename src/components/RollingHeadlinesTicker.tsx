@@ -11,7 +11,7 @@ import {
   FileText
 } from 'lucide-react';
 import { CityData, INDIAN_CITIES } from '../data/indiaCities';
-import { WeatherTelemetry } from '../types';
+import { WeatherTelemetry, LanguageCode } from '../types';
 import { CityLiveSummary } from '../services/weatherApiService';
 
 export interface CityHeadline {
@@ -100,6 +100,7 @@ interface RollingHeadlinesTickerProps {
   weather?: WeatherTelemetry;
   dataSourceMode?: 'live_api' | 'imd_heatwave';
   citiesLiveWeather?: Record<string, CityLiveSummary>;
+  language?: LanguageCode;
 }
 
 export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
@@ -110,10 +111,12 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
   weather,
   dataSourceMode = 'live_api',
   citiesLiveWeather,
+  language = 'en',
 }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
+  const isHindi = language === 'hi';
 
   // Dynamic headlines list: current selected city is item #0
   const activeHeadlines = useMemo(() => {
@@ -123,7 +126,7 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
     if (selectedCity && activeCurrentWeather) {
       list.push({
         cityId: selectedCity.id,
-        cityName: `${selectedCity.name} (Current)`,
+        cityName: isHindi ? `${selectedCity.name} (वर्तमान)` : `${selectedCity.name} (Current)`,
         state: selectedCity.state,
         temp: activeCurrentWeather.dryBulbTemp,
         heatIndex: activeCurrentWeather.heatIndex,
@@ -131,8 +134,12 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
         severity: (activeCurrentWeather.riskLevel as any) || 'MODERATE',
         grapStage: activeCurrentWeather.grapStage,
         headline: dataSourceMode === 'live_api'
-          ? `Live station telemetry: ${activeCurrentWeather.dryBulbTemp}°C • WBGT: ${activeCurrentWeather.wbgt}°C • Humidity: ${activeCurrentWeather.humidity}% • Status: ${activeCurrentWeather.grapStage}`
-          : `IMD Heatwave Drill: ${activeCurrentWeather.dryBulbTemp}°C • WBGT: ${activeCurrentWeather.wbgt}°C • Status: ${activeCurrentWeather.grapStage}`,
+          ? (isHindi 
+              ? `लाइव टेलीमेट्री: ${activeCurrentWeather.dryBulbTemp}°C • WBGT: ${activeCurrentWeather.wbgt}°C • आर्द्रता: ${activeCurrentWeather.humidity}% • स्थिति: ${activeCurrentWeather.grapStage}`
+              : `Live station telemetry: ${activeCurrentWeather.dryBulbTemp}°C • WBGT: ${activeCurrentWeather.wbgt}°C • Humidity: ${activeCurrentWeather.humidity}% • Status: ${activeCurrentWeather.grapStage}`)
+          : (isHindi 
+              ? `आईएमडी हीटवेव ड्रिल: ${activeCurrentWeather.dryBulbTemp}°C • WBGT: ${activeCurrentWeather.wbgt}°C • स्थिति: ${activeCurrentWeather.grapStage}`
+              : `IMD Heatwave Drill: ${activeCurrentWeather.dryBulbTemp}°C • WBGT: ${activeCurrentWeather.wbgt}°C • Status: ${activeCurrentWeather.grapStage}`),
         updateTime: activeCurrentWeather.lastUpdated,
       });
     }
@@ -148,7 +155,9 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
             heatIndex: live.heatIndex,
             wbgt: live.wbgt,
             severity: (live.riskLevel as any) || 'MODERATE',
-            headline: `Live satellite telemetry: ${h.cityName} is at ${live.dryBulbTemp}°C (WBGT ${live.wbgt}°C) • Humidity: ${live.humidity}% • Status: Advisory Active`,
+            headline: isHindi 
+              ? `लाइव उपग्रह टेलीमेट्री: ${h.cityName} पर तापमान ${live.dryBulbTemp}°C (WBGT ${live.wbgt}°C) • आर्द्रता: ${live.humidity}%`
+              : `Live satellite telemetry: ${h.cityName} is at ${live.dryBulbTemp}°C (WBGT ${live.wbgt}°C) • Humidity: ${live.humidity}% • Status: Advisory Active`,
           });
         } else {
           list.push(h);
@@ -157,7 +166,7 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
     });
 
     return list;
-  }, [selectedCity, weather, dataSourceMode, citiesLiveWeather]);
+  }, [selectedCity, weather, dataSourceMode, citiesLiveWeather, isHindi]);
 
   // Auto-advance through alerts gently every 8 seconds
   useEffect(() => {
@@ -196,21 +205,29 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
     <aside 
       id="permanent-rolling-headlines-ticker"
       aria-label="National Heatwave Alerts Banner"
-      className="bg-[#0b1222]/95 border-b border-[#1e2d4a] px-3 sm:px-6 py-1.5 text-xs select-none transition-all"
+      className="bg-[#E8F1F5] border-b border-[#D6E0E5] px-3 sm:px-6 py-1.5 text-xs select-none text-[#263746]"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         
         {/* Left: Indicator Badge */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold border ${
-            isCurrentActiveCity 
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : 'bg-sky-500/15 border-sky-500/30 text-sky-400'
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded font-mono text-[10px] font-semibold border ${
+            currentItem.severity === 'severe'
+              ? 'bg-[#F8E9E8] border-[#A63D40] text-[#A63D40]'
+              : currentItem.severity === 'high'
+              ? 'bg-[#FFF4D6] border-[#C65D27] text-[#C65D27]'
+              : 'bg-[#FFFFFF] border-[#317A5A] text-[#317A5A]'
           }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentActiveCity ? 'bg-emerald-400 animate-pulse' : 'bg-sky-400'}`} />
-            <span>{isCurrentActiveCity ? 'LIVE' : 'ALERT'}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+            <span>
+              {currentItem.severity === 'severe' 
+                ? (isHindi ? 'आपातकाल' : 'EMERGENCY') 
+                : currentItem.severity === 'high' 
+                ? (isHindi ? 'चेतावनी' : 'WARNING') 
+                : (isHindi ? 'बुलेटिन' : 'BULLETIN')}
+            </span>
           </div>
-          <span className="text-slate-400 hidden sm:inline text-[10px] font-mono">
+          <span className="text-[#657783] hidden sm:inline text-[10px] font-mono">
             {currentIndex + 1}/{activeHeadlines.length}
           </span>
         </div>
@@ -219,14 +236,14 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
         <div 
           onClick={handleCityClick}
           className="flex-1 min-w-0 flex items-center gap-2 cursor-pointer group justify-start text-left overflow-hidden"
-          title={`Click to switch to ${currentItem.cityName}`}
+          title={isHindi ? `${currentItem.cityName} पर स्विच करने हेतु क्लिक करें` : `Click to switch to ${currentItem.cityName}`}
         >
-          <span className="text-white font-medium text-xs group-hover:text-orange-400 transition-colors shrink-0">
+          <span className="text-[#12304A] font-semibold text-xs group-hover:text-[#1E5A7A] transition-colors shrink-0">
             <span className="sm:hidden">{currentItem.cityName.split(' ')[0]}</span>
             <span className="hidden sm:inline">{currentItem.cityName}</span>
-            <span className="ml-1 text-orange-400 font-mono">({currentItem.temp}°C)</span>
+            <span className="ml-1 text-[#C65D27] font-mono">({currentItem.temp}°C)</span>
           </span>
-          <span className="text-slate-400 text-xs truncate max-w-2xl group-hover:text-slate-200 transition-colors">
+          <span className="text-[#657783] text-xs truncate max-w-2xl group-hover:text-[#263746] transition-colors">
             — {currentItem.headline}
           </span>
         </div>
@@ -235,29 +252,29 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
         <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={handlePrev}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            title="Previous alert"
+            className="p-1 rounded text-[#657783] hover:text-[#12304A] hover:bg-[#D6E0E5] transition-colors"
+            title={isHindi ? 'पिछली चेतावनी' : 'Previous alert'}
           >
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setIsAutoPlay(!isAutoPlay)}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            title={isAutoPlay ? 'Pause' : 'Play'}
+            className="p-1 rounded text-[#657783] hover:text-[#12304A] hover:bg-[#D6E0E5] transition-colors"
+            title={isAutoPlay ? (isHindi ? 'रोकें' : 'Pause') : (isHindi ? 'चलाएं' : 'Play')}
           >
-            {isAutoPlay ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 text-emerald-400" />}
+            {isAutoPlay ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 text-[#1E5A7A]" />}
           </button>
           <button
             onClick={handleNext}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            title="Next alert"
+            className="p-1 rounded text-[#657783] hover:text-[#12304A] hover:bg-[#D6E0E5] transition-colors"
+            title={isHindi ? 'अगली चेतावनी' : 'Next alert'}
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setIsDismissed(true)}
-            className="p-1 rounded text-slate-500 hover:text-slate-300 transition-colors ml-0.5"
-            title="Dismiss banner"
+            className="p-1 rounded text-[#657783] hover:text-[#12304A] transition-colors ml-0.5"
+            title={isHindi ? 'बैनर बंद करें' : 'Dismiss banner'}
           >
             <X className="w-3.5 h-3.5" />
           </button>

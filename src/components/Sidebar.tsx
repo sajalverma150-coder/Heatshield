@@ -1,25 +1,23 @@
 import React from 'react';
-import { 
-  Activity, 
-  Home, 
-  ShieldCheck, 
-  TrendingUp, 
-  BellRing, 
-  UserCheck, 
+import {
+  Activity,
+  Compass,
   FileText,
+  AlertTriangle,
+  UserCheck,
+  TrendingUp,
   MapPin,
   ChevronRight,
   PhoneCall,
-  Shield,
-  Sparkles
+  BellRing,
 } from 'lucide-react';
-import { NavigationTab, LanguageCode } from '../types';
+import { LanguageCode } from '../types';
 import { CityData } from '../data/indiaCities';
-import { useAppTranslation } from '../i18n/translations';
+import { TRANSLATIONS } from '../i18n/translations';
 
 interface SidebarProps {
-  currentTab: NavigationTab;
-  onSelectTab: (tab: NavigationTab) => void;
+  currentTab: string;
+  onSelectTab: (tabId: string) => void;
   language: LanguageCode;
   selectedCity: CityData;
   onOpenCitySelector: () => void;
@@ -32,17 +30,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   language,
   selectedCity,
   onOpenCitySelector,
-  unreadAlertCount = 1,
+  unreadAlertCount = 0,
 }) => {
-  const t = useAppTranslation(language);
+  const t = TRANSLATIONS[language];
 
-  const navItems: Array<{
-    id: NavigationTab;
-    label: string;
-    icon: React.ReactNode;
-    badge?: string;
-    badgeVariant?: 'red' | 'orange' | 'emerald' | 'slate';
-  }> = [
+  const navItems = [
     {
       id: 'overview',
       label: t.overview,
@@ -51,35 +43,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       id: 'cooling-finder',
       label: t.coolingFinder,
-      icon: <Home className="w-4 h-4" />,
-      badge: `${selectedCity.coolingFacilities.length} ${t.open}`,
-      badgeVariant: 'emerald',
+      icon: <Compass className="w-4 h-4" />,
+      badge: language === 'hi' ? 'जीआईएस' : 'GIS',
+      badgeVariant: 'teal',
+    },
+    {
+      id: 'protocols',
+      label: t.protocols,
+      icon: <FileText className="w-4 h-4" />,
     },
     {
       id: 'forecast',
       label: t.forecast,
       icon: <TrendingUp className="w-4 h-4" />,
-      badge: `${selectedCity.weather.dryBulbTemp}°C`,
-      badgeVariant: 'orange',
-    },
-    {
-      id: 'health-report',
-      label: t.clinicalReport,
-      icon: <FileText className="w-4 h-4" />,
-      badge: 'PHSI',
-      badgeVariant: 'slate',
-    },
-    {
-      id: 'protocols',
-      label: t.protocols,
-      icon: <ShieldCheck className="w-4 h-4" />,
     },
     {
       id: 'alerts',
       label: t.alerts,
       icon: <BellRing className="w-4 h-4" />,
       badge: unreadAlertCount > 0 ? (language === 'hi' ? 'सक्रिय' : 'Active') : undefined,
-      badgeVariant: 'red',
+      badgeVariant: 'emergency',
     },
     {
       id: 'profile',
@@ -89,28 +72,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside id="tactical-sidebar-navigation" className="hidden lg:flex flex-col w-64 xl:w-72 bg-[#0a101d] border-r border-[#1e2d4a] p-4 shrink-0 select-none justify-between text-slate-100">
+    <aside id="tactical-sidebar-navigation" className="hidden lg:flex flex-col w-64 xl:w-72 bg-[#12304A] border-r border-[#1E5A7A] p-4 shrink-0 select-none justify-between text-[#D6E0E5]">
       
       <div>
-        {/* Current Active Station Card */}
+        {/* Current Active Monitoring Station Card */}
         <div 
           onClick={onOpenCitySelector}
-          className="p-3 mb-4 rounded-xl bg-[#10192d] border border-[#1e2d4a] hover:border-sky-500/50 cursor-pointer transition-all group shadow-xs"
-          title="Click to change monitoring station or use GPS"
+          className="p-3 mb-4 rounded-lg bg-[#183F60] border border-[#2F7F82] hover:border-[#D6E0E5] cursor-pointer transition-colors group"
+          title={language === 'hi' ? 'मौसम केंद्र बदलें या जीपीएस का उपयोग करें' : 'Click to change monitoring station or use GPS'}
         >
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+          <div className="flex items-center justify-between text-xs text-[#D6E0E5] mb-1">
             <span className="flex items-center gap-1.5 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#317A5A]" />
               {t.monitoringStation}
             </span>
-            <span className="text-[11px] text-sky-400 font-mono group-hover:underline flex items-center">
+            <span className="text-[11px] text-[#D6E0E5] group-hover:text-white font-mono group-hover:underline flex items-center">
               {t.change} <ChevronRight className="w-3 h-3 inline" />
             </span>
           </div>
-          <div className="font-bold text-white text-sm truncate">
+          <div className="font-bold text-white text-sm truncate font-sans">
             {selectedCity.name}, {selectedCity.state}
           </div>
-          <div className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
+          <div className="text-[11px] text-[#D6E0E5] font-mono mt-0.5 truncate">
             {selectedCity.weather.stationId} • {selectedCity.climateZone}
           </div>
         </div>
@@ -124,26 +107,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 key={item.id}
                 id={`nav-item-${item.id}`}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-sm font-semibold transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left text-sm font-medium transition-colors cursor-pointer ${
                   isActive
-                    ? 'bg-[#132847] text-sky-400 border border-sky-500/30 shadow-xs'
-                    : 'text-slate-300 hover:text-white hover:bg-[#10192d] border border-transparent'
+                    ? 'bg-[#1E5A7A] text-white font-semibold'
+                    : 'text-[#D6E0E5] hover:text-white hover:bg-[#183F60]'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`${isActive ? 'text-sky-400' : 'text-slate-400'}`}>
+                  <div className={`${isActive ? 'text-white' : 'text-[#D6E0E5]'}`}>
                     {item.icon}
                   </div>
                   <span className="truncate">{item.label}</span>
                 </div>
 
                 {item.badge && (
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
-                    isActive ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40' :
-                    item.badgeVariant === 'red' ? 'bg-sky-950/80 text-sky-300 border border-sky-800/60' :
-                    item.badgeVariant === 'orange' ? 'bg-sky-950/70 text-sky-300 border border-sky-800/60' :
-                    item.badgeVariant === 'emerald' ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-800/60' :
-                    'bg-[#162542] text-slate-300 border border-slate-700'
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-semibold shrink-0 ${
+                    isActive ? 'bg-white/20 text-white' :
+                    item.badgeVariant === 'emergency' ? 'bg-[#A63D40] text-white' :
+                    item.badgeVariant === 'teal' ? 'bg-[#2F7F82] text-white' :
+                    'bg-[#183F60] text-[#D6E0E5]'
                   }`}>
                     {item.badge}
                   </span>
@@ -155,20 +137,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Emergency Hotlines Card */}
-      <div className="pt-4 border-t border-slate-800/80 space-y-3">
-        <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 text-xs">
-          <div className="flex items-center gap-2 font-semibold text-slate-300 mb-2">
-            <PhoneCall className="w-3.5 h-3.5 text-orange-400" />
+      <div className="pt-4 border-t border-[#1E5A7A] space-y-3">
+        <div className="p-3 rounded-lg bg-[#183F60] border border-[#2F7F82] text-xs">
+          <div className="flex items-center gap-2 font-semibold text-white mb-2">
+            <PhoneCall className="w-3.5 h-3.5 text-[#E6B85C]" />
             <span>{t.emergencyHotlines}</span>
           </div>
           <div className="space-y-1.5 font-mono text-[11px]">
             <div className="flex justify-between items-center">
-              <span className="text-slate-400">{t.ambulance108}:</span>
-              <span className="text-red-400 font-bold">108</span>
+              <span className="text-[#D6E0E5]">{t.ambulance108}:</span>
+              <span className="text-white font-bold bg-[#A63D40] px-1.5 py-0.2 rounded">108</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-400">{t.disasterMgmt}:</span>
-              <span className="text-slate-200">1070 / 1077</span>
+              <span className="text-[#D6E0E5]">{t.disasterMgmt}:</span>
+              <span className="text-white font-medium">1070 / 1077</span>
             </div>
           </div>
         </div>

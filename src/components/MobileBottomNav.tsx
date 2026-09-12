@@ -368,14 +368,18 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                       if (onLockAdminSession) onLockAdminSession();
                       setDrawerOpen(false);
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-950/60 to-emerald-900/40 border border-emerald-500/50 hover:border-emerald-400 flex items-center gap-2 text-left group cursor-pointer"
+                    className="p-2.5 rounded-xl bg-[#1E5A7A] border border-[#2F7F82] hover:border-[#E6B85C] flex items-center gap-2 text-left group cursor-pointer"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-[#317A5A] flex items-center justify-center text-white shrink-0">
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-emerald-300">Admin Active</div>
-                      <div className="text-[10px] text-amber-400 font-mono">Lock Session</div>
+                      <div className="text-xs font-bold text-white">
+                        {language === 'hi' ? 'अधिकारी सक्रिय' : 'Officer Active'}
+                      </div>
+                      <div className="text-[10px] text-[#E6B85C] font-mono">
+                        {language === 'hi' ? 'सत्र लॉक करें' : 'Lock Session'}
+                      </div>
                     </div>
                   </button>
                 ) : (
@@ -385,14 +389,18 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                       if (onOpenAdminAuthModal) onOpenAdminAuthModal();
                       setDrawerOpen(false);
                     }}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-[#171f33] to-[#121929] border border-orange-500/40 hover:border-orange-400 flex items-center gap-2 text-left group cursor-pointer"
+                    className="p-2.5 rounded-xl bg-[#183F60] border border-[#2F7F82] hover:border-[#E6B85C] flex items-center gap-2 text-left group cursor-pointer"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-[#12304A] flex items-center justify-center text-[#E6B85C] shrink-0">
                       <Lock className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-orange-300">Admin Login</div>
-                      <div className="text-[10px] text-slate-400">ID & Password</div>
+                      <div className="text-xs font-bold text-white">
+                        {language === 'hi' ? 'अधिकारी लॉगिन' : 'Officer Login'}
+                      </div>
+                      <div className="text-[10px] text-[#D6E0E5]">
+                        {language === 'hi' ? 'आईडी व पासवर्ड' : 'ID & Password'}
+                      </div>
                     </div>
                   </button>
                 )}
