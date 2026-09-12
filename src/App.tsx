@@ -16,9 +16,11 @@ import { EmergencyCallModal } from './components/modals/EmergencyCallModal';
 import { HealthReportModal } from './components/modals/HealthReportModal';
 import { PushNotificationSettingsModal } from './components/modals/PushNotificationSettingsModal';
 import { AdminAuthModal } from './components/modals/AdminAuthModal';
+import { AdminLogoutModal } from './components/modals/AdminLogoutModal';
 import { HydrationAlertToast } from './components/HydrationAlertToast';
 import { PushNotificationBanner } from './components/PushNotificationBanner';
 import { RollingHeadlinesTicker } from './components/RollingHeadlinesTicker';
+import { getTodayDateString, checkAndResetDailyHydration } from './utils/dateUtils';
 import { 
   NavigationTab, 
   UserRole, 
@@ -50,34 +52,43 @@ export function App() {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
   const [language, setLanguage] = useState<LanguageCode>('en');
   
-  // Admin authentication state
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('heatshield_admin_auth') === 'true';
-  });
-  const [userRole, setUserRole] = useState<UserRole>(() => {
-    const isAuth = localStorage.getItem('heatshield_admin_auth') === 'true';
-    if (isAuth) {
-      const savedRole = localStorage.getItem('heatshield_admin_role') as UserRole;
-      return savedRole || 'civic_authority';
-    }
-    return 'citizen';
-  });
+  // Admin authentication state - always starts logged out on page reload
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [userRole, setUserRole] = useState<UserRole>('citizen');
   const [isAdminAuthOpen, setIsAdminAuthOpen] = useState<boolean>(false);
+  const [isAdminLogoutOpen, setIsAdminLogoutOpen] = useState<boolean>(false);
+
+  // Clear any persistent storage on page load/reload to guarantee auto logout on reload
+  useEffect(() => {
+    localStorage.removeItem('heatshield_admin_auth');
+    localStorage.removeItem('heatshield_admin_role');
+  }, []);
 
   const handleAdminSuccess = (role: UserRole) => {
     setIsAdminAuthenticated(true);
     setUserRole(role);
-    localStorage.setItem('heatshield_admin_auth', 'true');
-    localStorage.setItem('heatshield_admin_role', role);
     setIsAdminAuthOpen(false);
   };
 
-  const handleLockAdminSession = () => {
+  // Called when user clicks "Admin Active" - opens confirmation dialog
+  const handleRequestLockAdminSession = () => {
+    if (isAdminAuthenticated) {
+      setIsAdminLogoutOpen(true);
+    } else {
+      handleConfirmLogout();
+    }
+  };
+
+  // Executed when user confirms logout in the modal dialog
+  const handleConfirmLogout = () => {
     setIsAdminAuthenticated(false);
     setUserRole('citizen');
     localStorage.removeItem('heatshield_admin_auth');
     localStorage.removeItem('heatshield_admin_role');
+    setIsAdminLogoutOpen(false);
   };
+
+  const handleLockAdminSession = handleRequestLockAdminSession;
 
   const handleChangeRole = (newRole: UserRole) => {
     if (newRole !== 'citizen' && !isAdminAuthenticated) {
@@ -102,16 +113,55 @@ export function App() {
   const [dataSourceMode, setDataSourceMode] = useState<'live_api' | 'imd_heatwave'>('live_api');
   const [isLiveApiLoading, setIsLiveApiLoading] = useState<boolean>(false);
 
-  // User profile
+  // User profile with automatic new-day hydration reset
   const [userProfile, setUserProfile] = useState<UserHealthProfile>(() => {
     try {
       const saved = localStorage.getItem('heatshield_user_profile');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const resetProfile = checkAndResetDailyHydration(parsed);
+        if (resetProfile !== parsed) {
+          localStorage.setItem('heatshield_user_profile', JSON.stringify(resetProfile));
+        }
+        return resetProfile;
+      }
     } catch (e) {
       // ignore
     }
-    return INITIAL_USER_PROFILE;
+    const defaultProfile = checkAndResetDailyHydration(INITIAL_USER_PROFILE);
+    return defaultProfile;
   });
+
+  // Listener to automatically reset hydration target as soon as a new day starts
+  useEffect(() => {
+    const checkMidnightReset = () => {
+      setUserProfile((prevProfile) => {
+        const checked = checkAndResetDailyHydration(prevProfile);
+        if (checked !== prevProfile) {
+          try {
+            localStorage.setItem('heatshield_user_profile', JSON.stringify(checked));
+          } catch (e) {
+            // ignore
+          }
+          return checked;
+        }
+        return prevProfile;
+      });
+    };
+
+    checkMidnightReset();
+    const interval = setInterval(checkMidnightReset, 30000);
+
+    const handleFocus = () => checkMidnightReset();
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, []);
 
   // Modals state
   const [isSOSOpen, setIsSOSOpen] = useState<boolean>(false);
@@ -229,10 +279,15 @@ export function App() {
 
   const handleLogWater = (amountMl: number) => {
     const now = Date.now();
+    const todayStr = getTodayDateString();
     const nowStr = new Date(now).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+    
+    // Evaluate if day has changed prior to adding intake
+    const activeProfile = checkAndResetDailyHydration(userProfile);
     const updated = {
-      ...userProfile,
-      hydrationTodayMl: userProfile.hydrationTodayMl + amountMl,
+      ...activeProfile,
+      hydrationTodayMl: activeProfile.hydrationTodayMl + amountMl,
+      lastHydrationDate: todayStr,
       lastWaterLogTime: nowStr,
       lastWaterLogTimestamp: now,
     };
@@ -449,6 +504,14 @@ export function App() {
         onClose={() => setIsAdminAuthOpen(false)}
         onAuthSuccess={handleAdminSuccess}
         onSuccessAuth={handleAdminSuccess}
+        language={language}
+      />
+
+      {/* Admin Logout Confirmation Modal */}
+      <AdminLogoutModal
+        isOpen={isAdminLogoutOpen}
+        onClose={() => setIsAdminLogoutOpen(false)}
+        onConfirmLogout={handleConfirmLogout}
         language={language}
       />
 

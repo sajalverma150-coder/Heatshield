@@ -83,6 +83,7 @@ export interface UserHealthProfile {
   targetHydrationMl: number;
   lastWaterLogTime: string;
   lastWaterLogTimestamp?: number;
+  lastHydrationDate?: string;
 }
 
 export interface ForecastDay {
