@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   return (
-    <header id="main-tactical-navbar" className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 px-2 sm:px-6 py-2 sm:py-2.5">
+    <header id="main-tactical-navbar" className="bg-[#0a101d]/95 backdrop-blur-md border-b border-[#1e2d4a] sticky top-0 z-40 px-2 sm:px-6 py-2 sm:py-2.5">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
         
         {/* Left: Brand Identity */}
@@ -81,17 +81,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button 
             id="brand-home-button"
             onClick={() => onSelectTab('overview')}
-            className="flex items-center gap-1.5 sm:gap-2.5 text-left group"
+            className="flex items-center gap-1.5 sm:gap-2.5 text-left group cursor-pointer"
           >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 group-hover:border-orange-400 group-hover:scale-105 transition-all shadow-sm shrink-0">
-              <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 group-hover:border-sky-400 group-hover:scale-105 transition-all shadow-sm shrink-0">
+              <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400" />
             </div>
             <div>
               <div className="flex items-center gap-1">
                 <span className="font-headline font-bold text-xs sm:text-base tracking-tight text-white whitespace-nowrap">
                   {t.appName}
                 </span>
-                <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-semibold">
+                <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30 font-semibold">
                   AI
                 </span>
               </div>
@@ -107,14 +107,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="navbar-city-selector-btn"
             onClick={onOpenCitySelector}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 hover:border-orange-500/50 text-white text-xs transition-all shadow-sm group cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#10192d] hover:bg-[#162542] border border-[#1e2d4a] hover:border-sky-500/50 text-white text-xs transition-all shadow-sm group cursor-pointer"
             title={t.searchCityPrompt}
           >
-            <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+            <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
             <span className="font-semibold text-slate-200 group-hover:text-white">
               {selectedCity.name}
             </span>
-            <span className="text-orange-400 font-mono font-bold text-xs bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20 shrink-0">
+            <span className="text-sky-400 font-mono font-bold text-xs bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20 shrink-0">
               {weather.dryBulbTemp}°C
             </span>
             <span className="text-[11px] text-slate-400 font-mono">
@@ -131,10 +131,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="navbar-triage-button"
             onClick={onOpenTriage}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-orange-500/50 text-slate-200 hover:text-white text-xs font-medium transition-all shadow-sm cursor-pointer"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#10192d] hover:bg-[#162542] border border-[#1e2d4a] hover:border-sky-500/50 text-slate-200 hover:text-white text-xs font-medium transition-all shadow-sm cursor-pointer"
             title="AI Heat Triage & Symptom Assessment"
           >
-            <Brain className="w-3.5 h-3.5 text-orange-400" />
+            <Brain className="w-3.5 h-3.5 text-sky-400" />
             <span>{t.aiTriage}</span>
           </button>
 
@@ -142,7 +142,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="navbar-sos-button"
             onClick={onTriggerSOS}
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-950/40 transition-all active:scale-95 shrink-0 cursor-pointer"
+            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold shadow-md shadow-sky-950/40 border border-sky-400/30 transition-all active:scale-95 shrink-0 cursor-pointer"
             title="Emergency Medical Hotline (Dial 108)"
           >
             <PhoneCall className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />

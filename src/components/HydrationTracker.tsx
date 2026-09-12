@@ -64,12 +64,12 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
   return (
     <div 
       id="hydration-tracking-section" 
-      className={`p-3.5 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 relative transition-all duration-300 shadow-sm telemetry-card-hover-cyan ${className}`}
+      className={`p-3.5 sm:p-5 rounded-2xl bg-[#10192d]/90 border border-[#1e2d4a] relative transition-all duration-300 shadow-sm telemetry-card-hover-cyan ${className}`}
     >
       {/* Header: Title, Guidelines Badge & Risk Tier */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+          <div className="p-2 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-400">
             <Droplet className="w-5 h-5" />
           </div>
           <div>
@@ -77,7 +77,7 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
               <h3 className="font-headline font-bold text-sm sm:text-base text-white tracking-wide">
                 {isHindi ? 'पर्यावरण-समायोजित जलयोजन एवं ओआरएस निर्देश' : 'Heat-Adjusted Hydration & ORS Advisory'}
               </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 font-semibold">
                 WHO / NDMA
               </span>
             </div>
@@ -95,7 +95,7 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
             )}
             <span className={`relative inline-flex rounded-full h-2 w-2 ${
               assessment.tier === 'CRITICAL' ? 'bg-red-400' :
-              assessment.tier === 'HIGH' ? 'bg-orange-400' :
+              assessment.tier === 'HIGH' ? 'bg-amber-400' :
               assessment.tier === 'MODERATE' ? 'bg-amber-400' : 'bg-emerald-400'
             }`} />
           </span>
@@ -110,18 +110,18 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
       </div>
 
       {/* Interactive Liquid Fill Gauge Vessel */}
-      <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 mb-4 relative overflow-hidden">
+      <div className="p-4 rounded-xl bg-[#080e1b] border border-[#1e2d4a] mb-4 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-center gap-4">
           
           {/* Animated Fluid Vessel Container */}
-          <div className="relative w-28 h-36 sm:w-32 sm:h-40 rounded-2xl bg-slate-900 border-2 border-slate-700/80 shadow-inner overflow-hidden shrink-0 flex flex-col justify-end">
+          <div className="relative w-28 h-36 sm:w-32 sm:h-40 rounded-2xl bg-[#0b1426] border-2 border-[#1e2d4a] shadow-inner overflow-hidden shrink-0 flex flex-col justify-end">
             
             {/* Glass Glare Reflection */}
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none z-20" />
             
             {/* Fluid Level Fill Box */}
             <div 
-              className="w-full relative transition-all duration-700 ease-out bg-gradient-to-t from-cyan-600 via-cyan-500 to-sky-400"
+              className="w-full relative transition-all duration-700 ease-out bg-gradient-to-t from-sky-600 via-sky-500 to-cyan-400"
               style={{ height: `${fillPercentage}%` }}
             >
               {/* Overlapping Wave SVG animations at fluid surface */}
@@ -132,7 +132,7 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
               </div>
               <div className="absolute -top-2.5 left-0 w-[200%] h-4 overflow-hidden pointer-events-none z-10">
                 <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full opacity-60 animate-liquid-wave-slow">
-                  <path d="M0,40 C200,-20 400,80 600,20 C800,-40 1000,60 1200,10 L1200,120 L0,120 Z" fill="#06b6d4" />
+                  <path d="M0,40 C200,-20 400,80 600,20 C800,-40 1000,60 1200,10 L1200,120 L0,120 Z" fill="#0284c7" />
                 </svg>
               </div>
 
@@ -147,7 +147,7 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
               <span className="text-2xl font-headline font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                 {fillPercentage}%
               </span>
-              <span className="text-[10px] font-mono font-semibold text-cyan-200 bg-slate-950/80 px-2 py-0.5 rounded-md border border-cyan-500/40">
+              <span className="text-[10px] font-mono font-semibold text-sky-200 bg-[#080e1b]/80 px-2 py-0.5 rounded-md border border-sky-500/40">
                 {currentLoggedMl} ml
               </span>
             </div>
@@ -157,19 +157,19 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
           <div className="flex-1 w-full space-y-2.5">
             <div className="flex items-center justify-between text-xs font-mono">
               <span className="text-slate-400">{isHindi ? 'दैनिक लक्ष्य मात्रा:' : 'Daily Hydration Target:'}</span>
-              <span className="text-cyan-400 font-bold">{targetMl} ml</span>
+              <span className="text-sky-400 font-bold">{targetMl} ml</span>
             </div>
 
-            <div className="w-full bg-slate-900 rounded-full h-2 border border-slate-800 overflow-hidden">
+            <div className="w-full bg-[#080e1b] rounded-full h-2 border border-[#1e2d4a] overflow-hidden">
               <div 
-                className="bg-gradient-to-r from-cyan-500 to-sky-400 h-full rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-sky-500 to-cyan-400 h-full rounded-full transition-all duration-500"
                 style={{ width: `${fillPercentage}%` }}
               />
             </div>
 
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-1">
               <span>{isHindi ? 'शेष आवश्यकता:' : 'Remaining:'} <strong className="text-slate-200">{Math.max(0, targetMl - currentLoggedMl)} ml</strong></span>
-              <span>{isHindi ? 'ओआरएस पैकेट:' : 'ORS Packets:'} <strong className="text-orange-400">{orsRecommendation.packetsPerDay} {isHindi ? 'सचेत' : 'sachets'}</strong></span>
+              <span>{isHindi ? 'ओआरएस पैकेट:' : 'ORS Packets:'} <strong className="text-sky-300">{orsRecommendation.packetsPerDay} {isHindi ? 'सचेत' : 'sachets'}</strong></span>
             </div>
 
             {/* Quick Fluid Log Buttons */}
@@ -177,23 +177,23 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
               <div className="pt-2 flex items-center gap-2 flex-wrap">
                 <button
                   onClick={() => onLogWater(250)}
-                  className="px-2.5 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-xs font-semibold border border-cyan-500/40 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-semibold shadow-xs border border-sky-400/30 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
                 >
                   <Droplet className="w-3.5 h-3.5" />
                   <span>+ 250ml Water</span>
                 </button>
                 <button
                   onClick={() => onLogWater(300)}
-                  className="px-2.5 py-1.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 text-xs font-semibold border border-orange-500/40 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-[#162542] hover:bg-[#1e345b] text-sky-300 text-xs font-semibold border border-sky-500/30 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Sparkles className="w-3.5 h-3.5 text-sky-400" />
                   <span>+ 300ml WHO-ORS</span>
                 </button>
                 <button
                   onClick={() => onLogWater(500)}
-                  className="px-2.5 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-xs font-semibold border border-sky-500/40 transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-[#162542] hover:bg-[#1e345b] text-slate-200 text-xs font-semibold border border-[#233b63] transition-all flex items-center gap-1 active:scale-95 cursor-pointer"
                 >
-                  <Droplet className="w-3.5 h-3.5" />
+                  <Droplet className="w-3.5 h-3.5 text-sky-400" />
                   <span>+ 500ml Water</span>
                 </button>
               </div>
@@ -204,18 +204,18 @@ export const HydrationTracker: React.FC<HydrationTrackerProps> = ({
       </div>
 
       {/* Environmental Context Summary Strip */}
-      <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 mb-4 font-mono text-xs flex flex-wrap items-center justify-between gap-2.5">
+      <div className="p-3 rounded-xl bg-[#080e1b] border border-[#1e2d4a] mb-4 font-mono text-xs flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2">
           <SunMedium className="w-4 h-4 text-amber-400" />
           <span className="text-slate-400 font-medium">{isHindi ? 'परिवेश स्थिति:' : 'Ambient Condition:'}</span>
           <span className="text-white font-bold">{weather.dryBulbTemp}°C</span>
           <span className="text-slate-600">|</span>
           <span className="text-slate-400">{isHindi ? 'हीट इंडेक्स:' : 'Heat Index:'}</span>
-          <span className="text-orange-400 font-bold">{assessment.heatIndex.toFixed(1)}°C</span>
+          <span className="text-sky-400 font-bold">{assessment.heatIndex.toFixed(1)}°C</span>
         </div>
         <div className="flex items-center gap-2 text-right">
           <span className="text-slate-400">{isHindi ? 'अनुमानित पसीना दर:' : 'Estimated Sweat Loss:'}</span>
-          <span className="text-cyan-400 font-bold">{assessment.sweatLossRateMlHr} {isHindi ? 'मिली/घंटा' : 'ml/h'}</span>
+          <span className="text-sky-300 font-bold">{assessment.sweatLossRateMlHr} {isHindi ? 'मिली/घंटा' : 'ml/h'}</span>
         </div>
       </div>
 

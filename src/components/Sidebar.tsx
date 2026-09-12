@@ -89,13 +89,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside id="tactical-sidebar-navigation" className="hidden lg:flex flex-col w-64 xl:w-72 bg-slate-900 border-r border-slate-800 p-4 shrink-0 select-none justify-between text-slate-100">
+    <aside id="tactical-sidebar-navigation" className="hidden lg:flex flex-col w-64 xl:w-72 bg-[#0a101d] border-r border-[#1e2d4a] p-4 shrink-0 select-none justify-between text-slate-100">
       
       <div>
         {/* Current Active Station Card */}
         <div 
           onClick={onOpenCitySelector}
-          className="p-3 mb-4 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-orange-500/50 cursor-pointer transition-all group shadow-xs"
+          className="p-3 mb-4 rounded-xl bg-[#10192d] border border-[#1e2d4a] hover:border-sky-500/50 cursor-pointer transition-all group shadow-xs"
           title="Click to change monitoring station or use GPS"
         >
           <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
@@ -103,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               {t.monitoringStation}
             </span>
-            <span className="text-[11px] text-orange-400 font-mono group-hover:underline flex items-center">
+            <span className="text-[11px] text-sky-400 font-mono group-hover:underline flex items-center">
               {t.change} <ChevronRight className="w-3 h-3 inline" />
             </span>
           </div>
@@ -126,12 +126,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => onSelectTab(item.id)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-sm font-semibold transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-orange-600 text-white shadow-xs'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/80 border border-transparent'
+                    ? 'bg-[#132847] text-sky-400 border border-sky-500/30 shadow-xs'
+                    : 'text-slate-300 hover:text-white hover:bg-[#10192d] border border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`${isActive ? 'text-white' : 'text-slate-400'}`}>
+                  <div className={`${isActive ? 'text-sky-400' : 'text-slate-400'}`}>
                     {item.icon}
                   </div>
                   <span className="truncate">{item.label}</span>
@@ -139,11 +139,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 {item.badge && (
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
-                    isActive ? 'bg-white/20 text-white' :
-                    item.badgeVariant === 'red' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
-                    item.badgeVariant === 'orange' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' :
-                    item.badgeVariant === 'emerald' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
-                    'bg-slate-800 text-slate-300 border border-slate-700'
+                    isActive ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40' :
+                    item.badgeVariant === 'red' ? 'bg-sky-950/80 text-sky-300 border border-sky-800/60' :
+                    item.badgeVariant === 'orange' ? 'bg-sky-950/70 text-sky-300 border border-sky-800/60' :
+                    item.badgeVariant === 'emerald' ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-800/60' :
+                    'bg-[#162542] text-slate-300 border border-slate-700'
                   }`}>
                     {item.badge}
                   </span>

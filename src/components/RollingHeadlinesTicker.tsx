@@ -196,7 +196,7 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
     <aside 
       id="permanent-rolling-headlines-ticker"
       aria-label="National Heatwave Alerts Banner"
-      className="bg-slate-900/95 border-b border-slate-800/80 px-3 sm:px-6 py-1.5 text-xs select-none transition-all"
+      className="bg-[#0b1222]/95 border-b border-[#1e2d4a] px-3 sm:px-6 py-1.5 text-xs select-none transition-all"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         
@@ -205,12 +205,12 @@ export const RollingHeadlinesTicker: React.FC<RollingHeadlinesTickerProps> = ({
           <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold border ${
             isCurrentActiveCity 
               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : 'bg-red-500/10 border-red-500/30 text-red-400'
+              : 'bg-sky-500/15 border-sky-500/30 text-sky-400'
           }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentActiveCity ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${isCurrentActiveCity ? 'bg-emerald-400 animate-pulse' : 'bg-sky-400'}`} />
             <span>{isCurrentActiveCity ? 'LIVE' : 'ALERT'}</span>
           </div>
-          <span className="text-slate-500 hidden sm:inline text-[10px] font-mono">
+          <span className="text-slate-400 hidden sm:inline text-[10px] font-mono">
             {currentIndex + 1}/{activeHeadlines.length}
           </span>
         </div>
